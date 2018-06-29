@@ -1,11 +1,11 @@
-package useresponse.atlassian.plugins.jira.listener.issue.action;
+package useresponse.atlassian.plugins.jira.action.issue;
 
-import useresponse.atlassian.plugins.jira.request.AbstractRequest;
+import com.atlassian.jira.event.issue.IssueEvent;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
 
 public class CreateIssueAction implements Action {
     @Override
-    public void execute() throws Exception {
+    public void execute(IssueEvent event) throws Exception {
         PostRequest request = new PostRequest();
 
         request.addParameter("object_type", "ticket");

@@ -60,6 +60,16 @@ public class UseResponseSettingServlet extends HttpServlet {
         useresponse.atlassian.plugins.jira.settings.PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
         Map<String, Object> context = new HashMap<String, Object>();
 
+        if (pluginSettings.getUseResponseApiKey() == null){
+            String noApiKey = "Enter apiKey here.";
+            pluginSettings.setUseResponseApiKey(noApiKey);
+        }
+
+        if (pluginSettings.getUseResponseDomain() == null){
+            String noDomain = "Enter an domain here.";
+            pluginSettings.setUseResponseDomain(noDomain);
+        }
+
         context.put("domain", pluginSettings.getUseResponseDomain());
         context.put("apiKey", pluginSettings.getUseResponseApiKey());
 

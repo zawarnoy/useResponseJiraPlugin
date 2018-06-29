@@ -115,7 +115,6 @@
             <version>1.5.0</version>
             <scope>provided</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.atlassian.sal/sal-api -->
         <dependency>
             <groupId>com.atlassian.sal</groupId>
             <artifactId>sal-api</artifactId>
@@ -129,6 +128,8 @@
             <version>4.3.6.RELEASE</version>
             <scope>provided</scope>
         </dependency>
+
+
     </dependencies>
     <build>
         <plugins>

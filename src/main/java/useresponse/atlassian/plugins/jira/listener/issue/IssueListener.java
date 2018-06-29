@@ -12,8 +12,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import useresponse.atlassian.plugins.jira.listener.issue.action.*;
-
+import useresponse.atlassian.plugins.jira.action.issue.*;
 
 
 @Component
@@ -31,12 +30,12 @@ public class IssueListener implements InitializingBean, DisposableBean {
 
     @Override
     public void destroy() throws Exception {
-
+        publisher.register(this);
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
-
+        publisher.unregister(this);
     }
 
     @EventListener
