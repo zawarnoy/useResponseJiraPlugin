@@ -49,8 +49,4 @@ public class UseResponseObjectManagerImpl implements UseResponseObjectManager {
     public List<UseResponseObject> all() {
         return newArrayList(ao.find(UseResponseObject.class));
     }
-
-    public UseResponseObject edit(int useResponseId, int jiraId) {
-        return null;
-    }
 }

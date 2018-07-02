@@ -1,7 +1,5 @@
 package useresponse.atlassian.plugins.jira.listener.issue;
 
-import com.atlassian.event.api.EventListener;
-import com.atlassian.event.api.EventPublisher;
 import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.event.type.EventType;
 import com.atlassian.plugin.spring.scanner.annotation.imports.JiraImport;
@@ -11,6 +9,8 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import com.atlassian.event.api.EventListener;
+import com.atlassian.event.api.EventPublisher;
 import useresponse.atlassian.plugins.jira.action.issue.*;
 
 
@@ -47,7 +47,7 @@ public class IssueListener implements InitializingBean, DisposableBean {
             try {
                 action.execute(issueEvent.getIssue());
             } catch (Exception e) {
-//                e.printStackTrace();
+                e.printStackTrace();
             }
         }
     }
