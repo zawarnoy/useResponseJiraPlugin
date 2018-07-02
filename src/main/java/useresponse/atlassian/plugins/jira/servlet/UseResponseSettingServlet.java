@@ -2,6 +2,7 @@ package useresponse.atlassian.plugins.jira.servlet;
 
 
 import java.net.URI;
+
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.sal.api.user.UserKey;
@@ -56,25 +57,14 @@ public class UseResponseSettingServlet extends HttpServlet {
             redirectToLogin(request, response);
             return;
         }
-
         useresponse.atlassian.plugins.jira.settings.PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
         Map<String, Object> context = new HashMap<String, Object>();
-
-        if (pluginSettings.getUseResponseApiKey() == null){
-            String noApiKey = "Enter apiKey here.";
-            pluginSettings.setUseResponseApiKey(noApiKey);
-        }
-
-        if (pluginSettings.getUseResponseDomain() == null){
-            String noDomain = "Enter an domain here.";
-            pluginSettings.setUseResponseDomain(noDomain);
-        }
 
         context.put("domain", pluginSettings.getUseResponseDomain());
         context.put("apiKey", pluginSettings.getUseResponseApiKey());
 
         response.setContentType("text/html");
-        templateRenderer.render(SETTINGS_TEMPLATE, context,response.getWriter());
+        templateRenderer.render(SETTINGS_TEMPLATE, context, response.getWriter());
     }
 
     @Override
@@ -84,12 +74,7 @@ public class UseResponseSettingServlet extends HttpServlet {
             redirectToLogin(request, response);
             return;
         }
-
-        useresponse.atlassian.plugins.jira.settings.PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
-
-        pluginSettings.setUseResponseDomain(request.getParameter("domain"));
-        pluginSettings.setUseResponseApiKey(request.getParameter("apiKey"));
-
+        setURParameters(request.getParameter("domain"), request.getParameter("apiKey"));
         response.sendRedirect("ursettings");
     }
 
@@ -101,15 +86,19 @@ public class UseResponseSettingServlet extends HttpServlet {
         response.sendRedirect(loginUriProvider.getLoginUri(getUri(request)).toASCIIString());
     }
 
-    private URI getUri(HttpServletRequest request)
-    {
+    private URI getUri(HttpServletRequest request) {
         StringBuffer builder = request.getRequestURL();
-        if (request.getQueryString() != null)
-        {
+        if (request.getQueryString() != null) {
             builder.append("?");
             builder.append(request.getQueryString());
         }
         return URI.create(builder.toString());
+    }
+
+    private void setURParameters(String domain, String apiKey) {
+        useresponse.atlassian.plugins.jira.settings.PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
+        pluginSettings.setUseResponseDomain(domain);
+        pluginSettings.setUseResponseApiKey(apiKey);
     }
 
 }

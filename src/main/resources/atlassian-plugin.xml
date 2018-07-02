@@ -22,4 +22,8 @@
     <description key="use-response-setting-servlet.description">The UseResponse Settings Servlet Plugin</description>
     <url-pattern>/ursettings</url-pattern>
   </servlet>
+  <servlet name="Issue Binder Servlet" i18n-name-key="issue-binder-servlet.name" key="issue-binder-servlet" class="useresponse.atlassian.plugins.jira.servlet.IssueBinderServlet">
+    <description key="issue-binder-servlet.description">The Issue Binder Servlet Plugin</description>
+    <url-pattern>/urbinder</url-pattern>
+  </servlet>
 </atlassian-plugin>

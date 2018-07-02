@@ -19,4 +19,10 @@ public class IssueBinderServlet extends HttpServlet{
         resp.getWriter().write("<html><body>Hello World</body></html>");
     }
 
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
+    {
+
+    }
+
 }

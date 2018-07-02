@@ -7,14 +7,15 @@
 <form id="admin" class="aui" action="" method="POST">
     <div class="field-group">
         <label for="domain">UseResponse domain:</label>
-        <input type="text" id="domain" name="domain" class="text" value="${domain}">
+        <input type="text" id="domain" name="domain" class="text" placeholder="Enter an domain here . . ." value="${domain}">
     </div>
     <div class="field-group">
         <label for="apiKey">UseResponse login:</label>
-        <input type="text" id="apiKey" name="apiKey" class="text" value="${apiKey}">
+        <input type="text" id="apiKey" name="apiKey" class="text" placeholder="Enter apiKey here . . ." value="${apiKey}">
     </div>
     <div class="field-group">
         <input type="submit" value="Save" class="button">
+        <input type="submit" value="Test Connection" class="button">
     </div>
 </form>
 </body>
