@@ -2,7 +2,7 @@ package useresponse.atlassian.plugins.jira.model;
 
 import net.java.ao.Entity;
 
-public interface URObject extends Entity {
+public interface UseResponseObject extends Entity {
 
 
     int getUseResponseId();
