@@ -9,8 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import useresponse.atlassian.plugins.jira.manager.CommentLinkManagerImpl;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManagerImpl;
+import useresponse.atlassian.plugins.jira.model.CommentLink;
 import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -40,6 +42,9 @@ public class IssueBinderServlet extends HttpServlet {
     @Autowired
     private UseResponseObjectManagerImpl useResponseObjectManager;
 
+    @Autowired
+    private CommentLinkManagerImpl commentLinkManager;
+
     @Inject
     public IssueBinderServlet(ActiveObjects ao) {
         this.ao = checkNotNull(ao);
@@ -47,16 +52,18 @@ public class IssueBinderServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
-
         PrintWriter writer = resp.getWriter();
 
-        writer.write(useResponseObjectManager.findByJiraId(10010).getUseResponseId());
+        commentLinkManager.findOrAdd(22, 22);
 
-        for (UseResponseObject object : useResponseObjectManager.all()) {
-            writer.print(object.getUseResponseId() + " " + object.getJiraId() + "<br>");
+        for (CommentLink object : commentLinkManager.all()) {
+            writer.print(object.getUseResponseCommentId() + " " + object.getJiraCommentId() + "<br>");
         }
-        writer.close();
+
+//        for (UseResponseObject object : useResponseObjectManager.all()) {
+//            writer.print(object.getUseResponseId() + " " + object.getJiraId() + "<br>");
+//        }
+//        writer.close();
     }
 
     @Override

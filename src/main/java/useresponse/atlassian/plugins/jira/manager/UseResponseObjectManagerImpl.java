@@ -37,9 +37,9 @@ public class UseResponseObjectManagerImpl implements UseResponseObjectManager {
 
     @Override
     public UseResponseObject findOrAdd(int useResponseId, int jiraId) {
-        UseResponseObject[] objects = ao.find(UseResponseObject.class, Query.select().where("jira_Id = ?", String.valueOf(jiraId) ));
-        if (objects.length > 0) {
-            return objects[0];
+        UseResponseObject object = findByJiraId(jiraId);
+        if (object != null) {
+            return object;
         } else
         {
             return add(useResponseId, jiraId);

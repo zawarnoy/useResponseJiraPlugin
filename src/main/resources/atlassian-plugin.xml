@@ -18,14 +18,22 @@
     <resource type="download" name="images/" location="/images"/>
     <context>jira-plugin</context>
   </web-resource>
-  <ao key="ao-module">
-    <description>The module configuring the Active Objects service used by this plugin</description>
+  <ao key="issues-ao-module">
+    <description>The module configuring links between UseResponse tickets and Jira issues.</description>
     <entity>useresponse.atlassian.plugins.jira.model.UseResponseObject</entity>
-
     <component key="useResponseObjectManager" name="UseResponseObject Manager" class="useresponse.atlassian.plugins.jira.manager.UseResponseObjectManagerImpl">
         <interface>useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager</interface>
     </component>
   </ao>
+
+  <ao key="comments-ao-module">
+    <description>The module configuring links between UseResponse comments and Jira comments.</description>
+    <entity>useresponse.atlassian.plugins.jira.model.CommentLink</entity>
+    <component key="commentLinkManager" name="CommentLink Manager" class="useresponse.atlassian.plugins.jira.manager.CommentLinkManagerImpl">
+      <interface>useresponse.atlassian.plugins.jira.manager.CommentLinkManager</interface>
+    </component>
+  </ao>
+
   <servlet name="Use Response Setting Servlet" i18n-name-key="use-response-setting-servlet.name" key="use-response-setting-servlet" class="useresponse.atlassian.plugins.jira.servlet.UseResponseSettingServlet">
     <description key="use-response-setting-servlet.description">The UseResponse Settings Servlet Plugin</description>
     <url-pattern>/ursettings</url-pattern>

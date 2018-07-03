@@ -5,6 +5,7 @@ import com.atlassian.event.api.EventPublisher;
 import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.event.type.EventType;
 import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.plugin.spring.scanner.annotation.imports.JiraImport;
@@ -18,8 +19,11 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import useresponse.atlassian.plugins.jira.action.issue.*;
+import useresponse.atlassian.plugins.jira.manager.CommentLinkManagerImpl;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManagerImpl;
+import useresponse.atlassian.plugins.jira.model.CommentLink;
 import useresponse.atlassian.plugins.jira.model.UseResponseObject;
+import useresponse.atlassian.plugins.jira.request.DeleteRequest;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
 import useresponse.atlassian.plugins.jira.request.PutRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
@@ -36,6 +40,9 @@ public class IssueListener implements InitializingBean, DisposableBean {
 
     @Autowired
     protected UseResponseObjectManagerImpl useResponseObjectManager;
+
+    @Autowired
+    private CommentLinkManagerImpl commentLinkManager;
 
     @ComponentImport
     private final PluginSettingsFactory pluginSettingsFactory;
@@ -84,9 +91,13 @@ public class IssueListener implements InitializingBean, DisposableBean {
         } else if (typeId.equals(EventType.ISSUE_UPDATED_ID)) {
             updateAction(issueEvent.getIssue());
         } else if (typeId.equals(EventType.ISSUE_COMMENTED_ID)) {
+            createCommentAction(issueEvent.getComment());
         } else if (typeId.equals(EventType.ISSUE_COMMENT_EDITED_ID)) {
+            updateCommentAction(issueEvent.getComment());
         } else if (typeId.equals(EventType.ISSUE_DELETED_ID)) {
+            deleteAction(issueEvent.getIssue());
         } else if (typeId.equals(EventType.ISSUE_COMMENT_DELETED_ID)) {
+            deleteCommentAction(issueEvent.getComment());
         }
     }
 
@@ -113,8 +124,43 @@ public class IssueListener implements InitializingBean, DisposableBean {
         String response = request.sendRequest(createPutIssueRequestUrl(object.getUseResponseId()));
     }
 
-    private void createCommentAction() {
+    private void createCommentAction(Comment comment) throws Exception {
+        Request request = new PostRequest();
+        int id = useResponseObjectManager.findByJiraId(comment.getIssue().getId().intValue()).getUseResponseId();
+        request.addParameter("object_id", String.valueOf(id));
+        request.addParameter("content", comment.getBody());
+
+        String response = request.sendRequest(createPostCommentRequestUrl());
+
+        int useResponsecommentId = getIdFromResponse(response);
+        commentLinkManager.findOrAdd(useResponsecommentId, comment.getId().intValue());
     }
+
+    private void updateCommentAction(Comment comment) throws Exception {
+        Request request = new PostRequest();
+        int id = commentLinkManager.findByJiraId(comment.getId().intValue()).getUseResponseCommentId();
+        request.addParameter("content", comment.getBody());
+
+        String response = request.sendRequest(createPutCommentRequestUrl(id));
+    }
+
+    private void deleteAction(Issue issue) throws Exception {
+        Request request = new DeleteRequest();
+        int id = useResponseObjectManager.findByJiraId(issue.getId().intValue()).getUseResponseId();
+
+        String response = request.sendRequest(creatDeleteIssueRequestUrl(id));
+    }
+
+    private void deleteCommentAction(Comment comment) throws Exception {
+        Request request = new DeleteRequest();
+        int id = commentLinkManager.findByJiraId(comment.getId().intValue()).getUseResponseCommentId();
+
+        String response = request.sendRequest(createPutCommentRequestUrl(id));
+    }
+
+
+
+
 
     private String createPostIssueRequestUrl() {
         PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
@@ -129,6 +175,30 @@ public class IssueListener implements InitializingBean, DisposableBean {
         String domain = pluginSettings.getUseResponseDomain();
         String apiKey = pluginSettings.getUseResponseApiKey();
         String apiString = "api/4.0/objects/"+ id + ".json";
+        return domain + apiString + "?apiKey=" + apiKey;
+    }
+
+    private String creatDeleteIssueRequestUrl(int id) {
+        PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
+        String domain = pluginSettings.getUseResponseDomain();
+        String apiKey = pluginSettings.getUseResponseApiKey();
+        String apiString = "api/4.0/tickets/"+ id + ".json";
+        return domain + apiString + "?apiKey=" + apiKey;
+    }
+
+    private String createPostCommentRequestUrl() {
+        PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
+        String domain = pluginSettings.getUseResponseDomain();
+        String apiKey = pluginSettings.getUseResponseApiKey();
+        String apiString = "api/4.0/comments.json";
+        return domain + apiString + "?apiKey=" + apiKey;
+    }
+
+    private String createPutCommentRequestUrl(int id) {
+        PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
+        String domain = pluginSettings.getUseResponseDomain();
+        String apiKey = pluginSettings.getUseResponseApiKey();
+        String apiString = "api/4.0/comments/" + id +"/edit.json";
         return domain + apiString + "?apiKey=" + apiKey;
     }
 
