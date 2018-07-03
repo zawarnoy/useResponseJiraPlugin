@@ -36,13 +36,25 @@ public class UseResponseObjectManagerImpl implements UseResponseObjectManager {
     }
 
     @Override
+    public UseResponseObject findOrAdd(int useResponseId, int jiraId) {
+        UseResponseObject[] objects = ao.find(UseResponseObject.class, Query.select().where("jira_Id = ?", String.valueOf(jiraId) ));
+        if (objects.length > 0) {
+            return objects[0];
+        } else
+        {
+            return add(useResponseId, jiraId);
+        }
+    }
+
+    @Override
     public UseResponseObject findByUseResponseId(int useResponseId) {
         return null;// ao.findOne(UseResponseObject.class, );
     }
 
     @Override
     public UseResponseObject findByJiraId(int jiraId) {
-        return null;
+        UseResponseObject[] objects = ao.find(UseResponseObject.class, Query.select().where("jira_Id = ?", String.valueOf(jiraId) ));
+        return objects.length > 0 ? objects[0] : null;
     }
 
     @Override

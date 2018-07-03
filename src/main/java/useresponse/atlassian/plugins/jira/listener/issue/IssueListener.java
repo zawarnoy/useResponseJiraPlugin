@@ -19,7 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import useresponse.atlassian.plugins.jira.action.issue.*;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManagerImpl;
+import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
+import useresponse.atlassian.plugins.jira.request.PutRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
@@ -80,6 +82,7 @@ public class IssueListener implements InitializingBean, DisposableBean {
         if (typeId.equals(EventType.ISSUE_CREATED_ID)) {
             createAction(issueEvent.getIssue());
         } else if (typeId.equals(EventType.ISSUE_UPDATED_ID)) {
+            updateAction(issueEvent.getIssue());
         } else if (typeId.equals(EventType.ISSUE_COMMENTED_ID)) {
         } else if (typeId.equals(EventType.ISSUE_COMMENT_EDITED_ID)) {
         } else if (typeId.equals(EventType.ISSUE_DELETED_ID)) {
@@ -100,7 +103,14 @@ public class IssueListener implements InitializingBean, DisposableBean {
         useResponseObjectManager.add(useResponseId, issue.getId().intValue());
     }
 
-    private void updateAction() {
+    private void updateAction(Issue issue) throws Exception {
+        Request request = new PutRequest();
+        request.addParameter("title", issue.getSummary());
+        request.addParameter("content", issue.getDescription());
+
+        UseResponseObject object = useResponseObjectManager.findByJiraId(issue.getId().intValue());
+
+        String response = request.sendRequest(createPutIssueRequestUrl(object.getUseResponseId()));
     }
 
     private void createCommentAction() {
@@ -111,6 +121,14 @@ public class IssueListener implements InitializingBean, DisposableBean {
         String domain = pluginSettings.getUseResponseDomain();
         String apiKey = pluginSettings.getUseResponseApiKey();
         String apiString = "api/4.0/objects.json";
+        return domain + apiString + "?apiKey=" + apiKey;
+    }
+
+    private String createPutIssueRequestUrl(int id) {
+        PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
+        String domain = pluginSettings.getUseResponseDomain();
+        String apiKey = pluginSettings.getUseResponseApiKey();
+        String apiString = "api/4.0/objects/"+ id + ".json";
         return domain + apiString + "?apiKey=" + apiKey;
     }
 

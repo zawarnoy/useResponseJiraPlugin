@@ -47,8 +47,13 @@ public class IssueBinderServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+
         PrintWriter writer = resp.getWriter();
-                for (UseResponseObject object : useResponseObjectManager.all()) {
+
+        writer.write(useResponseObjectManager.findByJiraId(10010).getUseResponseId());
+
+        for (UseResponseObject object : useResponseObjectManager.all()) {
             writer.print(object.getUseResponseId() + " " + object.getJiraId() + "<br>");
         }
         writer.close();

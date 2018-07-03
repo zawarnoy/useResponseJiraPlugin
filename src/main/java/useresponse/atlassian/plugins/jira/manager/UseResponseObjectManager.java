@@ -9,6 +9,7 @@ import java.util.List;
 public interface UseResponseObjectManager {
 
     UseResponseObject add(int useResponseId, int jiraId);
+    UseResponseObject findOrAdd(int useResponseId, int jiraId);
     UseResponseObject findByUseResponseId(int useResponseId);
     UseResponseObject findByJiraId(int jiraId);
     List<UseResponseObject> all();
