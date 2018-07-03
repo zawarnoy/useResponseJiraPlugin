@@ -4,9 +4,15 @@ import com.atlassian.event.api.EventListener;
 import com.atlassian.event.api.EventPublisher;
 import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.event.type.EventType;
+import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.plugin.spring.scanner.annotation.imports.JiraImport;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import com.google.gson.Gson;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +23,7 @@ import useresponse.atlassian.plugins.jira.request.PostRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
+import com.google.gson.internal.LinkedTreeMap;
 
 
 @Component
@@ -60,61 +67,59 @@ public class IssueListener implements InitializingBean, DisposableBean {
 
     @EventListener
     public void onIssueEvent(IssueEvent issueEvent) {
+        try {
+            executeAction(issueEvent);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
+    private void executeAction(IssueEvent issueEvent) throws Exception {
+        Long typeId = issueEvent.getEventTypeId();
 
+        if (typeId.equals(EventType.ISSUE_CREATED_ID)) {
+            createAction(issueEvent.getIssue());
+        } else if (typeId.equals(EventType.ISSUE_UPDATED_ID)) {
+        } else if (typeId.equals(EventType.ISSUE_COMMENTED_ID)) {
+        } else if (typeId.equals(EventType.ISSUE_COMMENT_EDITED_ID)) {
+        } else if (typeId.equals(EventType.ISSUE_DELETED_ID)) {
+        } else if (typeId.equals(EventType.ISSUE_COMMENT_DELETED_ID)) {
+        }
+    }
+
+    private void createAction(Issue issue) throws Exception {
         Request request = new PostRequest();
-
         request.addParameter("ownership", "helpdesk");
         request.addParameter("object_type", "ticket");
-        request.addParameter("title", "Hello from jira: "); //+ issueEvent.getIssue().getDescription());
-        request.addParameter("content", "testing request from jira");
+        request.addParameter("content", issue.getDescription());
+        request.addParameter("title", issue.getSummary());
 
-        try {
-            request.sendRequest(createRequestUrl());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        String response = request.sendRequest(createPostIssueRequestUrl());
+        int useResponseId = getIdFromResponse(response);
 
-        try {
-            new CreateIssueAction().execute(issueEvent.getIssue());
-            this.useResponseObjectManager.add( 11111,issueEvent.getEventTypeId().intValue());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        Action action = selectAction(issueEvent.getEventTypeId());
-        if (action != null) {
-            try {
-                action.execute(issueEvent.getIssue());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        useResponseObjectManager.add(useResponseId, issue.getId().intValue());
     }
 
-    private Action selectAction(Long eventTypeId) {
-        if (eventTypeId.equals(EventType.ISSUE_CREATED_ID)) {
-            return new CreateIssueAction();
-        } else if (eventTypeId.equals(EventType.ISSUE_UPDATED_ID)) {
-            return new UpdateIssueAction();
-        } else if (eventTypeId.equals(EventType.ISSUE_COMMENTED_ID)) {
-            return new CommentCreateAction();
-        } else if (eventTypeId.equals(EventType.ISSUE_COMMENT_EDITED_ID)) {
-            return new UpdateCommentAction();
-        } else if (eventTypeId.equals(EventType.ISSUE_DELETED_ID)) {
-            return new DeleteIssueAction();
-        } else if (eventTypeId.equals(EventType.ISSUE_COMMENT_DELETED_ID)) {
-            return new DeleteCommentAction();
-        } else {
-            return null;
-        }
+    private void updateAction() {
     }
 
-    private String createRequestUrl() throws Exception {
+    private void createCommentAction() {
+    }
+
+    private String createPostIssueRequestUrl() {
         PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
         String domain = pluginSettings.getUseResponseDomain();
         String apiKey = pluginSettings.getUseResponseApiKey();
         String apiString = "api/4.0/objects.json";
         return domain + apiString + "?apiKey=" + apiKey;
+    }
+
+    private int getIdFromResponse(String response) throws ParseException {
+
+        JSONParser parser = new JSONParser();
+
+        JSONObject object = (JSONObject) parser.parse(response);
+
+        return ((Long)((JSONObject) object.get("success")).get("id")).intValue();
     }
 }

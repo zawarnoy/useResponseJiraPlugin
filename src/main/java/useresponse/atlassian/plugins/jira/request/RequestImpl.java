@@ -24,7 +24,7 @@ public abstract class RequestImpl implements Request {
     private static final int REQUEST_TIMEOUT = 15000;
     private static boolean sslConfigured = false;
 
-    protected HashMap<String, String> parameters;
+    protected HashMap<String, String> parameters = new HashMap<String, String>();
     protected String requestType;
 
     @Override
