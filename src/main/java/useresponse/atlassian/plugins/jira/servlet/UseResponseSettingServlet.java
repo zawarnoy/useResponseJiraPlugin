@@ -10,8 +10,6 @@ import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.templaterenderer.TemplateRenderer;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 import javax.inject.Inject;
 import javax.servlet.*;
@@ -25,7 +23,6 @@ import java.util.Map;
 @Scanned
 public class UseResponseSettingServlet extends HttpServlet {
 
-    private static final Logger log = LoggerFactory.getLogger(UseResponseSettingServlet.class);
     private static String SETTINGS_TEMPLATE = "/templates/ur_settings_template.vm";
 
     @ComponentImport
