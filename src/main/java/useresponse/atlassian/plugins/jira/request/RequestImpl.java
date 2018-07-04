@@ -57,8 +57,10 @@ public abstract class RequestImpl implements Request {
         conn.setDoOutput(true);
         conn.setDoInput(true);
 
-        try (DataOutputStream wr = new DataOutputStream(conn.getOutputStream())) {
-            wr.write(postData);
+        if(!requestType.equals("GET")) {
+            try (DataOutputStream wr = new DataOutputStream(conn.getOutputStream())) {
+                wr.write(postData);
+            }
         }
 
         int responseCode = 0;

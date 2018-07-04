@@ -54,16 +54,18 @@ public class IssueBinderServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         PrintWriter writer = resp.getWriter();
 
-        commentLinkManager.findOrAdd(22, 22);
+        writer.write("<h1>Comments</h1>");
 
         for (CommentLink object : commentLinkManager.all()) {
-            writer.print(object.getUseResponseCommentId() + " " + object.getJiraCommentId() + "<br>");
+            writer.print("ur id: " + object.getUseResponseCommentId() + " jira id:" + object.getJiraCommentId() + "<br>");
         }
 
-//        for (UseResponseObject object : useResponseObjectManager.all()) {
-//            writer.print(object.getUseResponseId() + " " + object.getJiraId() + "<br>");
-//        }
-//        writer.close();
+        writer.write("<h1>Items</h1>");
+
+        for (UseResponseObject object : useResponseObjectManager.all()) {
+            writer.print("ur id: " + object.getUseResponseId() + " jira id:" + object.getJiraId() + "<br>");
+        }
+        writer.close();
     }
 
     @Override

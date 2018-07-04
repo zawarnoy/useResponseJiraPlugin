@@ -116,6 +116,19 @@ public class IssueListener implements InitializingBean, DisposableBean {
 
     private void updateAction(Issue issue) throws Exception {
         Request request = new PutRequest();
+
+        String status = issue.getStatus().getName();
+
+        // TODO: 03.07.2018 statuses sending issue type
+        
+        switch (status){
+            case "TO DO":
+                break;
+            case "IN PROGRESS":
+                break;
+        }
+
+
         request.addParameter("title", issue.getSummary());
         request.addParameter("content", issue.getDescription());
 
@@ -126,6 +139,7 @@ public class IssueListener implements InitializingBean, DisposableBean {
 
     private void createCommentAction(Comment comment) throws Exception {
         Request request = new PostRequest();
+
         int id = useResponseObjectManager.findByJiraId(comment.getIssue().getId().intValue()).getUseResponseId();
         request.addParameter("object_id", String.valueOf(id));
         request.addParameter("content", comment.getBody());
@@ -148,7 +162,7 @@ public class IssueListener implements InitializingBean, DisposableBean {
         Request request = new DeleteRequest();
         int id = useResponseObjectManager.findByJiraId(issue.getId().intValue()).getUseResponseId();
 
-        String response = request.sendRequest(creatDeleteIssueRequestUrl(id));
+        String response = request.sendRequest(createDeleteIssueRequestUrl(id));
     }
 
     private void deleteCommentAction(Comment comment) throws Exception {
@@ -178,11 +192,11 @@ public class IssueListener implements InitializingBean, DisposableBean {
         return domain + apiString + "?apiKey=" + apiKey;
     }
 
-    private String creatDeleteIssueRequestUrl(int id) {
+    private String createDeleteIssueRequestUrl(int id) {
         PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
         String domain = pluginSettings.getUseResponseDomain();
         String apiKey = pluginSettings.getUseResponseApiKey();
-        String apiString = "api/4.0/tickets/"+ id + ".json";
+        String apiString = "api/4.0/objects/"+ id + "/trash.json";
         return domain + apiString + "?apiKey=" + apiKey;
     }
 
@@ -199,6 +213,14 @@ public class IssueListener implements InitializingBean, DisposableBean {
         String domain = pluginSettings.getUseResponseDomain();
         String apiKey = pluginSettings.getUseResponseApiKey();
         String apiString = "api/4.0/comments/" + id +"/edit.json";
+        return domain + apiString + "?apiKey=" + apiKey;
+    }
+
+    private String createDeleteCommentRequestUrl(int id) {
+        PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
+        String domain = pluginSettings.getUseResponseDomain();
+        String apiKey = pluginSettings.getUseResponseApiKey();
+        String apiString = "api/4.0/comments/" + id +"/trash.json";
         return domain + apiString + "?apiKey=" + apiKey;
     }
 

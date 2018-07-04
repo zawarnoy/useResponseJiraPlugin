@@ -10,6 +10,7 @@ import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.templaterenderer.TemplateRenderer;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 import javax.inject.Inject;
 import javax.servlet.*;
@@ -49,7 +50,7 @@ public class UseResponseSettingServlet extends HttpServlet {
             redirectToLogin(request, response);
             return;
         }
-        useresponse.atlassian.plugins.jira.settings.PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
+        PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
         Map<String, Object> context = new HashMap<String, Object>();
 
         context.put("domain", pluginSettings.getUseResponseDomain());
