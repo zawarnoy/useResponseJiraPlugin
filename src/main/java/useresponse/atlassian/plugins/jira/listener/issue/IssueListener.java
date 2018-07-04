@@ -119,16 +119,6 @@ public class IssueListener implements InitializingBean, DisposableBean {
 
         String status = issue.getStatus().getName();
 
-        // TODO: 03.07.2018 statuses sending issue type
-        
-        switch (status){
-            case "TO DO":
-                break;
-            case "IN PROGRESS":
-                break;
-        }
-
-
         request.addParameter("title", issue.getSummary());
         request.addParameter("content", issue.getDescription());
 

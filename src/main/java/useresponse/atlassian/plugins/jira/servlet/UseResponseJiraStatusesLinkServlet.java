@@ -50,20 +50,15 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         PluginSettings settings = new PluginSettingsImpl(pluginSettingsFactory);
-        Request linksRequest = new GetRequest();
         PrintWriter writer = resp.getWriter();
 
-        String response = null;
-        try {
-            response = linksRequest.sendRequest(createUseResponseStatusesLinkFromSettings(settings));
-
-            for(HashMap.Entry<String, String> status: getStatusesFromJson(response).entrySet()) {
-                writer.write("key :" + status.getKey() + " value: " + status.getValue() + "<br>");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        writer.write("open: " + settings.getUseResponseOpenStatus() + "<br>");
+        writer.write("closed: " + settings.getUseResponseClosedStatus() + "<br>");
+        writer.write("todo: " + settings.getUseResponseToDoStatus() + "<br>");
+        writer.write("resolved: " + settings.getUseResponseResolvedStatus() + "<br>");
+        writer.write("reopened:" + settings.getUseResponseReopenedStatus() + "<br>");
+        writer.write("inprogress: " + settings.getUseResponseInProgressStatus() + "<br>");
+        writer.write("done: " + settings.getUseResponseDoneStatus() + "<br>");
     }
 
     @Override
@@ -71,29 +66,7 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
 
     }
 
-    private String createUseResponseStatusesLinkFromSettings(PluginSettings settings) {
-        String domain = settings.getUseResponseDomain();
-        String apiKey = settings.getUseResponseApiKey();
-        return domain + "api/4.0/statuses.json?object_type=ticket&apiKey=" + apiKey;
-    }
 
-    private HashMap<String, String> getStatusesFromJson(String json) throws ParseException {
-        JSONParser parser = new JSONParser();
-        JSONObject object = (JSONObject) parser.parse(json);
-        JSONArray statuses = (JSONArray) object.get("success");
-
-        Iterator<JSONObject> iterator = statuses.iterator();
-
-        HashMap<String, String> encodedStatuses = new HashMap<String, String>();
-
-        while (iterator.hasNext()) {
-//            JSONObject status = (JSONObject) parser.parse(iterator.next());
-            JSONObject status = iterator.next();
-            encodedStatuses.put((String) status.get("title"), (String) status.get("slug"));
-        }
-
-        return encodedStatuses;
-    }
 
 
 
