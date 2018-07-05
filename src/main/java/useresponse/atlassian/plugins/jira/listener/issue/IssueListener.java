@@ -19,7 +19,9 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import useresponse.atlassian.plugins.jira.manager.impl.CommentLinkManagerImpl;
+import useresponse.atlassian.plugins.jira.manager.impl.StatusesLinkManagerImpl;
 import useresponse.atlassian.plugins.jira.manager.impl.UseResponseObjectManagerImpl;
+import useresponse.atlassian.plugins.jira.model.StatusesLink;
 import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 import useresponse.atlassian.plugins.jira.request.DeleteRequest;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
@@ -47,6 +49,9 @@ public class IssueListener implements InitializingBean, DisposableBean {
 
     @Autowired
     private CommentLinkManagerImpl commentLinkManager;
+
+    @Autowired
+    private StatusesLinkManagerImpl statusesLinkManager;
 
     @ComponentImport
     private final PluginSettingsFactory pluginSettingsFactory;
@@ -220,40 +225,12 @@ public class IssueListener implements InitializingBean, DisposableBean {
     }
 
     private int getIdFromResponse(String response) throws ParseException {
-
         JSONParser parser = new JSONParser();
-
         JSONObject object = (JSONObject) parser.parse(response);
-
         return ((Long) ((JSONObject) object.get("success")).get("id")).intValue();
     }
 
     private String findUseResponseStatusFromJiraStatus(String jiraStatus) {
-        String useResponseStatus = null;
-        PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
-        switch (jiraStatus) {
-            case "Open":
-                useResponseStatus = pluginSettings.getUseResponseOpenStatus();
-                break;
-            case "In Progress":
-                useResponseStatus = pluginSettings.getUseResponseInProgressStatus();
-                break;
-            case "Reopened":
-                useResponseStatus = pluginSettings.getUseResponseReopenedStatus();
-                break;
-            case "Resolved":
-                useResponseStatus = pluginSettings.getUseResponseResolvedStatus();
-                break;
-            case "Closed":
-                useResponseStatus = pluginSettings.getUseResponseClosedStatus();
-                break;
-            case "To Do":
-                useResponseStatus = pluginSettings.getUseResponseToDoStatus();
-                break;
-            case "Done":
-                useResponseStatus = pluginSettings.getUseResponseDoneStatus();
-                break;
-        }
-        return useResponseStatus;
+        return statusesLinkManager.findByJiraStatusName(jiraStatus).getUseResponseStatusSlug();
     }
 }
