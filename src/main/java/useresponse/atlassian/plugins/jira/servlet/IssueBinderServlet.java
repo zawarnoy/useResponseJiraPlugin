@@ -28,10 +28,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
 
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.DefaultStatusManager;
+import useresponse.atlassian.plugins.jira.service.StatusesService;
 
 @Scanned
 public class IssueBinderServlet extends HttpServlet {
@@ -95,12 +97,14 @@ public class IssueBinderServlet extends HttpServlet {
         }
 
 
-        linkManager.findOrAdd("blo", "kek");
-        linkManager.editUseResponseSlug("blo", "kekich");
+        StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
+
+        Map<String,String> statusSlug =  statusesService.getStatusSlugLinks();
 
         writer.write("<h1>Statuses Links</h1>");
-        for(StatusesLink link : linkManager.all()){
-            writer.print("JIRA: " + link.getJiraStatusName() + "  UR: " + link.getUseResponseStatusSlug());
+
+        for(Map.Entry<String,String> link : statusSlug.entrySet() ){
+            writer.print("JIRA: " + link.getKey() + "  UR: " + link.getValue() + "<br>");
         }
 
 

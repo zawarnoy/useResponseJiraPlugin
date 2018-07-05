@@ -15,6 +15,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Autowired;
+import useresponse.atlassian.plugins.jira.manager.impl.StatusesLinkManagerImpl;
 import useresponse.atlassian.plugins.jira.request.GetRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
 import useresponse.atlassian.plugins.jira.service.SettingsService;
@@ -48,6 +50,9 @@ public class UseResponseSettingServlet extends HttpServlet {
     @ComponentImport
     private final PluginSettingsFactory pluginSettingsFactory;
 
+    @Autowired
+    private StatusesLinkManagerImpl linkManager;
+
     @Inject
     public UseResponseSettingServlet(UserManager userManager, LoginUriProvider loginUriProvider, TemplateRenderer templateRenderer, PluginSettingsFactory pluginSettignsFactory) {
         this.userManager = userManager;
@@ -59,27 +64,32 @@ public class UseResponseSettingServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         SettingsService settingsService = new SettingsService(userManager, loginUriProvider, pluginSettingsFactory);
-        StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class));
-
-
         if (!settingsService.checkIsAdmin(userManager.getRemoteUserKey())) {
             settingsService.redirectToLogin(request, response);
             return;
         }
+
+        StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
+
+
         PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
         Map<String, Object> context = new HashMap<String, Object>();
+
+        Map<String,String> statusSlugLinks = statusesService.getStatusSlugLinks();
 
 
         context.put("domain", pluginSettings.getUseResponseDomain() == null ? "" : pluginSettings.getUseResponseDomain());
         context.put("apiKey", pluginSettings.getUseResponseApiKey() == null ? "" : pluginSettings.getUseResponseApiKey());
 
-        context.put("openStatus", pluginSettings.getUseResponseOpenStatus() == null ? "" : pluginSettings.getUseResponseOpenStatus());
-        context.put("closedStatus", pluginSettings.getUseResponseClosedStatus() == null ? "" : pluginSettings.getUseResponseClosedStatus());
-        context.put("doneStatus", pluginSettings.getUseResponseDoneStatus() == null ? "" : pluginSettings.getUseResponseDoneStatus());
-        context.put("todoStatus", pluginSettings.getUseResponseToDoStatus() == null ? "" : pluginSettings.getUseResponseToDoStatus());
-        context.put("inProgressStatus", pluginSettings.getUseResponseInProgressStatus() == null ? "" : pluginSettings.getUseResponseInProgressStatus());
-        context.put("reopenedStatus", pluginSettings.getUseResponseReopenedStatus() == null ? "" : pluginSettings.getUseResponseReopenedStatus());
-        context.put("resolvedStatus", pluginSettings.getUseResponseResolvedStatus() == null ? "" : pluginSettings.getUseResponseResolvedStatus());
+//        context.put("openStatus", pluginSettings.getUseResponseOpenStatus() == null ? "" : pluginSettings.getUseResponseOpenStatus());
+//        context.put("closedStatus", pluginSettings.getUseResponseClosedStatus() == null ? "" : pluginSettings.getUseResponseClosedStatus());
+//        context.put("doneStatus", pluginSettings.getUseResponseDoneStatus() == null ? "" : pluginSettings.getUseResponseDoneStatus());
+//        context.put("todoStatus", pluginSettings.getUseResponseToDoStatus() == null ? "" : pluginSettings.getUseResponseToDoStatus());
+//        context.put("inProgressStatus", pluginSettings.getUseResponseInProgressStatus() == null ? "" : pluginSettings.getUseResponseInProgressStatus());
+//        context.put("reopenedStatus", pluginSettings.getUseResponseReopenedStatus() == null ? "" : pluginSettings.getUseResponseReopenedStatus());
+//        context.put("resolvedStatus", pluginSettings.getUseResponseResolvedStatus() == null ? "" : pluginSettings.getUseResponseResolvedStatus());
+
+        context.put("statusSlugLinks", statusSlugLinks);
 
         HashMap<String, String> statuses = null;
         try {
@@ -97,7 +107,6 @@ public class UseResponseSettingServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         SettingsService settingsService = new SettingsService(userManager, loginUriProvider, pluginSettingsFactory);
-
         if (!settingsService.checkIsAdmin(userManager.getRemoteUserKey())) {
             settingsService.redirectToLogin(request, response);
             return;
@@ -114,15 +123,13 @@ public class UseResponseSettingServlet extends HttpServlet {
             e.printStackTrace();
         }
 
-        settingsService.setURStatuses(
-                request.getParameter("openSelect"),
-                request.getParameter("inProgressSelect"),
-                request.getParameter("reopenedSelect"),
-                request.getParameter("resolvedSelect"),
-                request.getParameter("closedSelect"),
-                request.getParameter("todoSelect"),
-                request.getParameter("doneSelect")
-        );
+        StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
+
+
+        for(String statusName : statusesService.getStatusesNames()) {
+            linkManager.editUseResponseSlug(statusName, request.getParameter(statusName + "Select"));
+        }
+
         response.sendRedirect("ursettings");
     }
 }
