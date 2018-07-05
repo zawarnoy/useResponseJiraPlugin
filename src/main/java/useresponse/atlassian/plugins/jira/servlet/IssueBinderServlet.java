@@ -33,6 +33,7 @@ import java.util.Map;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.DefaultStatusManager;
+import useresponse.atlassian.plugins.jira.service.IssueActionService;
 import useresponse.atlassian.plugins.jira.service.StatusesService;
 
 @Scanned
@@ -63,6 +64,7 @@ public class IssueBinderServlet extends HttpServlet {
         ao.migrate(StatusesLink.class);
         ao.migrate(CommentLink.class);
         ao.migrate(UseResponseObject.class);
+
 
 
         PrintWriter writer = resp.getWriter();

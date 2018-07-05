@@ -7,6 +7,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import useresponse.atlassian.plugins.jira.service.IssueActionService;
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
@@ -28,8 +29,6 @@ import java.util.Map;
 
 public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
 
-    private static String STATUSES_LINK_TEMPLATE = "/templates/ur_statuses_link_template.vm";
-
     @ComponentImport
     private final UserManager userManager;
     @ComponentImport
@@ -49,16 +48,6 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        PluginSettings settings = new PluginSettingsImpl(pluginSettingsFactory);
-        PrintWriter writer = resp.getWriter();
-
-        writer.write("open: " + settings.getUseResponseOpenStatus() + "<br>");
-        writer.write("closed: " + settings.getUseResponseClosedStatus() + "<br>");
-        writer.write("todo: " + settings.getUseResponseToDoStatus() + "<br>");
-        writer.write("resolved: " + settings.getUseResponseResolvedStatus() + "<br>");
-        writer.write("reopened:" + settings.getUseResponseReopenedStatus() + "<br>");
-        writer.write("inprogress: " + settings.getUseResponseInProgressStatus() + "<br>");
-        writer.write("done: " + settings.getUseResponseDoneStatus() + "<br>");
     }
 
     @Override
