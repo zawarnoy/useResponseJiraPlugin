@@ -91,6 +91,18 @@ public class IssueListener implements InitializingBean, DisposableBean {
             issueActionService.deleteAction(issueEvent.getIssue());
         } else if (typeId.equals(EventType.ISSUE_COMMENT_DELETED_ID)) {
             issueActionService.deleteCommentAction(issueEvent);
+//        } else if(typeId.equals(EventType.ISSUE_RESOLVED_ID)) {
+//            issueActionService.updateAction(issueEvent.getIssue());
+//        } else if(typeId.equals(EventType.ISSUE_ASSIGNED_ID)) {
+//            issueActionService.updateAction(issueEvent.getIssue());
+//        } else if(typeId.equals(EventType.ISSUE_REOPENED_ID)) {
+//            issueActionService.updateAction(issueEvent.getIssue());
+//        } else if (typeId.equals(EventType.ISSUE_MOVED_ID)) {
+//            issueActionService.updateAction(issueEvent.getIssue());
+//        } else if(typeId.equals(EventType.ISSUE_CLOSED_ID)) {
+//            issueActionService.updateAction(issueEvent.getIssue());
+        } else {
+            issueActionService.updateAction(issueEvent.getIssue());
         }
     }
 }

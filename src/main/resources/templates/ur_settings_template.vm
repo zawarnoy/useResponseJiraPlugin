@@ -8,12 +8,12 @@
 
     <h3>Connection settings</h3>
     <div class="field-group">
-        <label for="domain">UseResponse domain:</label>
+        <label for="domain">UseResponse Domain:</label>
         <input type="text" id="domain" name="domain" class="text" placeholder="Enter an domain here . . ."
                value="${domain}">
     </div>
     <div class="field-group">
-        <label for="apiKey">UseResponse login:</label>
+        <label for="apiKey">UseResponse ApiKey:</label>
         <input type="text" id="apiKey" name="apiKey" class="text" placeholder="Enter apiKey here . . ."
                value="${apiKey}">
     </div>

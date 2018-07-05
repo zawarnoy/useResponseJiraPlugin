@@ -1,6 +1,6 @@
 package useresponse.atlassian.plugins.jira.request;
 
 public interface Request {
-    void addParameter(String name, String value);
+    void addParameter(Object name, Object value);
     String sendRequest(String url) throws Exception;
 }

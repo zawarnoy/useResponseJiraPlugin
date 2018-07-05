@@ -24,11 +24,11 @@ public abstract class RequestImpl implements Request {
     private static final int REQUEST_TIMEOUT = 15000;
     private static boolean sslConfigured = false;
 
-    protected HashMap<String, String> parameters = new HashMap<String, String>();
+    protected HashMap<Object, Object> parameters = new HashMap<Object, Object>();
     protected String requestType;
 
     @Override
-    public void addParameter(String name, String value) {
+    public void addParameter(Object name, Object value) {
         parameters.put(name, value);
     }
 
