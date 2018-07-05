@@ -1,26 +1,22 @@
 package useresponse.atlassian.plugins.jira.servlet;
 
+import com.atlassian.jira.issue.status.Status;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.google.gson.Gson;
-import javafx.util.Pair;
-import org.omg.CORBA.NameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import useresponse.atlassian.plugins.jira.manager.CommentLinkManagerImpl;
-import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
-import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManagerImpl;
+import useresponse.atlassian.plugins.jira.manager.impl.CommentLinkManagerImpl;
+import useresponse.atlassian.plugins.jira.manager.impl.UseResponseObjectManagerImpl;
 import useresponse.atlassian.plugins.jira.model.CommentLink;
+import useresponse.atlassian.plugins.jira.model.StatusesLink;
 import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
 
 import com.atlassian.activeobjects.external.ActiveObjects;
-import useresponse.atlassian.plugins.jira.request.PostRequest;
-import useresponse.atlassian.plugins.jira.request.Request;
 
 import javax.inject.Inject;
 import javax.servlet.*;
@@ -29,6 +25,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collection;
+import java.util.Iterator;
+
+
+import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.config.DefaultStatusManager;
 
 @Scanned
 public class IssueBinderServlet extends HttpServlet {
@@ -52,18 +54,40 @@ public class IssueBinderServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        ao.migrate(StatusesLink.class);
+        ao.migrate(CommentLink.class);
+        ao.migrate(UseResponseObject.class);
+
+
         PrintWriter writer = resp.getWriter();
 
-        writer.write("<h1>Comments</h1>");
-
-        for (CommentLink object : commentLinkManager.all()) {
-            writer.print("ur id: " + object.getUseResponseCommentId() + " jira id:" + object.getJiraCommentId() + "<br>");
+        try {
+            writer.write("<h1>Comments</h1>");
+            for (CommentLink object : commentLinkManager.all()) {
+                writer.print("ur id: " + object.getUseResponseCommentId() + " jira id:" + object.getJiraCommentId() + "<br>");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        writer.write("<h1>Items</h1>");
 
-        for (UseResponseObject object : useResponseObjectManager.all()) {
-            writer.print("ur id: " + object.getUseResponseId() + " jira id:" + object.getJiraId() + "<br>");
+        try {
+            writer.write("<h1>Items</h1>");
+            for (UseResponseObject object : useResponseObjectManager.all()) {
+                writer.print("ur id: " + object.getUseResponseId() + " jira id:" + object.getJiraId() + "<br>");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        writer.write("<h1>Statuses</h1>");
+        DefaultStatusManager statusManager = ComponentAccessor.getComponent(DefaultStatusManager.class);
+        Collection<Status> statuses = statusManager.getStatuses();
+
+        Iterator<Status> iterator = statuses.iterator();
+        while (iterator.hasNext()) {
+            Status status = iterator.next();
+            writer.write(status.getSimpleStatus().getName() + "<br>");
         }
         writer.close();
     }

@@ -1,8 +1,9 @@
-package useresponse.atlassian.plugins.jira.manager;
+package useresponse.atlassian.plugins.jira.manager.impl;
 
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import net.java.ao.Query;
+import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 import com.atlassian.activeobjects.external.ActiveObjects;
 
@@ -23,7 +24,6 @@ public class UseResponseObjectManagerImpl implements UseResponseObjectManager {
     @Inject
     public UseResponseObjectManagerImpl(ActiveObjects ao) {
         this.ao = checkNotNull(ao);
-
     }
 
     @Override
@@ -38,22 +38,21 @@ public class UseResponseObjectManagerImpl implements UseResponseObjectManager {
     @Override
     public UseResponseObject findOrAdd(int useResponseId, int jiraId) {
         UseResponseObject object = findByJiraId(jiraId);
-        if (object != null) {
-            return object;
-        } else
-        {
+        if (object == null) {
             return add(useResponseId, jiraId);
+        } else {
+            return object;
         }
     }
 
     @Override
     public UseResponseObject findByUseResponseId(int useResponseId) {
-        return null;// ao.findOne(UseResponseObject.class, );
+        return null;
     }
 
     @Override
     public UseResponseObject findByJiraId(int jiraId) {
-        UseResponseObject[] objects = ao.find(UseResponseObject.class, Query.select().where("jira_Id = ?", String.valueOf(jiraId) ));
+        UseResponseObject[] objects = ao.find(UseResponseObject.class, Query.select().where("jira_Id = ?", String.valueOf(jiraId)));
         return objects.length > 0 ? objects[0] : null;
     }
 

@@ -1,7 +1,8 @@
-package useresponse.atlassian.plugins.jira.manager;
+package useresponse.atlassian.plugins.jira.manager.impl;
 
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.model.CommentLink;
 import net.java.ao.Query;
 import com.atlassian.activeobjects.external.ActiveObjects;
@@ -21,7 +22,6 @@ public class CommentLinkManagerImpl implements CommentLinkManager {
     @Inject
     public CommentLinkManagerImpl(ActiveObjects ao) {
         this.ao = checkNotNull(ao);
-
     }
 
     @Override

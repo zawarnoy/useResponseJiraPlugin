@@ -1,8 +1,9 @@
 package useresponse.atlassian.plugins.jira.servlet;
 
-
 import java.net.URI;
 
+import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.issue.status.Status;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.sal.api.user.UserKey;
@@ -16,6 +17,8 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import useresponse.atlassian.plugins.jira.request.GetRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
+import useresponse.atlassian.plugins.jira.service.SettingsService;
+import useresponse.atlassian.plugins.jira.service.StatusesService;
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 import javax.inject.Inject;
@@ -25,9 +28,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.swing.plaf.basic.BasicScrollPaneUI;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+
 
 @Scanned
 public class UseResponseSettingServlet extends HttpServlet {
@@ -53,13 +57,17 @@ public class UseResponseSettingServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        UserKey userKey = userManager.getRemoteUserKey();
-        if (!checkIsAdmin(userKey)) {
-            redirectToLogin(request, response);
+        SettingsService settingsService = new SettingsService(userManager, loginUriProvider, pluginSettingsFactory);
+        StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class));
+
+
+        if (!settingsService.checkIsAdmin(userManager.getRemoteUserKey())) {
+            settingsService.redirectToLogin(request, response);
             return;
         }
         PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
         Map<String, Object> context = new HashMap<String, Object>();
+
 
         context.put("domain", pluginSettings.getUseResponseDomain() == null ? "" : pluginSettings.getUseResponseDomain());
         context.put("apiKey", pluginSettings.getUseResponseApiKey() == null ? "" : pluginSettings.getUseResponseApiKey());
@@ -74,9 +82,9 @@ public class UseResponseSettingServlet extends HttpServlet {
 
         HashMap<String, String> statuses = null;
         try {
-            statuses = getUseResponseStatuses(pluginSettings);
+            statuses = settingsService.getUseResponseStatuses(pluginSettings);
         } catch (Exception e) {
-            e.printStackTrace();
+
         }
 
         context.put("useResponseStatuses", statuses);
@@ -87,18 +95,25 @@ public class UseResponseSettingServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        UserKey userKey = userManager.getRemoteUserKey();
-        if (!checkIsAdmin(userKey)) {
-            redirectToLogin(request, response);
+        SettingsService settingsService = new SettingsService(userManager, loginUriProvider, pluginSettingsFactory);
+
+        if (!settingsService.checkIsAdmin(userManager.getRemoteUserKey())) {
+            settingsService.redirectToLogin(request, response);
             return;
         }
 
-        setURParameters(
-                request.getParameter("domain"),
-                request.getParameter("apiKey")
-        );
+        String domain = request.getParameter("domain");
+        String apiKey = request.getParameter("apiKey");
 
-        setURStatuses(
+        try {
+            if(!settingsService.testURConnection(domain, apiKey))
+                return;
+            settingsService.setURParameters(domain, apiKey);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        settingsService.setURStatuses(
                 request.getParameter("openSelect"),
                 request.getParameter("inProgressSelect"),
                 request.getParameter("reopenedSelect"),
@@ -109,68 +124,4 @@ public class UseResponseSettingServlet extends HttpServlet {
         );
         response.sendRedirect("ursettings");
     }
-
-    private boolean checkIsAdmin(UserKey userKey) {
-        return userKey != null && userManager.isSystemAdmin(userKey);
-    }
-
-    private void redirectToLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.sendRedirect(loginUriProvider.getLoginUri(getUri(request)).toASCIIString());
-    }
-
-    private URI getUri(HttpServletRequest request) {
-        StringBuffer builder = request.getRequestURL();
-        if (request.getQueryString() != null) {
-            builder.append("?");
-            builder.append(request.getQueryString());
-        }
-        return URI.create(builder.toString());
-    }
-
-    private void setURParameters(String domain, String apiKey) {
-        useresponse.atlassian.plugins.jira.settings.PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
-        pluginSettings.setUseResponseDomain(domain);
-        pluginSettings.setUseResponseApiKey(apiKey);
-    }
-
-    private void setURStatuses(String openStatus, String inProgressStatus, String reopenedStatus, String resolvedStatus, String closedStatus, String todoStatus, String doneStatus) {
-        PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
-        pluginSettings.setUseResponseClosedStatus(closedStatus);
-        pluginSettings.setUseResponseInProgressStatus(inProgressStatus);
-        pluginSettings.setUseResponseOpenStatus(openStatus);
-        pluginSettings.setUseResponseDoneStatus(doneStatus);
-        pluginSettings.setUseResponseReopenedStatus(reopenedStatus);
-        pluginSettings.setUseResponseResolvedStatus(resolvedStatus);
-        pluginSettings.setUseResponseToDoStatus(todoStatus);
-    }
-
-    private HashMap<String, String> getUseResponseStatuses(PluginSettings useResponseSettings) throws Exception {
-        String requestUrl = createUseResponseStatusesLinkFromSettings(useResponseSettings);
-        Request statusesRequest = new GetRequest();
-        return getStatusesFromJson(statusesRequest.sendRequest(requestUrl));
-    }
-
-    private String createUseResponseStatusesLinkFromSettings(PluginSettings settings) {
-        String domain = settings.getUseResponseDomain();
-        String apiKey = settings.getUseResponseApiKey();
-        return domain + "api/4.0/statuses.json?object_type=ticket&apiKey=" + apiKey;
-    }
-
-    private HashMap<String, String> getStatusesFromJson(String json) throws ParseException {
-        JSONParser parser = new JSONParser();
-        JSONObject object = (JSONObject) parser.parse(json);
-        JSONArray statuses = (JSONArray) object.get("success");
-
-        Iterator<JSONObject> iterator = statuses.iterator();
-
-        HashMap<String, String> encodedStatuses = new HashMap<String, String>();
-
-        while (iterator.hasNext()) {
-            JSONObject status = iterator.next();
-            encodedStatuses.put((String) status.get("title"), (String) status.get("slug"));
-        }
-
-        return encodedStatuses;
-    }
-
 }

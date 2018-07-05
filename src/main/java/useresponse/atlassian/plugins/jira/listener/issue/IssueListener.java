@@ -2,15 +2,15 @@ package useresponse.atlassian.plugins.jira.listener.issue;
 
 import com.atlassian.event.api.EventListener;
 import com.atlassian.event.api.EventPublisher;
+
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.event.type.EventType;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.comments.Comment;
-import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.plugin.spring.scanner.annotation.imports.JiraImport;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-import com.google.gson.Gson;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -18,10 +18,8 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import useresponse.atlassian.plugins.jira.action.issue.*;
-import useresponse.atlassian.plugins.jira.manager.CommentLinkManagerImpl;
-import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManagerImpl;
-import useresponse.atlassian.plugins.jira.model.CommentLink;
+import useresponse.atlassian.plugins.jira.manager.impl.CommentLinkManagerImpl;
+import useresponse.atlassian.plugins.jira.manager.impl.UseResponseObjectManagerImpl;
 import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 import useresponse.atlassian.plugins.jira.request.DeleteRequest;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
@@ -30,7 +28,13 @@ import useresponse.atlassian.plugins.jira.request.Request;
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 import com.google.gson.internal.LinkedTreeMap;
+import com.atlassian.jira.issue.status.Status;
 
+
+import com.atlassian.jira.config.DefaultStatusManager;
+
+
+import java.util.Collection;
 
 @Component
 public class IssueListener implements InitializingBean, DisposableBean {
@@ -86,6 +90,11 @@ public class IssueListener implements InitializingBean, DisposableBean {
     private void executeAction(IssueEvent issueEvent) throws Exception {
         Long typeId = issueEvent.getEventTypeId();
 
+        DefaultStatusManager statusManager = ComponentAccessor.getComponent(DefaultStatusManager.class);
+
+        Collection<Status> statuses = statusManager.getStatuses();
+
+
         if (typeId.equals(EventType.ISSUE_CREATED_ID)) {
             createAction(issueEvent.getIssue());
         } else if (typeId.equals(EventType.ISSUE_UPDATED_ID)) {
@@ -117,10 +126,9 @@ public class IssueListener implements InitializingBean, DisposableBean {
     private void updateAction(Issue issue) throws Exception {
         Request request = new PutRequest();
 
-        String status = issue.getStatus().getName();
-
         request.addParameter("title", issue.getSummary());
         request.addParameter("content", issue.getDescription());
+        request.addParameter("status", findUseResponseStatusFromJiraStatus(issue.getStatus().getSimpleStatus().getName() ));
 
         UseResponseObject object = useResponseObjectManager.findByJiraId(issue.getId().intValue());
 
@@ -163,9 +171,6 @@ public class IssueListener implements InitializingBean, DisposableBean {
     }
 
 
-
-
-
     private String createPostIssueRequestUrl() {
         PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
         String domain = pluginSettings.getUseResponseDomain();
@@ -178,7 +183,7 @@ public class IssueListener implements InitializingBean, DisposableBean {
         PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
         String domain = pluginSettings.getUseResponseDomain();
         String apiKey = pluginSettings.getUseResponseApiKey();
-        String apiString = "api/4.0/objects/"+ id + ".json";
+        String apiString = "api/4.0/objects/" + id + ".json";
         return domain + apiString + "?apiKey=" + apiKey;
     }
 
@@ -186,7 +191,7 @@ public class IssueListener implements InitializingBean, DisposableBean {
         PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
         String domain = pluginSettings.getUseResponseDomain();
         String apiKey = pluginSettings.getUseResponseApiKey();
-        String apiString = "api/4.0/objects/"+ id + "/trash.json";
+        String apiString = "api/4.0/objects/" + id + "/trash.json";
         return domain + apiString + "?apiKey=" + apiKey;
     }
 
@@ -202,7 +207,7 @@ public class IssueListener implements InitializingBean, DisposableBean {
         PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
         String domain = pluginSettings.getUseResponseDomain();
         String apiKey = pluginSettings.getUseResponseApiKey();
-        String apiString = "api/4.0/comments/" + id +"/edit.json";
+        String apiString = "api/4.0/comments/" + id + "/edit.json";
         return domain + apiString + "?apiKey=" + apiKey;
     }
 
@@ -210,7 +215,7 @@ public class IssueListener implements InitializingBean, DisposableBean {
         PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
         String domain = pluginSettings.getUseResponseDomain();
         String apiKey = pluginSettings.getUseResponseApiKey();
-        String apiString = "api/4.0/comments/" + id +"/trash.json";
+        String apiString = "api/4.0/comments/" + id + "/trash.json";
         return domain + apiString + "?apiKey=" + apiKey;
     }
 
@@ -220,6 +225,35 @@ public class IssueListener implements InitializingBean, DisposableBean {
 
         JSONObject object = (JSONObject) parser.parse(response);
 
-        return ((Long)((JSONObject) object.get("success")).get("id")).intValue();
+        return ((Long) ((JSONObject) object.get("success")).get("id")).intValue();
+    }
+
+    private String findUseResponseStatusFromJiraStatus(String jiraStatus) {
+        String useResponseStatus = null;
+        PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
+        switch (jiraStatus) {
+            case "Open":
+                useResponseStatus = pluginSettings.getUseResponseOpenStatus();
+                break;
+            case "In Progress":
+                useResponseStatus = pluginSettings.getUseResponseInProgressStatus();
+                break;
+            case "Reopened":
+                useResponseStatus = pluginSettings.getUseResponseReopenedStatus();
+                break;
+            case "Resolved":
+                useResponseStatus = pluginSettings.getUseResponseResolvedStatus();
+                break;
+            case "Closed":
+                useResponseStatus = pluginSettings.getUseResponseClosedStatus();
+                break;
+            case "To Do":
+                useResponseStatus = pluginSettings.getUseResponseToDoStatus();
+                break;
+            case "Done":
+                useResponseStatus = pluginSettings.getUseResponseDoneStatus();
+                break;
+        }
+        return useResponseStatus;
     }
 }

@@ -21,14 +21,14 @@
   <ao key="issues-ao-module">
     <description>The module configuring links between UseResponse tickets and Jira issues.</description>
     <entity>useresponse.atlassian.plugins.jira.model.UseResponseObject</entity>
-    <component key="useResponseObjectManager" name="UseResponseObject Manager" class="useresponse.atlassian.plugins.jira.manager.UseResponseObjectManagerImpl">
+    <component key="useResponseObjectManager" name="UseResponseObject Manager" class="useresponse.atlassian.plugins.jira.manager.impl.UseResponseObjectManagerImpl">
       <interface>useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager</interface>
     </component>
   </ao>
   <ao key="comments-ao-module">
     <description>The module configuring links between UseResponse comments and Jira comments.</description>
     <entity>useresponse.atlassian.plugins.jira.model.CommentLink</entity>
-    <component key="commentLinkManager" name="CommentLink Manager" class="useresponse.atlassian.plugins.jira.manager.CommentLinkManagerImpl">
+    <component key="commentLinkManager" name="CommentLink Manager" class="useresponse.atlassian.plugins.jira.manager.impl.CommentLinkManagerImpl">
       <interface>useresponse.atlassian.plugins.jira.manager.CommentLinkManager</interface>
     </component>
   </ao>
@@ -44,4 +44,9 @@
     <description key="use-response-jira-statuses-link-servlet.description">The Use Response Jira Statuses Link Servlet Plugin</description>
     <url-pattern>/statuseslinkservlet</url-pattern>
   </servlet>
+  <web-item name="UseResponse Plugin Settings" i18n-name-key="use-response-plugin-settings.name" key="use-response-plugin-settings" section="system.admin/globalsettings" weight="1000">
+    <description key="use-response-plugin-settings.description">The UseResponse Plugin Settings Plugin</description>
+    <label key="use-response-plugin-settings.label"></label>
+    <link linkId="use-response-plugin-settings-link">/plugins/servlet/ursettings</link>
+  </web-item>
 </atlassian-plugin>
