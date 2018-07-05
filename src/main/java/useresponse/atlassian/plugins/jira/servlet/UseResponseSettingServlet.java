@@ -1,24 +1,14 @@
 package useresponse.atlassian.plugins.jira.servlet;
 
-import java.net.URI;
-
 import com.atlassian.jira.component.ComponentAccessor;
-import com.atlassian.jira.issue.status.Status;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.sal.api.auth.LoginUriProvider;
-import com.atlassian.sal.api.user.UserKey;
 import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.templaterenderer.TemplateRenderer;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.manager.impl.StatusesLinkManagerImpl;
-import useresponse.atlassian.plugins.jira.request.GetRequest;
-import useresponse.atlassian.plugins.jira.request.Request;
 import useresponse.atlassian.plugins.jira.service.SettingsService;
 import useresponse.atlassian.plugins.jira.service.StatusesService;
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
@@ -28,7 +18,6 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.swing.plaf.basic.BasicScrollPaneUI;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -75,20 +64,11 @@ public class UseResponseSettingServlet extends HttpServlet {
         PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
         Map<String, Object> context = new HashMap<String, Object>();
 
-        Map<String,String> statusSlugLinks = statusesService.getStatusSlugLinks();
-
 
         context.put("domain", pluginSettings.getUseResponseDomain() == null ? "" : pluginSettings.getUseResponseDomain());
         context.put("apiKey", pluginSettings.getUseResponseApiKey() == null ? "" : pluginSettings.getUseResponseApiKey());
 
-//        context.put("openStatus", pluginSettings.getUseResponseOpenStatus() == null ? "" : pluginSettings.getUseResponseOpenStatus());
-//        context.put("closedStatus", pluginSettings.getUseResponseClosedStatus() == null ? "" : pluginSettings.getUseResponseClosedStatus());
-//        context.put("doneStatus", pluginSettings.getUseResponseDoneStatus() == null ? "" : pluginSettings.getUseResponseDoneStatus());
-//        context.put("todoStatus", pluginSettings.getUseResponseToDoStatus() == null ? "" : pluginSettings.getUseResponseToDoStatus());
-//        context.put("inProgressStatus", pluginSettings.getUseResponseInProgressStatus() == null ? "" : pluginSettings.getUseResponseInProgressStatus());
-//        context.put("reopenedStatus", pluginSettings.getUseResponseReopenedStatus() == null ? "" : pluginSettings.getUseResponseReopenedStatus());
-//        context.put("resolvedStatus", pluginSettings.getUseResponseResolvedStatus() == null ? "" : pluginSettings.getUseResponseResolvedStatus());
-
+        Map<String,String> statusSlugLinks = statusesService.getStatusSlugLinks();
         context.put("statusSlugLinks", statusSlugLinks);
 
         HashMap<String, String> statuses = null;
@@ -124,12 +104,9 @@ public class UseResponseSettingServlet extends HttpServlet {
         }
 
         StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
-
-
         for(String statusName : statusesService.getStatusesNames()) {
             linkManager.editUseResponseSlug(statusName, request.getParameter(statusName + "Select"));
         }
-
         response.sendRedirect("ursettings");
     }
 }

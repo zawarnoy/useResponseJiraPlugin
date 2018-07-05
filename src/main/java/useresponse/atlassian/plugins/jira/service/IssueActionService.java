@@ -82,9 +82,7 @@ public class IssueActionService {
     }
 
     public void deleteCommentAction(IssueEvent issueEvent) throws Exception {
-
         /* TODO: */
-
 //        Request request = new GetRequest();
 //        String response = request.sendRequest(createDeleteCommentRequestUrl(id));
     }
@@ -99,7 +97,7 @@ public class IssueActionService {
     }
 
     private String createDeleteIssueRequestUrl(int id) {
-        return collectUrl("api/4.0/objects/" + id + "/trash.json");
+        return collectUrl("objects/" + id + "/trash.json");
     }
 
     private String createPostCommentRequestUrl() {
