@@ -28,9 +28,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.swing.plaf.basic.BasicScrollPaneUI;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.atlassian.jira.config.DefaultStatusManager;
 
 
 @Scanned

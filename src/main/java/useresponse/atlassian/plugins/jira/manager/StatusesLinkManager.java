@@ -10,6 +10,6 @@ public interface StatusesLinkManager {
 
     StatusesLink findByJiraStatusName(String jiraStatusName);
     StatusesLink findOrAdd(String jiraStatusName, String useResponseStatusSlug);
-    StatusesLink edit(String jiraStatusName, String useResponseStatusSlug);
+    StatusesLink editUseResponseSlug(String jiraStatusName, String useResponseStatusSlug);
     List<StatusesLink> all();
 }

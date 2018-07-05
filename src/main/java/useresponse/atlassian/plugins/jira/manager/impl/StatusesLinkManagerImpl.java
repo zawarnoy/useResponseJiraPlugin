@@ -43,8 +43,15 @@ public class StatusesLinkManagerImpl implements StatusesLinkManager {
     }
 
     @Override
-    public StatusesLink edit(String jiraStatusName, String useResponseStatusSlug) {
-        return null;
+    public StatusesLink editUseResponseSlug(String jiraStatusName, String useResponseStatusSlug) {
+        StatusesLink link = findByJiraStatusName(jiraStatusName);
+        if(link == null) {
+            return null;
+        } else {
+            link.setUseResponseStatusSlug(useResponseStatusSlug);
+            link.save();
+        }
+        return link;
     }
 
     @Override
