@@ -9,6 +9,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
+import useresponse.atlassian.plugins.jira.manager.PriorityLinkManager;
 import useresponse.atlassian.plugins.jira.manager.StatusesLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.model.UseResponseObject;
@@ -31,12 +32,14 @@ public class IssueActionService {
     private UseResponseObjectManager useResponseObjectManager;
     private StatusesLinkManager statusesLinkManager;
     private PluginSettingsFactory pluginSettingsFactory;
+    private PriorityLinkManager priorityLinkManager;
 
-    public IssueActionService(PluginSettingsFactory pluginSettingsFactory, CommentLinkManager commentLinkManager, UseResponseObjectManager useResponseObjectManager, StatusesLinkManager statusesLinkManager) {
+    public IssueActionService(PluginSettingsFactory pluginSettingsFactory, CommentLinkManager commentLinkManager, UseResponseObjectManager useResponseObjectManager, StatusesLinkManager statusesLinkManager, PriorityLinkManager priorityLinkManager) {
         this.statusesLinkManager = statusesLinkManager;
         this.useResponseObjectManager = useResponseObjectManager;
         this.commentLinkManager = commentLinkManager;
         this.pluginSettingsFactory = pluginSettingsFactory;
+        this.priorityLinkManager = priorityLinkManager;
     }
 
     private List<String> getTagsFromLabels(Set<Label> labels) {
@@ -58,8 +61,7 @@ public class IssueActionService {
         request.addParameter("title", issue.getSummary());
         request.addParameter("force_author", issue.getReporterUser().getEmailAddress());
         request.addParameter("tags", getTagsFromLabels(issue.getLabels()));
-
-        request.addParameter( "",issue.getPriority().getName());
+        request.addParameter( "priority", priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName()).getUseResponsePriority().getUseResponsePrioritySlug());
 
         String response = request.sendRequest(createPostIssueRequestUrl());
 
@@ -73,6 +75,7 @@ public class IssueActionService {
         request.addParameter("title", issue.getSummary());
         request.addParameter("content", issue.getDescription());
         request.addParameter("status", findUseResponseStatusFromJiraStatus(issue.getStatus().getSimpleStatus().getName()));
+        request.addParameter( "priority", priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName()).getUseResponsePriority().getUseResponsePrioritySlug());
 
         UseResponseObject object = useResponseObjectManager.findByJiraId(issue.getId().intValue());
 

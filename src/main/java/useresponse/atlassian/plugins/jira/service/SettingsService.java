@@ -86,17 +86,6 @@ public class SettingsService {
         pluginSettings.setUseResponseApiKey(apiKey);
     }
 
-    public void setURStatuses(String openStatus, String inProgressStatus, String reopenedStatus, String resolvedStatus, String closedStatus, String todoStatus, String doneStatus) {
-        PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
-        pluginSettings.setUseResponseClosedStatus(closedStatus);
-        pluginSettings.setUseResponseInProgressStatus(inProgressStatus);
-        pluginSettings.setUseResponseOpenStatus(openStatus);
-        pluginSettings.setUseResponseDoneStatus(doneStatus);
-        pluginSettings.setUseResponseReopenedStatus(reopenedStatus);
-        pluginSettings.setUseResponseResolvedStatus(resolvedStatus);
-        pluginSettings.setUseResponseToDoStatus(todoStatus);
-    }
-
     public boolean testURConnection(String urDomain, String urApiKey) throws Exception {
         Request request = new GetRequest();
         String response = request.sendRequest(urDomain + ConstStorage.API_STRING +"me.json?apiKey=" + urApiKey);

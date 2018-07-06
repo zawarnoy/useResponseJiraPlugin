@@ -31,7 +31,7 @@ import com.atlassian.jira.issue.priority.Priority;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.DefaultStatusManager;
 import com.atlassian.jira.config.DefaultPriorityManager;
-import useresponse.atlassian.plugins.jira.service.IssueActionService;
+import useresponse.atlassian.plugins.jira.service.PrioritiesService;
 import useresponse.atlassian.plugins.jira.service.StatusesService;
 
 @Scanned
@@ -53,7 +53,7 @@ public class IssueBinderServlet extends HttpServlet {
     private StatusesLinkManagerImpl linkManager;
 
     @Autowired
-    private PriorityLinkMangerImpl priorityLinkManger;
+    private PriorityLinkManagerImpl priorityLinkManger;
 
     @Autowired
     private URPriorityManagerImpl urPriorityManager;
@@ -70,7 +70,6 @@ public class IssueBinderServlet extends HttpServlet {
         ao.migrate(UseResponseObject.class);
         ao.migrate(URPriority.class);
         ao.migrate(PriorityLink.class);
-
 
 
         PrintWriter writer = resp.getWriter();
@@ -121,28 +120,31 @@ public class IssueBinderServlet extends HttpServlet {
         urPriorityManager.findOrAdd("high", "High");
         urPriorityManager.findOrAdd("urgent", "Urgent");
 
-
-        priorityLinkManger.findOrAdd("Lowest", urPriorityManager.findBySlug("low"));
+        DefaultPriorityManager priorityManager = ComponentAccessor.getComponent(DefaultPriorityManager.class);
+        PrioritiesService prioritiesService = new PrioritiesService(priorityManager, priorityLinkManger, urPriorityManager);
 
 
         writer.write("<h1>Priority links </h1>");
 
-        for (PriorityLink priorityLink : priorityLinkManger.all()) {
+        for (Map.Entry<String, String> priorityLink : prioritiesService.getPrioritySlugLinks().entrySet()) {
             writer.write(
-                    "JIRA: " + priorityLink.getJiraPriorityName() +
-                            " UR: " + priorityLink.getUseResponsePriority().getUseResponsePrioritySlug() +
-                            "|" + priorityLink.getUseResponsePriority().getUseResponsePriorityValue() + "<br>");
+                    "JIRA: " + priorityLink.getKey() +
+                            " UR: " + priorityLink.getValue() + "<br>");
         }
 
 
-        writer.write("<h1>JIra priorities </h1>" );
-
-        DefaultPriorityManager priorityManager =  ComponentAccessor.getComponent(DefaultPriorityManager.class);
+        writer.write("<h1>JIra priorities </h1>");
 
 
-        for(Priority priority : priorityManager.getPriorities()) {
-            writer.write(priority.getName() + "<br>");
+        for (String priority : prioritiesService.getPrioritiesNames()) {
+            writer.write(priority + "<br>");
         }
+
+
+        writer.write("<h1>UR priorities </h1>");
+
+        for(URPriority urPriority : urPriorityManager.all())
+            writer.write(urPriority.getUseResponsePrioritySlug() + "|" +urPriority.getUseResponsePriorityValue() + "<br>");
 
         writer.close();
     }

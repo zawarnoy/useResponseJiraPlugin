@@ -13,7 +13,9 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import useresponse.atlassian.plugins.jira.manager.PriorityLinkManager;
 import useresponse.atlassian.plugins.jira.manager.impl.CommentLinkManagerImpl;
+import useresponse.atlassian.plugins.jira.manager.impl.PriorityLinkManagerImpl;
 import useresponse.atlassian.plugins.jira.manager.impl.StatusesLinkManagerImpl;
 import useresponse.atlassian.plugins.jira.manager.impl.UseResponseObjectManagerImpl;
 import useresponse.atlassian.plugins.jira.service.IssueActionService;
@@ -36,6 +38,9 @@ public class IssueListener implements InitializingBean, DisposableBean {
 
     @Autowired
     private StatusesLinkManagerImpl statusesLinkManager;
+
+    @Autowired
+    private PriorityLinkManagerImpl priorityLinkManager;
 
     @ComponentImport
     private final PluginSettingsFactory pluginSettingsFactory;
@@ -77,7 +82,7 @@ public class IssueListener implements InitializingBean, DisposableBean {
 
     private void executeAction(IssueEvent issueEvent) throws Exception {
         Long typeId = issueEvent.getEventTypeId();
-        IssueActionService issueActionService = new IssueActionService(pluginSettingsFactory, commentLinkManager, useResponseObjectManager, statusesLinkManager);
+        IssueActionService issueActionService = new IssueActionService(pluginSettingsFactory, commentLinkManager, useResponseObjectManager, statusesLinkManager, priorityLinkManager);
 
         if (typeId.equals(EventType.ISSUE_CREATED_ID)) {
             issueActionService.createAction(issueEvent.getIssue());

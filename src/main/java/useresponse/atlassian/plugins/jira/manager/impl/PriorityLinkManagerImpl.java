@@ -6,8 +6,10 @@ import useresponse.atlassian.plugins.jira.manager.PriorityLinkManager;
 import useresponse.atlassian.plugins.jira.model.PriorityLink;
 
 import com.atlassian.activeobjects.external.ActiveObjects;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
+
 import net.java.ao.Query;
 import useresponse.atlassian.plugins.jira.model.URPriority;
 
@@ -17,13 +19,13 @@ import java.util.List;
 
 @Scanned
 @Named
-public class PriorityLinkMangerImpl implements PriorityLinkManager {
+public class PriorityLinkManagerImpl implements PriorityLinkManager {
 
     @ComponentImport
     private final ActiveObjects ao;
 
     @Inject
-    public PriorityLinkMangerImpl(ActiveObjects ao) {
+    public PriorityLinkManagerImpl(ActiveObjects ao) {
         this.ao = checkNotNull(ao);
     }
 
@@ -36,13 +38,13 @@ public class PriorityLinkMangerImpl implements PriorityLinkManager {
     @Override
     public PriorityLink findOrAdd(String jiraPriorityName, URPriority useResponsePriority) {
         PriorityLink link = findByJiraPriorityName(jiraPriorityName);
-        if(link == null) {
+        if (link == null) {
             return add(jiraPriorityName, useResponsePriority);
         }
         return link;
     }
 
-    private PriorityLink add(String jiraPriorityName, URPriority useResponsePriority){
+    private PriorityLink add(String jiraPriorityName, URPriority useResponsePriority) {
         PriorityLink link = ao.create(PriorityLink.class);
         link.setJiraPriorityName(jiraPriorityName);
         link.setUseResponsePriority(useResponsePriority);
@@ -52,9 +54,11 @@ public class PriorityLinkMangerImpl implements PriorityLinkManager {
 
     @Override
     public PriorityLink editUseResponsePriority(String jiraPriorityName, URPriority useResponsePriority) {
-        PriorityLink link = findByJiraPriorityName(jiraPriorityName);
-        link.setUseResponsePriority(useResponsePriority);
-        link.save();
+        PriorityLink link = findOrAdd(jiraPriorityName, null);
+        if (link != null) {
+            link.setUseResponsePriority(useResponsePriority);
+            link.save();
+        }
         return link;
     }
 

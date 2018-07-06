@@ -35,7 +35,7 @@
   <ao key="priority-ao-module">
     <description>The module configuring priorities between UseResponse issues and Jira issues.</description>
     <entity>useresponse.atlassian.plugins.jira.model.PriorityLink</entity>
-    <component key="priorityLinkManager" name="PriorityLink Manager" class="useresponse.atlassian.plugins.jira.manager.impl.PriorityLinkMangerImpl">
+    <component key="priorityLinkManager" name="PriorityLink Manager" class="useresponse.atlassian.plugins.jira.manager.impl.PriorityLinkManagerImpl">
       <interface>useresponse.atlassian.plugins.jira.manager.PriorityLinkManager</interface>
     </component>
   </ao>

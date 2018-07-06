@@ -8,7 +8,12 @@ import com.atlassian.templaterenderer.TemplateRenderer;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import org.springframework.beans.factory.annotation.Autowired;
+import useresponse.atlassian.plugins.jira.manager.PriorityLinkManager;
+import useresponse.atlassian.plugins.jira.manager.impl.PriorityLinkManagerImpl;
 import useresponse.atlassian.plugins.jira.manager.impl.StatusesLinkManagerImpl;
+import useresponse.atlassian.plugins.jira.manager.impl.URPriorityManagerImpl;
+import useresponse.atlassian.plugins.jira.model.URPriority;
+import useresponse.atlassian.plugins.jira.service.PrioritiesService;
 import useresponse.atlassian.plugins.jira.service.SettingsService;
 import useresponse.atlassian.plugins.jira.service.StatusesService;
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
@@ -19,11 +24,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.atlassian.jira.config.DefaultStatusManager;
-
+import com.atlassian.jira.config.DefaultPriorityManager;
 
 @Scanned
 public class UseResponseSettingServlet extends HttpServlet {
@@ -39,6 +45,10 @@ public class UseResponseSettingServlet extends HttpServlet {
     @ComponentImport
     private final PluginSettingsFactory pluginSettingsFactory;
 
+    @Autowired
+    private PriorityLinkManagerImpl priorityLinkManager;
+    @Autowired
+    private URPriorityManagerImpl urPriorityManager;
     @Autowired
     private StatusesLinkManagerImpl linkManager;
 
@@ -59,7 +69,7 @@ public class UseResponseSettingServlet extends HttpServlet {
         }
 
         StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
-
+        PrioritiesService prioritiesService = new PrioritiesService(ComponentAccessor.getComponent(DefaultPriorityManager.class), priorityLinkManager, urPriorityManager);
 
         PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
         Map<String, Object> context = new HashMap<String, Object>();
@@ -68,8 +78,9 @@ public class UseResponseSettingServlet extends HttpServlet {
         context.put("domain", pluginSettings.getUseResponseDomain() == null ? "" : pluginSettings.getUseResponseDomain());
         context.put("apiKey", pluginSettings.getUseResponseApiKey() == null ? "" : pluginSettings.getUseResponseApiKey());
 
-        Map<String,String> statusSlugLinks = statusesService.getStatusSlugLinks();
-        context.put("statusSlugLinks", statusSlugLinks);
+        context.put("statusSlugLinks", statusesService.getStatusSlugLinks());
+        context.put("prioritySlugLinks", prioritiesService.getPrioritySlugLinks());
+        context.put("useResponsePriorities", prioritiesService.getUseResponsePriorities());
 
         HashMap<String, String> statuses = null;
         try {
@@ -107,6 +118,18 @@ public class UseResponseSettingServlet extends HttpServlet {
         for(String statusName : statusesService.getStatusesNames()) {
             linkManager.editUseResponseSlug(statusName, request.getParameter(statusName + "Status"));
         }
+
+        PrintWriter writer = response.getWriter();
+
+        PrioritiesService prioritiesService = new PrioritiesService(ComponentAccessor.getComponent(DefaultPriorityManager.class), priorityLinkManager, urPriorityManager);
+        for(String priorityName : prioritiesService.getPrioritiesNames()) {
+            URPriority priority = urPriorityManager.findBySlug(request.getParameter(priorityName + "Priority"));
+            String param = request.getParameter(priorityName + "Priority");
+//            writer.write(priorityName + "Priority" + "              Param : " + param + "<br>");
+            if(priority != null)
+                priorityLinkManager.editUseResponsePriority(priorityName, priority);
+        }
+
         response.sendRedirect("ursettings");
     }
 }

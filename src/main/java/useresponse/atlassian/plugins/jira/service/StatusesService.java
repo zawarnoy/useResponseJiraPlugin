@@ -41,10 +41,9 @@ public class StatusesService {
 
         for (String statusName : statusesNames) {
             Map.Entry<String, String> entry = new AbstractMap.SimpleEntry<>(statusName, "");
-            for (StatusesLink link : linkList) {
-                if( statusName.equals(link.getJiraStatusName()) ){
-                    entry.setValue(link.getUseResponseStatusSlug());
-                }
+            StatusesLink link = linkManager.findByJiraStatusName(statusName);
+            if (link != null) {
+                entry.setValue(link.getUseResponseStatusSlug());
             }
             statusSlugLinks.put(entry.getKey(), entry.getValue());
         }

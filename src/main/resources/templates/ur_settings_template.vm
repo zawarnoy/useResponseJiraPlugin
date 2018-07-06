@@ -38,6 +38,24 @@
             </div>
         #end
 
+        <h3>Priorities settings</h3>
+
+        #foreach($prioritySlug in $prioritySlugLinks.entrySet())
+            <div class="field-group">
+                <label for="${prioritySlug.key}Priority">${prioritySlug.key}</label>
+                <select name="${prioritySlug.key}Priority" id="${prioritySlug.key}Priority">
+                    #foreach($priority in $useResponsePriorities.entrySet())
+                        <option
+                            #if($prioritySlug.value == $priority.key)
+                                selected
+                            #end
+                                value="${priority.key}">${priority.value}</option>
+                    #end
+                </select>
+            </div>
+        #end
+
+
     #else
         <h3>Can't connect to UseResponse system. Check your connection settings</h3>
 
