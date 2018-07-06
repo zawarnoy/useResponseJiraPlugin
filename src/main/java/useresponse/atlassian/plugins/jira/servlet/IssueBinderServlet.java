@@ -7,12 +7,8 @@ import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import useresponse.atlassian.plugins.jira.manager.impl.CommentLinkManagerImpl;
-import useresponse.atlassian.plugins.jira.manager.impl.StatusesLinkManagerImpl;
-import useresponse.atlassian.plugins.jira.manager.impl.UseResponseObjectManagerImpl;
-import useresponse.atlassian.plugins.jira.model.CommentLink;
-import useresponse.atlassian.plugins.jira.model.StatusesLink;
-import useresponse.atlassian.plugins.jira.model.UseResponseObject;
+import useresponse.atlassian.plugins.jira.manager.impl.*;
+import useresponse.atlassian.plugins.jira.model.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
@@ -30,9 +26,11 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.atlassian.jira.issue.priority.Priority;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.DefaultStatusManager;
+import com.atlassian.jira.config.DefaultPriorityManager;
 import useresponse.atlassian.plugins.jira.service.IssueActionService;
 import useresponse.atlassian.plugins.jira.service.StatusesService;
 
@@ -54,6 +52,12 @@ public class IssueBinderServlet extends HttpServlet {
     @Autowired
     private StatusesLinkManagerImpl linkManager;
 
+    @Autowired
+    private PriorityLinkMangerImpl priorityLinkManger;
+
+    @Autowired
+    private URPriorityManagerImpl urPriorityManager;
+
     @Inject
     public IssueBinderServlet(ActiveObjects ao) {
         this.ao = checkNotNull(ao);
@@ -64,6 +68,8 @@ public class IssueBinderServlet extends HttpServlet {
         ao.migrate(StatusesLink.class);
         ao.migrate(CommentLink.class);
         ao.migrate(UseResponseObject.class);
+        ao.migrate(URPriority.class);
+        ao.migrate(PriorityLink.class);
 
 
 
@@ -101,15 +107,42 @@ public class IssueBinderServlet extends HttpServlet {
 
         StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
 
-        Map<String,String> statusSlug =  statusesService.getStatusSlugLinks();
+        Map<String, String> statusSlug = statusesService.getStatusSlugLinks();
 
         writer.write("<h1>Statuses Links</h1>");
 
-        for(Map.Entry<String,String> link : statusSlug.entrySet() ){
+        for (Map.Entry<String, String> link : statusSlug.entrySet()) {
             writer.print("JIRA: " + link.getKey() + "  UR: " + link.getValue() + "<br>");
         }
 
 
+        urPriorityManager.findOrAdd("low", "Low");
+        urPriorityManager.findOrAdd("normal", "Normal");
+        urPriorityManager.findOrAdd("high", "High");
+        urPriorityManager.findOrAdd("urgent", "Urgent");
+
+
+        priorityLinkManger.findOrAdd("Lowest", urPriorityManager.findBySlug("low"));
+
+
+        writer.write("<h1>Priority links </h1>");
+
+        for (PriorityLink priorityLink : priorityLinkManger.all()) {
+            writer.write(
+                    "JIRA: " + priorityLink.getJiraPriorityName() +
+                            " UR: " + priorityLink.getUseResponsePriority().getUseResponsePrioritySlug() +
+                            "|" + priorityLink.getUseResponsePriority().getUseResponsePriorityValue() + "<br>");
+        }
+
+
+        writer.write("<h1>JIra priorities </h1>" );
+
+        DefaultPriorityManager priorityManager =  ComponentAccessor.getComponent(DefaultPriorityManager.class);
+
+
+        for(Priority priority : priorityManager.getPriorities()) {
+            writer.write(priority.getName() + "<br>");
+        }
 
         writer.close();
     }

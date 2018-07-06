@@ -9,6 +9,6 @@ public interface PriorityLink extends Entity {
     String getJiraPriorityName();
     void setJiraPriorityName(String jiraPriorityName);
 
-    URPriority getUseResponsePriorityName();
+    URPriority getUseResponsePriority();
     void setUseResponsePriority(URPriority useResponsePriority);
 }

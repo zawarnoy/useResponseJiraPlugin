@@ -35,6 +35,15 @@ public class URPriorityManagerImpl implements URPriorityManager {
     }
 
     @Override
+    public URPriority findOrAdd(String useResponsePrioritySlug, String useResponsePriorityValue) {
+        URPriority urPriority = findBySlug(useResponsePrioritySlug);
+        if(urPriority == null) {
+            return add(useResponsePrioritySlug, useResponsePriorityValue);
+        }
+        return urPriority;
+    }
+
+    @Override
     public URPriority findBySlug(String useResponsePrioritySlug) {
         URPriority[] objects = ao.find(URPriority.class, Query.select().where("use_response_priority_slug = ?", String.valueOf(useResponsePrioritySlug)));
         return objects.length > 0 ? objects[0] : null;

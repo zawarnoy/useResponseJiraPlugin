@@ -9,7 +9,7 @@ import java.util.List;
 public interface URPriorityManager {
 
     URPriority add(String useResponsePrioritySlug, String useResponsePriorityValue);
-
+    URPriority findOrAdd(String useResponsePrioritySlug, String useResponsePriorityValue);
     URPriority findBySlug(String useResponsePrioritySlug);
 
     List<URPriority> all();
