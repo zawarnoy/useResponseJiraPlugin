@@ -105,7 +105,7 @@ public class UseResponseSettingServlet extends HttpServlet {
 
         StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
         for(String statusName : statusesService.getStatusesNames()) {
-            linkManager.editUseResponseSlug(statusName, request.getParameter(statusName + "Select"));
+            linkManager.editUseResponseSlug(statusName, request.getParameter(statusName + "Status"));
         }
         response.sendRedirect("ursettings");
     }

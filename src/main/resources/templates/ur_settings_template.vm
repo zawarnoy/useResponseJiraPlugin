@@ -25,8 +25,8 @@
 
         #foreach($statusSlug in $statusSlugLinks.entrySet())
             <div class="field-group">
-                <label for="${statusSlug.key}Select}">${statusSlug.key}</label>
-                <select name="${statusSlug.key}Select" id="${statusSlug.key}Select">
+                <label for="${statusSlug.key}Status}">${statusSlug.key}</label>
+                <select name="${statusSlug.key}Status" id="${statusSlug.key}Status">
                     #foreach( $status in $useResponseStatuses.entrySet())
                         <option
                             #if($statusSlug.value == $status.value)

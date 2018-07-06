@@ -32,6 +32,20 @@
       <interface>useresponse.atlassian.plugins.jira.manager.CommentLinkManager</interface>
     </component>
   </ao>
+  <ao key="priority-ao-module">
+    <description>The module configuring priorities between UseResponse issues and Jira issues.</description>
+    <entity>useresponse.atlassian.plugins.jira.model.PriorityLink</entity>
+    <component key="priorityLinkManager" name="PriorityLink Manager" class="useresponse.atlassian.plugins.jira.manager.impl.PriorityLinkMangerImpl">
+      <interface>useresponse.atlassian.plugins.jira.manager.PriorityLinkManager</interface>
+    </component>
+  </ao>
+  <ao key="ur-priority-ao-module">
+    <description>The module stores UseResponse priority data.</description>
+    <entity>useresponse.atlassian.plugins.jira.model.URPriority</entity>
+    <component key="useResponsePriorityLinkManager" name="URPriority Manager" class="useresponse.atlassian.plugins.jira.manager.impl.URPriorityManagerImpl">
+      <interface>useresponse.atlassian.plugins.jira.manager.URPriorityManager</interface>
+    </component>
+  </ao>
   <servlet name="Use Response Setting Servlet" i18n-name-key="use-response-setting-servlet.name" key="use-response-setting-servlet" class="useresponse.atlassian.plugins.jira.servlet.UseResponseSettingServlet">
     <description key="use-response-setting-servlet.description">The UseResponse Settings Servlet Plugin</description>
     <url-pattern>/ursettings</url-pattern>

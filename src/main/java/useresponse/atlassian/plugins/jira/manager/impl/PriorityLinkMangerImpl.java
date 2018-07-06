@@ -5,7 +5,7 @@ import useresponse.atlassian.plugins.jira.model.PriorityLink;
 
 import java.util.List;
 
-public class PriorityLinkImpl implements PriorityLinkManager {
+public class PriorityLinkMangerImpl implements PriorityLinkManager {
     @Override
     public PriorityLink findByJiraPriorityName(String jiraPriorityName) {
         return null;

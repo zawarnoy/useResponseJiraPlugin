@@ -52,14 +52,14 @@ public class IssueActionService {
         Request request = new PostRequest();
         request = prepareRequest(request);
 
-
         request.addParameter("ownership", "helpdesk");
         request.addParameter("object_type", "ticket");
         request.addParameter("content", issue.getDescription());
         request.addParameter("title", issue.getSummary());
         request.addParameter("force_author", issue.getReporterUser().getEmailAddress());
         request.addParameter("tags", getTagsFromLabels(issue.getLabels()));
-//        request.addParameter( "",issue.getAssigneeUser().getEmailAddress());
+
+        request.addParameter( "",issue.getPriority().getName());
 
         String response = request.sendRequest(createPostIssueRequestUrl());
 
@@ -111,9 +111,7 @@ public class IssueActionService {
     }
 
     public void deleteCommentAction(IssueEvent issueEvent) throws Exception {
-        /* TODO: */
-//        Request request = new GetRequest();
-//        String response = request.sendRequest(createDeleteCommentRequestUrl(id));
+        // DOESN'T WORK
     }
 
 

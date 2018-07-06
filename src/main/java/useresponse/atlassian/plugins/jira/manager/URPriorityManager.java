@@ -1,13 +1,13 @@
 package useresponse.atlassian.plugins.jira.manager;
 
 import com.atlassian.activeobjects.tx.Transactional;
-import useresponse.atlassian.plugins.jira.model.UseResponsePriority;
+import useresponse.atlassian.plugins.jira.model.URPriority;
 
 import java.util.List;
 
 @Transactional
-public interface UseResponsePriorityManager {
+public interface URPriorityManager {
 
-    List<UseResponsePriority> all();
+    List<URPriority> all();
 
 }
