@@ -8,6 +8,10 @@ import java.util.List;
 @Transactional
 public interface URPriorityManager {
 
+    URPriority add(String useResponsePrioritySlug, String useResponsePriorityValue);
+
+    URPriority findBySlug(String useResponsePrioritySlug);
+
     List<URPriority> all();
 
 }
