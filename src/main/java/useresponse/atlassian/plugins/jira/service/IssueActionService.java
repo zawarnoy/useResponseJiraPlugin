@@ -2,8 +2,12 @@ package useresponse.atlassian.plugins.jira.service;
 
 import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.issue.attachment.Attachment;
+import com.atlassian.jira.issue.attachment.AttachmentStore;
 import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.jira.issue.label.Label;
+import com.atlassian.jira.util.AttachmentUtils;
+import com.atlassian.jira.util.io.InputStreamConsumer;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -20,11 +24,13 @@ import useresponse.atlassian.plugins.jira.request.Request;
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 import useresponse.atlassian.plugins.jira.storage.ConstStorage;
+import com.atlassian.jira.issue.AttachmentManager;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import org.apache.commons.io.IOUtils;
+
+
+import java.io.*;
+import java.util.*;
 
 public class IssueActionService {
 
@@ -33,13 +39,17 @@ public class IssueActionService {
     private StatusesLinkManager statusesLinkManager;
     private PluginSettingsFactory pluginSettingsFactory;
     private PriorityLinkManager priorityLinkManager;
+    private AttachmentManager attachmentManager;
 
-    public IssueActionService(PluginSettingsFactory pluginSettingsFactory, CommentLinkManager commentLinkManager, UseResponseObjectManager useResponseObjectManager, StatusesLinkManager statusesLinkManager, PriorityLinkManager priorityLinkManager) {
+    public IssueActionService(PluginSettingsFactory pluginSettingsFactory, CommentLinkManager commentLinkManager,
+                              UseResponseObjectManager useResponseObjectManager, StatusesLinkManager statusesLinkManager,
+                              PriorityLinkManager priorityLinkManager, AttachmentManager attachmentManager) {
         this.statusesLinkManager = statusesLinkManager;
         this.useResponseObjectManager = useResponseObjectManager;
         this.commentLinkManager = commentLinkManager;
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.priorityLinkManager = priorityLinkManager;
+        this.attachmentManager = attachmentManager;
     }
 
     private List<String> getTagsFromLabels(Set<Label> labels) {
@@ -61,7 +71,10 @@ public class IssueActionService {
         request.addParameter("title", issue.getSummary());
         request.addParameter("force_author", issue.getReporterUser().getEmailAddress());
         request.addParameter("tags", getTagsFromLabels(issue.getLabels()));
-        request.addParameter( "priority", priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName()).getUseResponsePriority().getUseResponsePrioritySlug());
+        request.addParameter("priority", priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName()).getUseResponsePriority().getUseResponsePrioritySlug());
+//        request.addParameter("responsible_id", issue.getAssignee().getEmailAddress());
+
+        request = addAttachmentsToRequest(issue.getAttachments(), request);
 
         String response = request.sendRequest(createPostIssueRequestUrl());
 
@@ -75,7 +88,9 @@ public class IssueActionService {
         request.addParameter("title", issue.getSummary());
         request.addParameter("content", issue.getDescription());
         request.addParameter("status", findUseResponseStatusFromJiraStatus(issue.getStatus().getSimpleStatus().getName()));
-        request.addParameter( "priority", priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName()).getUseResponsePriority().getUseResponsePrioritySlug());
+        request.addParameter("priority", priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName()).getUseResponsePriority().getUseResponsePrioritySlug());
+//        request.addParameter("responsible_id", issue.getAssignee().getEmailAddress());
+
 
         UseResponseObject object = useResponseObjectManager.findByJiraId(issue.getId().intValue());
 
@@ -161,5 +176,28 @@ public class IssueActionService {
         return statusesLinkManager.findByJiraStatusName(jiraStatus).getUseResponseStatusSlug();
     }
 
+    private Request addAttachmentsToRequest(Collection<Attachment> attachments, Request request) throws IOException {
+
+        OutputStream outputStream = new FileOutputStream();
+
+        for (Attachment attachment : attachments) {
+//            attachmentManager.streamAttachmentContent(attachment, new InputStreamConsumer<Void>() {
+//                @Override
+//                public Void withInputStream(InputStream inputStream) throws IOException {
+//                    try {
+//                        IOUtils.copy(inputStream, outputStream);
+//                    } finally {
+//                        IOUtils.copy();
+//                    }
+//
+//                    return null;
+//                }
+//            });
+        }
+
+
+
+        return request;
+    }
 
 }
