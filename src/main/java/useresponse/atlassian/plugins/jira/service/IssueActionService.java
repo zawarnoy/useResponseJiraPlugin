@@ -17,6 +17,7 @@ import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.manager.PriorityLinkManager;
 import useresponse.atlassian.plugins.jira.manager.StatusesLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
+import useresponse.atlassian.plugins.jira.model.CommentLink;
 import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 import useresponse.atlassian.plugins.jira.request.DeleteRequest;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
@@ -57,36 +58,30 @@ public class IssueActionService {
         this.attachmentManager = attachmentManager;
     }
 
-    private List<String> getTagsFromLabels(Set<Label> labels) {
-        Iterator<Label> iterator = labels.iterator();
-        List<String> result = new ArrayList<String>();
-        while (iterator.hasNext()) {
-            result.add(iterator.next().getLabel());
-        }
-        return result;
-    }
-
     public void createAction(Issue issue) throws Exception {
         Request request = new PostRequest();
         request.addParameter("ownership", "helpdesk");
         request.addParameter("object_type", "ticket");
         request = addChangeableParametersToRequest(request, issue);
-//        request = addAttachmentsToRequest( request, issue.getAttachments());
         String response = request.sendRequest(createPostIssueRequestUrl());
         useResponseObjectManager.add(getIdFromResponse(response), issue.getId().intValue());
     }
 
     public void updateAction(Issue issue) throws Exception {
         Request request = new PutRequest();
-        request = prepareRequest(request);
-        request.addParameter("title", issue.getSummary());
-        request.addParameter("content", issue.getDescription());
         request = addChangeableParametersToRequest(request, issue);
         UseResponseObject object = useResponseObjectManager.findByJiraId(issue.getId().intValue());
         String response = request.sendRequest(createPutIssueRequestUrl(object.getUseResponseId()));
     }
 
     public void createCommentAction(Comment comment) throws Exception {
+        CommentLink commentLink = commentLinkManager.findByJiraId(comment.getId().intValue());
+        if (commentLink != null) {
+            updateCommentAction(comment);
+            return;
+        }
+
+
         Request request = new PostRequest();
         request = prepareRequest(request);
 
@@ -214,21 +209,30 @@ public class IssueActionService {
     private Request addResponsibleToRequest(Request request, Issue issue) {
         try {
             request.addParameter("responsible_email", issue.getAssignee().getEmailAddress());
-        } catch (NullPointerException e) {
+        } catch (NullPointerException ignored) {
         }
         return request;
     }
 
-    private Request addChangeableParametersToRequest(Request request, Issue issue) {
+    private Request addChangeableParametersToRequest(Request request, Issue issue) throws IOException {
         request.addParameter("content", issue.getDescription());
         request.addParameter("title", issue.getSummary());
         request.addParameter("force_author", issue.getReporterUser().getEmailAddress());
         request.addParameter("tags", getTagsFromLabels(issue.getLabels()));
         request.addParameter("priority", priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName()).getUseResponsePriority().getUseResponsePrioritySlug());
         request = addResponsibleToRequest(request, issue);
+//        request = addAttachmentsToRequest( request, issue.getAttachments());
         request = prepareRequest(request);
         return request;
     }
 
+    private List<String> getTagsFromLabels(Set<Label> labels) {
+        Iterator<Label> iterator = labels.iterator();
+        List<String> result = new ArrayList<String>();
+        while (iterator.hasNext()) {
+            result.add(iterator.next().getLabel());
+        }
+        return result;
+    }
 
 }

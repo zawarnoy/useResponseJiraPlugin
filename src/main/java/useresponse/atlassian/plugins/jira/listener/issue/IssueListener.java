@@ -15,10 +15,8 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import useresponse.atlassian.plugins.jira.manager.PriorityLinkManager;
-import useresponse.atlassian.plugins.jira.manager.impl.CommentLinkManagerImpl;
-import useresponse.atlassian.plugins.jira.manager.impl.PriorityLinkManagerImpl;
-import useresponse.atlassian.plugins.jira.manager.impl.StatusesLinkManagerImpl;
-import useresponse.atlassian.plugins.jira.manager.impl.UseResponseObjectManagerImpl;
+import useresponse.atlassian.plugins.jira.manager.impl.*;
+import useresponse.atlassian.plugins.jira.model.*;
 import useresponse.atlassian.plugins.jira.service.IssueActionService;
 import com.atlassian.jira.config.DefaultStatusManager;
 
@@ -45,6 +43,9 @@ public class IssueListener implements InitializingBean, DisposableBean {
     @Autowired
     private PriorityLinkManagerImpl priorityLinkManager;
 
+    @Autowired
+    private URPriorityManagerImpl urPriorityManager;
+
     @ComponentImport
     private final PluginSettingsFactory pluginSettingsFactory;
 
@@ -61,6 +62,8 @@ public class IssueListener implements InitializingBean, DisposableBean {
      */
     @Override
     public void afterPropertiesSet() throws Exception {
+        migrateActiveObjects();
+        createPriorities();
         eventPublisher.register(this);
     }
 
@@ -92,12 +95,10 @@ public class IssueListener implements InitializingBean, DisposableBean {
                 statusesLinkManager,
                 priorityLinkManager,
                 ComponentAccessor.getComponent(DefaultAttachmentManager.class)
-                );
+        );
 
         if (typeId.equals(EventType.ISSUE_CREATED_ID)) {
             issueActionService.createAction(issueEvent.getIssue());
-        } else if (typeId.equals(EventType.ISSUE_UPDATED_ID)) {
-            issueActionService.updateAction(issueEvent.getIssue());
         } else if (typeId.equals(EventType.ISSUE_COMMENTED_ID)) {
             issueActionService.createCommentAction(issueEvent.getComment());
         } else if (typeId.equals(EventType.ISSUE_COMMENT_EDITED_ID)) {
@@ -106,18 +107,24 @@ public class IssueListener implements InitializingBean, DisposableBean {
             issueActionService.deleteAction(issueEvent.getIssue());
         } else if (typeId.equals(EventType.ISSUE_COMMENT_DELETED_ID)) {
             issueActionService.deleteCommentAction(issueEvent);
-//        } else if(typeId.equals(EventType.ISSUE_RESOLVED_ID)) {
-//            issueActionService.updateAction(issueEvent.getIssue());
-//        } else if(typeId.equals(EventType.ISSUE_ASSIGNED_ID)) {
-//            issueActionService.updateAction(issueEvent.getIssue());
-//        } else if(typeId.equals(EventType.ISSUE_REOPENED_ID)) {
-//            issueActionService.updateAction(issueEvent.getIssue());
-//        } else if (typeId.equals(EventType.ISSUE_MOVED_ID)) {
-//            issueActionService.updateAction(issueEvent.getIssue());
-//        } else if(typeId.equals(EventType.ISSUE_CLOSED_ID)) {
-//            issueActionService.updateAction(issueEvent.getIssue());
         } else {
             issueActionService.updateAction(issueEvent.getIssue());
         }
     }
+
+    private void migrateActiveObjects() {
+        ao.migrate(StatusesLink.class);
+        ao.migrate(CommentLink.class);
+        ao.migrate(UseResponseObject.class);
+        ao.migrate(URPriority.class);
+        ao.migrate(PriorityLink.class);
+    }
+
+    private void createPriorities() {
+        urPriorityManager.findOrAdd("low", "Low");
+        urPriorityManager.findOrAdd("normal", "Normal");
+        urPriorityManager.findOrAdd("high", "High");
+        urPriorityManager.findOrAdd("urgent", "Urgent");
+    }
+
 }

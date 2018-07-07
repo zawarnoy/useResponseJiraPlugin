@@ -22,7 +22,6 @@ public class PrioritiesService {
         this.urPriorityManager = urPriorityManager;
     }
 
-
     public List<String> getPrioritiesNames() {
         Collection<Priority> priorities = priorityManager.getPriorities();
         List<String> priorityList = new ArrayList<>();

@@ -1,11 +1,15 @@
 package useresponse.atlassian.plugins.jira.servlet;
 
-import com.atlassian.jira.issue.status.Status;
+import com.atlassian.jira.issue.AttachmentManager;
+import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.issue.IssueManager;
+import com.atlassian.jira.issue.comments.Comment;
+import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
-import com.google.gson.Gson;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.atlassian.sal.api.auth.LoginUriProvider;
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import com.atlassian.sal.api.user.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.manager.impl.*;
 import useresponse.atlassian.plugins.jira.model.*;
@@ -21,147 +25,98 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
 
-import com.atlassian.jira.issue.priority.Priority;
-
-import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.DefaultStatusManager;
 import com.atlassian.jira.config.DefaultPriorityManager;
-import useresponse.atlassian.plugins.jira.service.PrioritiesService;
-import useresponse.atlassian.plugins.jira.service.StatusesService;
+import useresponse.atlassian.plugins.jira.service.IssueActionService;
+import useresponse.atlassian.plugins.jira.service.SettingsService;
 
 @Scanned
 public class IssueBinderServlet extends HttpServlet {
-    private static final Logger log = LoggerFactory.getLogger(IssueBinderServlet.class);
-
-    private final Gson gson = new Gson();
 
     @ComponentImport
-    private final ActiveObjects ao;
+    private final UserManager userManager;
+    @ComponentImport
+    private final LoginUriProvider loginUriProvider;
+    @ComponentImport
+    private final PluginSettingsFactory pluginSettingsFactory;
+    @ComponentImport
+    private AttachmentManager attachmentManager;
+    @ComponentImport
+    private final IssueManager issueManager;
+    @ComponentImport
+    private final CommentManager commentManager;
 
     @Autowired
-    private UseResponseObjectManagerImpl useResponseObjectManager;
-
+    private PriorityLinkManagerImpl priorityLinkManager;
     @Autowired
     private CommentLinkManagerImpl commentLinkManager;
-
     @Autowired
-    private StatusesLinkManagerImpl linkManager;
-
+    private UseResponseObjectManagerImpl useResponseObjectManager;
     @Autowired
-    private PriorityLinkManagerImpl priorityLinkManger;
+    private StatusesLinkManagerImpl statusesLinkManager;
 
-    @Autowired
-    private URPriorityManagerImpl urPriorityManager;
 
     @Inject
-    public IssueBinderServlet(ActiveObjects ao) {
-        this.ao = checkNotNull(ao);
+    public IssueBinderServlet(UserManager userManager, LoginUriProvider loginUriProvider, PluginSettingsFactory pluginSettignsFactory, AttachmentManager attachmentManager, IssueManager issueManager, CommentManager commentManager) {
+        this.userManager = userManager;
+        this.loginUriProvider = loginUriProvider;
+        this.pluginSettingsFactory = pluginSettignsFactory;
+        this.attachmentManager = attachmentManager;
+        this.issueManager = issueManager;
+        this.commentManager = commentManager;
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        ao.migrate(StatusesLink.class);
-        ao.migrate(CommentLink.class);
-        ao.migrate(UseResponseObject.class);
-        ao.migrate(URPriority.class);
-        ao.migrate(PriorityLink.class);
+
+        SettingsService settingsService = new SettingsService(userManager, loginUriProvider, pluginSettingsFactory);
+
+        if (userManager.getRemoteUser() == null) {
+            settingsService.redirectToLogin(req, resp);
+        }
+
+        IssueActionService issueActionService = new IssueActionService(
+                pluginSettingsFactory,
+                commentLinkManager,
+                useResponseObjectManager,
+                statusesLinkManager,
+                priorityLinkManager,
+                attachmentManager);
 
 
-        PrintWriter writer = resp.getWriter();
+        String jira_id = (req.getParameter("issue_id"));
+        UseResponseObject useResponseObject;
+        useResponseObject = useResponseObjectManager.findByJiraId(Integer.valueOf(jira_id));
+
+        Issue issue = issueManager.getIssueObject(Long.valueOf(jira_id));
 
         try {
-            writer.write("<h1>Comments</h1>");
-            for (CommentLink object : commentLinkManager.all()) {
-                writer.print("ur id: " + object.getUseResponseCommentId() + " jira id:" + object.getJiraCommentId() + "<br>");
+            if (useResponseObject == null) {
+                issueActionService.createAction(issue);
+
+            } else {
+                issueActionService.updateAction(issue);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
+
         }
 
-
-        try {
-            writer.write("<h1>Items</h1>");
-            for (UseResponseObject object : useResponseObjectManager.all()) {
-                writer.print("ur id: " + object.getUseResponseId() + " jira id:" + object.getJiraId() + "<br>");
+        for(Comment comment : commentManager.getComments(issue)) {
+            try {
+                issueActionService.createCommentAction(comment);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
 
-        writer.write("<h1>Statuses</h1>");
-        DefaultStatusManager statusManager = ComponentAccessor.getComponent(DefaultStatusManager.class);
-        Collection<Status> statuses = statusManager.getStatuses();
-
-        Iterator<Status> iterator = statuses.iterator();
-        while (iterator.hasNext()) {
-            Status status = iterator.next();
-            writer.write(status.getSimpleStatus().getName() + "<br>");
-        }
-
-
-        StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
-
-        Map<String, String> statusSlug = statusesService.getStatusSlugLinks();
-
-        writer.write("<h1>Statuses Links</h1>");
-
-        for (Map.Entry<String, String> link : statusSlug.entrySet()) {
-            writer.print("JIRA: " + link.getKey() + "  UR: " + link.getValue() + "<br>");
-        }
-
-
-        urPriorityManager.findOrAdd("low", "Low");
-        urPriorityManager.findOrAdd("normal", "Normal");
-        urPriorityManager.findOrAdd("high", "High");
-        urPriorityManager.findOrAdd("urgent", "Urgent");
-
-        DefaultPriorityManager priorityManager = ComponentAccessor.getComponent(DefaultPriorityManager.class);
-        PrioritiesService prioritiesService = new PrioritiesService(priorityManager, priorityLinkManger, urPriorityManager);
-
-
-        writer.write("<h1>Priority links </h1>");
-
-        for (Map.Entry<String, String> priorityLink : prioritiesService.getPrioritySlugLinks().entrySet()) {
-            writer.write(
-                    "JIRA: " + priorityLink.getKey() +
-                            " UR: " + priorityLink.getValue() + "<br>");
-        }
-
-
-        writer.write("<h1>JIra priorities </h1>");
-
-
-        for (String priority : prioritiesService.getPrioritiesNames()) {
-            writer.write(priority + "<br>");
-        }
-
-
-        writer.write("<h1>UR priorities </h1>");
-
-        for(URPriority urPriority : urPriorityManager.all())
-            writer.write(urPriority.getUseResponsePrioritySlug() + "|" +urPriority.getUseResponsePriorityValue() + "<br>");
-
-        writer.close();
+        resp.getWriter().write(issue.getKey());
+        resp.sendRedirect( "projects/" + issue.getProjectObject().getOriginalKey() + "/issues/" + issue.getKey());
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        PrintWriter writer = response.getWriter();
-        UseResponseObject object = useResponseObjectManager.findByUseResponseId(11);
-        object.setJiraId(111);
-        object.save();
 
-        try {
-            useResponseObjectManager.add(Integer.valueOf(request.getParameter("useResponseId")), Integer.valueOf(request.getParameter("jiraId")));
-            writer.write("{ \"status\" : \"success\" }");
-        } catch (Exception ignored) {
-            writer.write("{ \"status\" : \"error\" }");
-        }
     }
 
 }
