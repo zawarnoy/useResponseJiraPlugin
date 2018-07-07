@@ -9,6 +9,7 @@ import com.atlassian.jira.issue.label.Label;
 import com.atlassian.jira.util.AttachmentUtils;
 import com.atlassian.jira.util.io.InputStreamConsumer;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -30,6 +31,7 @@ import org.apache.commons.io.IOUtils;
 
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.*;
 
 public class IssueActionService {
@@ -41,9 +43,12 @@ public class IssueActionService {
     private PriorityLinkManager priorityLinkManager;
     private AttachmentManager attachmentManager;
 
-    public IssueActionService(PluginSettingsFactory pluginSettingsFactory, CommentLinkManager commentLinkManager,
-                              UseResponseObjectManager useResponseObjectManager, StatusesLinkManager statusesLinkManager,
-                              PriorityLinkManager priorityLinkManager, AttachmentManager attachmentManager) {
+    public IssueActionService(PluginSettingsFactory pluginSettingsFactory,
+                              CommentLinkManager commentLinkManager,
+                              UseResponseObjectManager useResponseObjectManager,
+                              StatusesLinkManager statusesLinkManager,
+                              PriorityLinkManager priorityLinkManager,
+                              AttachmentManager attachmentManager) {
         this.statusesLinkManager = statusesLinkManager;
         this.useResponseObjectManager = useResponseObjectManager;
         this.commentLinkManager = commentLinkManager;
@@ -63,37 +68,21 @@ public class IssueActionService {
 
     public void createAction(Issue issue) throws Exception {
         Request request = new PostRequest();
-        request = prepareRequest(request);
-
         request.addParameter("ownership", "helpdesk");
         request.addParameter("object_type", "ticket");
-        request.addParameter("content", issue.getDescription());
-        request.addParameter("title", issue.getSummary());
-        request.addParameter("force_author", issue.getReporterUser().getEmailAddress());
-        request.addParameter("tags", getTagsFromLabels(issue.getLabels()));
-        request.addParameter("priority", priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName()).getUseResponsePriority().getUseResponsePrioritySlug());
-//        request.addParameter("responsible_id", issue.getAssignee().getEmailAddress());
-
-        request = addAttachmentsToRequest(issue.getAttachments(), request);
-
+        request = addChangeableParametersToRequest(request, issue);
+//        request = addAttachmentsToRequest( request, issue.getAttachments());
         String response = request.sendRequest(createPostIssueRequestUrl());
-
         useResponseObjectManager.add(getIdFromResponse(response), issue.getId().intValue());
     }
 
     public void updateAction(Issue issue) throws Exception {
         Request request = new PutRequest();
         request = prepareRequest(request);
-
         request.addParameter("title", issue.getSummary());
         request.addParameter("content", issue.getDescription());
-        request.addParameter("status", findUseResponseStatusFromJiraStatus(issue.getStatus().getSimpleStatus().getName()));
-        request.addParameter("priority", priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName()).getUseResponsePriority().getUseResponsePrioritySlug());
-//        request.addParameter("responsible_id", issue.getAssignee().getEmailAddress());
-
-
+        request = addChangeableParametersToRequest(request, issue);
         UseResponseObject object = useResponseObjectManager.findByJiraId(issue.getId().intValue());
-
         String response = request.sendRequest(createPutIssueRequestUrl(object.getUseResponseId()));
     }
 
@@ -113,8 +102,6 @@ public class IssueActionService {
     public void updateCommentAction(Comment comment) throws Exception {
         Request request = new PostRequest();
         request = prepareRequest(request);
-
-
         int id = commentLinkManager.findByJiraId(comment.getId().intValue()).getUseResponseCommentId();
         request.addParameter("content", comment.getBody());
         String response = request.sendRequest(createPutCommentRequestUrl(id));
@@ -123,7 +110,6 @@ public class IssueActionService {
     public void deleteAction(Issue issue) throws Exception {
         Request request = new DeleteRequest();
         request = prepareRequest(request);
-
         int id = useResponseObjectManager.findByJiraId(issue.getId().intValue()).getUseResponseId();
         String response = request.sendRequest(createDeleteIssueRequestUrl(id));
     }
@@ -176,28 +162,73 @@ public class IssueActionService {
         return statusesLinkManager.findByJiraStatusName(jiraStatus).getUseResponseStatusSlug();
     }
 
-    private Request addAttachmentsToRequest(Collection<Attachment> attachments, Request request) throws IOException {
+    private Request addAttachmentsToRequest(Request request, Collection<Attachment> attachments) throws IOException {
 
-        OutputStream outputStream = new FileOutputStream();
+        JSONArray attachmentsArray = new JSONArray();
 
         for (Attachment attachment : attachments) {
-//            attachmentManager.streamAttachmentContent(attachment, new InputStreamConsumer<Void>() {
-//                @Override
-//                public Void withInputStream(InputStream inputStream) throws IOException {
-//                    try {
-//                        IOUtils.copy(inputStream, outputStream);
-//                    } finally {
-//                        IOUtils.copy();
-//                    }
-//
-//                    return null;
-//                }
-//            });
+            String file = attachmentManager.streamAttachmentContent(attachment, new InputStreamConsumer<String>() {
+                @Override
+                public String withInputStream(InputStream input) throws IOException {
+                    ArrayList<Byte> content = new ArrayList<>();
+                    try {
+                        byte[] buffer = new byte[1024];
+                        int length;
+
+                        if (input != null) {
+                            while ((length = input.read(buffer)) > 0) {
+                                for (int i = 0; i < length; i++) {
+                                    content.add(buffer[i]);
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                    }
+
+                    if (input != null) {
+                        try {
+                            input.close();
+                        } catch (Exception e) {
+                        }
+
+                    }
+
+                    byte[] contentArray = new byte[content.size()];
+
+                    for (int i = 0; i < content.size(); i++) {
+                        contentArray[i] = content.get(i);
+                    }
+
+                    return Base64.getEncoder().encode(contentArray).toString();
+                }
+            });
+            JSONObject attachmentObject = new JSONObject();
+            attachmentObject.put("name", attachment.getFilename());
+            attachmentObject.put("body", file);
+            attachmentsArray.add(attachmentObject);
         }
-
-
-
+        request.addParameter("attachments", attachmentsArray);
         return request;
     }
+
+    private Request addResponsibleToRequest(Request request, Issue issue) {
+        try {
+            request.addParameter("responsible_email", issue.getAssignee().getEmailAddress());
+        } catch (NullPointerException e) {
+        }
+        return request;
+    }
+
+    private Request addChangeableParametersToRequest(Request request, Issue issue) {
+        request.addParameter("content", issue.getDescription());
+        request.addParameter("title", issue.getSummary());
+        request.addParameter("force_author", issue.getReporterUser().getEmailAddress());
+        request.addParameter("tags", getTagsFromLabels(issue.getLabels()));
+        request.addParameter("priority", priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName()).getUseResponsePriority().getUseResponsePrioritySlug());
+        request = addResponsibleToRequest(request, issue);
+        request = prepareRequest(request);
+        return request;
+    }
+
 
 }

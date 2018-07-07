@@ -2,6 +2,7 @@ package useresponse.atlassian.plugins.jira.listener.issue;
 
 import com.atlassian.event.api.EventListener;
 import com.atlassian.event.api.EventPublisher;
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.event.type.EventType;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
@@ -20,6 +21,8 @@ import useresponse.atlassian.plugins.jira.manager.impl.StatusesLinkManagerImpl;
 import useresponse.atlassian.plugins.jira.manager.impl.UseResponseObjectManagerImpl;
 import useresponse.atlassian.plugins.jira.service.IssueActionService;
 import com.atlassian.jira.config.DefaultStatusManager;
+
+import com.atlassian.jira.issue.managers.DefaultAttachmentManager;
 
 
 @Component
@@ -82,7 +85,14 @@ public class IssueListener implements InitializingBean, DisposableBean {
 
     private void executeAction(IssueEvent issueEvent) throws Exception {
         Long typeId = issueEvent.getEventTypeId();
-        IssueActionService issueActionService = new IssueActionService(pluginSettingsFactory, commentLinkManager, useResponseObjectManager, statusesLinkManager, priorityLinkManager);
+        IssueActionService issueActionService = new IssueActionService(
+                pluginSettingsFactory,
+                commentLinkManager,
+                useResponseObjectManager,
+                statusesLinkManager,
+                priorityLinkManager,
+                ComponentAccessor.getComponent(DefaultAttachmentManager.class)
+                );
 
         if (typeId.equals(EventType.ISSUE_CREATED_ID)) {
             issueActionService.createAction(issueEvent.getIssue());
