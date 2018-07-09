@@ -5,31 +5,33 @@ import com.atlassian.event.api.EventPublisher;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.event.type.EventType;
+import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.plugin.spring.scanner.annotation.imports.JiraImport;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import useresponse.atlassian.plugins.jira.manager.PriorityLinkManager;
 import useresponse.atlassian.plugins.jira.manager.impl.*;
 import useresponse.atlassian.plugins.jira.model.*;
 import useresponse.atlassian.plugins.jira.service.IssueActionService;
 import com.atlassian.jira.config.DefaultStatusManager;
-
 import com.atlassian.jira.issue.managers.DefaultAttachmentManager;
+
+import com.atlassian.activeobjects.external.ActiveObjects;
+
 
 
 @Component
 public class IssueListener implements InitializingBean, DisposableBean {
 
-    private static final Logger log = LoggerFactory.getLogger(IssueListener.class);
 
     @JiraImport
     private final EventPublisher eventPublisher;
+
+    @ComponentImport
+    private final ActiveObjects ao;
 
     @Autowired
     protected UseResponseObjectManagerImpl useResponseObjectManager;
@@ -46,13 +48,20 @@ public class IssueListener implements InitializingBean, DisposableBean {
     @Autowired
     private URPriorityManagerImpl urPriorityManager;
 
+    @Autowired
+    private RendererManager rendererManager;
+
+    @Autowired
+    private IssueFileLinkManagerImpl issueFileLinkManager;
+
     @ComponentImport
     private final PluginSettingsFactory pluginSettingsFactory;
 
     @Autowired
-    public IssueListener(EventPublisher eventPublisher, PluginSettingsFactory pluginSettingsFactory) {
+    public IssueListener(EventPublisher eventPublisher, PluginSettingsFactory pluginSettingsFactory, ActiveObjects ao) {
         this.eventPublisher = eventPublisher;
         this.pluginSettingsFactory = pluginSettingsFactory;
+        this.ao = ao;
     }
 
     /**
@@ -62,8 +71,6 @@ public class IssueListener implements InitializingBean, DisposableBean {
      */
     @Override
     public void afterPropertiesSet() throws Exception {
-        migrateActiveObjects();
-        createPriorities();
         eventPublisher.register(this);
     }
 
@@ -94,7 +101,9 @@ public class IssueListener implements InitializingBean, DisposableBean {
                 useResponseObjectManager,
                 statusesLinkManager,
                 priorityLinkManager,
-                ComponentAccessor.getComponent(DefaultAttachmentManager.class)
+                ComponentAccessor.getComponent(DefaultAttachmentManager.class),
+                rendererManager,
+                issueFileLinkManager
         );
 
         if (typeId.equals(EventType.ISSUE_CREATED_ID)) {
@@ -112,19 +121,5 @@ public class IssueListener implements InitializingBean, DisposableBean {
         }
     }
 
-    private void migrateActiveObjects() {
-        ao.migrate(StatusesLink.class);
-        ao.migrate(CommentLink.class);
-        ao.migrate(UseResponseObject.class);
-        ao.migrate(URPriority.class);
-        ao.migrate(PriorityLink.class);
-    }
-
-    private void createPriorities() {
-        urPriorityManager.findOrAdd("low", "Low");
-        urPriorityManager.findOrAdd("normal", "Normal");
-        urPriorityManager.findOrAdd("high", "High");
-        urPriorityManager.findOrAdd("urgent", "Urgent");
-    }
 
 }

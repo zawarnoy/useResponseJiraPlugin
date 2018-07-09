@@ -54,6 +54,14 @@ public class StatusesLinkManagerImpl implements StatusesLinkManager {
         return link;
     }
 
+    public StatusesLink editOrAdd(String jiraStatusName, String useResponseStatusSlug) {
+        StatusesLink link = editUseResponseSlug(jiraStatusName, useResponseStatusSlug);
+        if( link == null) {
+            link = add(jiraStatusName, useResponseStatusSlug);
+        }
+        return link;
+    }
+
     @Override
     public List<StatusesLink> all() {
         return newArrayList(ao.find(StatusesLink.class));

@@ -140,12 +140,8 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         PrintWriter writer = response.getWriter();
-        UseResponseObject object = useResponseObjectManager.findByUseResponseId(11);
-        object.setJiraId(111);
-        object.save();
 
         try {
-            useResponseObjectManager.add(Integer.valueOf(request.getParameter("useResponseId")), Integer.valueOf(request.getParameter("jiraId")));
             writer.write("{ \"status\" : \"success\" }");
         } catch (Exception ignored) {
             writer.write("{ \"status\" : \"error\" }");

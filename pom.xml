@@ -145,6 +145,11 @@
         <artifactId>commons-io</artifactId>
         <version>2.5</version>
       </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.atlassian.plugins</groupId>-->
+            <!--<artifactId>atlassian-plugins-webresource-api</artifactId>-->
+            <!--<version>3.5.39</version>-->
+        <!--</dependency>-->
     </dependencies>
     <build>
         <plugins>
@@ -198,8 +203,10 @@
                     <source>8</source>
                     <target>8</target>
                 </configuration>
+
             </plugin>
         </plugins>
+        <defaultGoal>package</defaultGoal>
     </build>
     <properties>
         <jira.version>7.7.1</jira.version>

@@ -1,23 +1,28 @@
 package useresponse.atlassian.plugins.jira.service;
 
+import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.config.util.AttachmentPathManager;
 import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.jira.issue.attachment.Attachment;
 import com.atlassian.jira.issue.attachment.AttachmentStore;
 import com.atlassian.jira.issue.comments.Comment;
+import com.atlassian.jira.issue.fields.renderer.IssueRenderContext;
+import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
 import com.atlassian.jira.issue.label.Label;
 import com.atlassian.jira.util.AttachmentUtils;
+import com.atlassian.jira.util.PathUtils;
 import com.atlassian.jira.util.io.InputStreamConsumer;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
-import useresponse.atlassian.plugins.jira.manager.PriorityLinkManager;
-import useresponse.atlassian.plugins.jira.manager.StatusesLinkManager;
-import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
+import sun.awt.AWTAccessor;
+import useresponse.atlassian.plugins.jira.manager.*;
 import useresponse.atlassian.plugins.jira.model.CommentLink;
+import useresponse.atlassian.plugins.jira.model.IssueFileLink;
 import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 import useresponse.atlassian.plugins.jira.request.DeleteRequest;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
@@ -43,19 +48,25 @@ public class IssueActionService {
     private PluginSettingsFactory pluginSettingsFactory;
     private PriorityLinkManager priorityLinkManager;
     private AttachmentManager attachmentManager;
+    private RendererManager rendererManager;
+    private IssueFileLinkManager issueFileLinkManager;
 
     public IssueActionService(PluginSettingsFactory pluginSettingsFactory,
                               CommentLinkManager commentLinkManager,
                               UseResponseObjectManager useResponseObjectManager,
                               StatusesLinkManager statusesLinkManager,
                               PriorityLinkManager priorityLinkManager,
-                              AttachmentManager attachmentManager) {
+                              AttachmentManager attachmentManager,
+                              RendererManager rendererManager,
+                              IssueFileLinkManager issueFileLinkManager) {
         this.statusesLinkManager = statusesLinkManager;
         this.useResponseObjectManager = useResponseObjectManager;
         this.commentLinkManager = commentLinkManager;
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.priorityLinkManager = priorityLinkManager;
         this.attachmentManager = attachmentManager;
+        this.rendererManager = rendererManager;
+        this.issueFileLinkManager = issueFileLinkManager;
     }
 
     public void createAction(Issue issue) throws Exception {
@@ -70,6 +81,7 @@ public class IssueActionService {
     public void updateAction(Issue issue) throws Exception {
         Request request = new PutRequest();
         request = addChangeableParametersToRequest(request, issue);
+        request.addParameter("status", findUseResponseStatusFromJiraStatus(issue.getStatus().getSimpleStatus().getName()));
         UseResponseObject object = useResponseObjectManager.findByJiraId(issue.getId().intValue());
         String response = request.sendRequest(createPutIssueRequestUrl(object.getUseResponseId()));
     }
@@ -80,8 +92,6 @@ public class IssueActionService {
             updateCommentAction(comment);
             return;
         }
-
-
         Request request = new PostRequest();
         request = prepareRequest(request);
 
@@ -109,7 +119,7 @@ public class IssueActionService {
         String response = request.sendRequest(createDeleteIssueRequestUrl(id));
     }
 
-    public void deleteCommentAction(IssueEvent issueEvent) throws Exception {
+    public void deleteCommentAction(IssueEvent issueEvent) {
         // DOESN'T WORK
     }
 
@@ -149,7 +159,8 @@ public class IssueActionService {
     }
 
     private Request prepareRequest(Request request) {
-        request.addParameter("jira", "1");
+        request.addParameter("from_jira", "1");
+        request.addParameter("treat_as_html", "1");
         return request;
     }
 
@@ -157,71 +168,80 @@ public class IssueActionService {
         return statusesLinkManager.findByJiraStatusName(jiraStatus).getUseResponseStatusSlug();
     }
 
-    private Request addAttachmentsToRequest(Request request, Collection<Attachment> attachments) throws IOException {
-
-        JSONArray attachmentsArray = new JSONArray();
+    private Request addAttachmentsToRequest(Request request, Issue issue) throws Exception {
+        Collection<Attachment> attachments = attachmentManager.getAttachments(issue);
+        int issueId = issue.getId().intValue();
+        ArrayList<Map> attachmentsData = new ArrayList<Map>();
 
         for (Attachment attachment : attachments) {
-            String file = attachmentManager.streamAttachmentContent(attachment, new InputStreamConsumer<String>() {
-                @Override
-                public String withInputStream(InputStream input) throws IOException {
-                    ArrayList<Byte> content = new ArrayList<>();
-                    try {
-                        byte[] buffer = new byte[1024];
-                        int length;
-
-                        if (input != null) {
-                            while ((length = input.read(buffer)) > 0) {
-                                for (int i = 0; i < length; i++) {
-                                    content.add(buffer[i]);
-                                }
-                            }
-                        }
-                    } catch (Exception e) {
-                    }
-
-                    if (input != null) {
-                        try {
-                            input.close();
-                        } catch (Exception e) {
-                        }
-
-                    }
-
-                    byte[] contentArray = new byte[content.size()];
-
-                    for (int i = 0; i < content.size(); i++) {
-                        contentArray[i] = content.get(i);
-                    }
-
-                    return Base64.getEncoder().encode(contentArray).toString();
-                }
-            });
-            JSONObject attachmentObject = new JSONObject();
-            attachmentObject.put("name", attachment.getFilename());
-            attachmentObject.put("body", file);
-            attachmentsArray.add(attachmentObject);
+            String filename = attachment.getFilename();
+            if (checkNeedToSent(issueId, filename)) {
+                attachmentsData.add(transformAttachmentForRequest(attachment));
+                issueFileLinkManager.add(issueId, filename);
+            }
         }
-        request.addParameter("attachments", attachmentsArray);
+        request.addParameter("attachments", attachmentsData);
         return request;
+    }
+
+    private boolean checkNeedToSent(int issueId, String attachmentName) {
+        return issueFileLinkManager.find(issueId, attachmentName) == null;
+    }
+
+    private Map<String, String> transformAttachmentForRequest(Attachment attachment) throws Exception {
+        String body = null;
+        Map<String, String> attachmentData = new HashMap<>();
+        body = attachmentManager.streamAttachmentContent(attachment, inputStream -> {
+            byte[] file = IOUtils.toByteArray(inputStream);
+            return Base64.getEncoder().encodeToString(file);
+        });
+        attachmentData.put("name", attachment.getFilename());
+        attachmentData.put("body", body);
+        return attachmentData;
     }
 
     private Request addResponsibleToRequest(Request request, Issue issue) {
         try {
             request.addParameter("responsible_email", issue.getAssignee().getEmailAddress());
-        } catch (NullPointerException ignored) {
+        } catch (NullPointerException e) {
+            e.printStackTrace();
         }
         return request;
     }
 
-    private Request addChangeableParametersToRequest(Request request, Issue issue) throws IOException {
-        request.addParameter("content", issue.getDescription());
+    private Request addChangeableParametersToRequest(Request request, Issue issue) {
+        IssueRenderContext renderContext = new IssueRenderContext(issue);
+        JiraRendererPlugin renderer = rendererManager.getRendererForType("atlassian-wiki-renderer");
+        String html = renderer.render(issue.getDescription(), renderContext);
+
+        request.addParameter("content", html);//issue.getDescription());
         request.addParameter("title", issue.getSummary());
-        request.addParameter("force_author", issue.getReporterUser().getEmailAddress());
-        request.addParameter("tags", getTagsFromLabels(issue.getLabels()));
-        request.addParameter("priority", priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName()).getUseResponsePriority().getUseResponsePrioritySlug());
-        request = addResponsibleToRequest(request, issue);
-//        request = addAttachmentsToRequest( request, issue.getAttachments());
+        try {
+            request.addParameter("force_author", issue.getReporterUser().getEmailAddress());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            request.addParameter("tags", getTagsFromLabels(issue.getLabels()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            request.addParameter("priority", priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName()).getUseResponsePriority().getUseResponsePrioritySlug());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            request = addResponsibleToRequest(request, issue);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            request = addAttachmentsToRequest(request, issue);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         request = prepareRequest(request);
         return request;
     }

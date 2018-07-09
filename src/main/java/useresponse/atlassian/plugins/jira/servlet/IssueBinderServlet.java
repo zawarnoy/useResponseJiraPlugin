@@ -3,6 +3,7 @@ package useresponse.atlassian.plugins.jira.servlet;
 import com.atlassian.jira.issue.AttachmentManager;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueManager;
+import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
@@ -31,6 +32,7 @@ import com.atlassian.jira.config.DefaultPriorityManager;
 import useresponse.atlassian.plugins.jira.service.IssueActionService;
 import useresponse.atlassian.plugins.jira.service.SettingsService;
 
+
 @Scanned
 public class IssueBinderServlet extends HttpServlet {
 
@@ -46,6 +48,9 @@ public class IssueBinderServlet extends HttpServlet {
     private final IssueManager issueManager;
     @ComponentImport
     private final CommentManager commentManager;
+    @ComponentImport
+    private final RendererManager rendererManager;
+
 
     @Autowired
     private PriorityLinkManagerImpl priorityLinkManager;
@@ -55,16 +60,25 @@ public class IssueBinderServlet extends HttpServlet {
     private UseResponseObjectManagerImpl useResponseObjectManager;
     @Autowired
     private StatusesLinkManagerImpl statusesLinkManager;
+    @Autowired
+    private IssueFileLinkManagerImpl issueFileLinkManager;
 
 
     @Inject
-    public IssueBinderServlet(UserManager userManager, LoginUriProvider loginUriProvider, PluginSettingsFactory pluginSettignsFactory, AttachmentManager attachmentManager, IssueManager issueManager, CommentManager commentManager) {
+    public IssueBinderServlet(UserManager userManager,
+                              LoginUriProvider loginUriProvider,
+                              PluginSettingsFactory pluginSettignsFactory,
+                              AttachmentManager attachmentManager,
+                              IssueManager issueManager,
+                              CommentManager commentManager,
+                              RendererManager rendererManager) {
         this.userManager = userManager;
         this.loginUriProvider = loginUriProvider;
         this.pluginSettingsFactory = pluginSettignsFactory;
         this.attachmentManager = attachmentManager;
         this.issueManager = issueManager;
         this.commentManager = commentManager;
+        this.rendererManager = rendererManager;
     }
 
     @Override
@@ -82,7 +96,9 @@ public class IssueBinderServlet extends HttpServlet {
                 useResponseObjectManager,
                 statusesLinkManager,
                 priorityLinkManager,
-                attachmentManager);
+                attachmentManager,
+                rendererManager,
+                issueFileLinkManager);
 
 
         String jira_id = (req.getParameter("issue_id"));

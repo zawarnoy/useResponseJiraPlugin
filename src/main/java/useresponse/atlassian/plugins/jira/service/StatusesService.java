@@ -37,7 +37,6 @@ public class StatusesService {
     public Map<String, String> getStatusSlugLinks() {
         Map<String, String> statusSlugLinks = new HashMap<>();
         List<String> statusesNames = getStatusesNames();
-        List<StatusesLink> linkList = linkManager.all();
 
         for (String statusName : statusesNames) {
             Map.Entry<String, String> entry = new AbstractMap.SimpleEntry<>(statusName, "");

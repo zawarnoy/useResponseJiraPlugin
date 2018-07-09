@@ -12,7 +12,7 @@ import useresponse.atlassian.plugins.jira.manager.PriorityLinkManager;
 import useresponse.atlassian.plugins.jira.manager.impl.PriorityLinkManagerImpl;
 import useresponse.atlassian.plugins.jira.manager.impl.StatusesLinkManagerImpl;
 import useresponse.atlassian.plugins.jira.manager.impl.URPriorityManagerImpl;
-import useresponse.atlassian.plugins.jira.model.URPriority;
+import useresponse.atlassian.plugins.jira.model.*;
 import useresponse.atlassian.plugins.jira.service.PrioritiesService;
 import useresponse.atlassian.plugins.jira.service.SettingsService;
 import useresponse.atlassian.plugins.jira.service.StatusesService;
@@ -30,6 +30,7 @@ import java.util.Map;
 
 import com.atlassian.jira.config.DefaultStatusManager;
 import com.atlassian.jira.config.DefaultPriorityManager;
+import com.atlassian.activeobjects.external.ActiveObjects;
 
 @Scanned
 public class UseResponseSettingServlet extends HttpServlet {
@@ -44,6 +45,8 @@ public class UseResponseSettingServlet extends HttpServlet {
     private final TemplateRenderer templateRenderer;
     @ComponentImport
     private final PluginSettingsFactory pluginSettingsFactory;
+    @ComponentImport
+    private final ActiveObjects ao;
 
     @Autowired
     private PriorityLinkManagerImpl priorityLinkManager;
@@ -53,11 +56,12 @@ public class UseResponseSettingServlet extends HttpServlet {
     private StatusesLinkManagerImpl linkManager;
 
     @Inject
-    public UseResponseSettingServlet(UserManager userManager, LoginUriProvider loginUriProvider, TemplateRenderer templateRenderer, PluginSettingsFactory pluginSettignsFactory) {
+    public UseResponseSettingServlet(UserManager userManager, LoginUriProvider loginUriProvider, TemplateRenderer templateRenderer, PluginSettingsFactory pluginSettignsFactory, ActiveObjects ao) {
         this.userManager = userManager;
         this.loginUriProvider = loginUriProvider;
         this.templateRenderer = templateRenderer;
         this.pluginSettingsFactory = pluginSettignsFactory;
+        this.ao = ao;
     }
 
     @Override
@@ -67,6 +71,18 @@ public class UseResponseSettingServlet extends HttpServlet {
             settingsService.redirectToLogin(request, response);
             return;
         }
+
+        urPriorityManager.findOrAdd("low", "Low");
+        urPriorityManager.findOrAdd("normal", "Normal");
+        urPriorityManager.findOrAdd("high", "High");
+        urPriorityManager.findOrAdd("urgent", "Urgent");
+
+        ao.migrate(StatusesLink.class);
+        ao.migrate(CommentLink.class);
+        ao.migrate(UseResponseObject.class);
+        ao.migrate(URPriority.class);
+        ao.migrate(PriorityLink.class);
+        ao.migrate(IssueFileLink.class);
 
         StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
         PrioritiesService prioritiesService = new PrioritiesService(ComponentAccessor.getComponent(DefaultPriorityManager.class), priorityLinkManager, urPriorityManager);
@@ -114,18 +130,17 @@ public class UseResponseSettingServlet extends HttpServlet {
             e.printStackTrace();
         }
 
+        PrintWriter writer = response.getWriter();
+
         StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
         for(String statusName : statusesService.getStatusesNames()) {
-            linkManager.editUseResponseSlug(statusName, request.getParameter(statusName + "Status"));
+            StatusesLink link = linkManager.editOrAdd(statusName, request.getParameter(statusName + "Status"));
         }
-
-        PrintWriter writer = response.getWriter();
 
         PrioritiesService prioritiesService = new PrioritiesService(ComponentAccessor.getComponent(DefaultPriorityManager.class), priorityLinkManager, urPriorityManager);
         for(String priorityName : prioritiesService.getPrioritiesNames()) {
             URPriority priority = urPriorityManager.findBySlug(request.getParameter(priorityName + "Priority"));
             String param = request.getParameter(priorityName + "Priority");
-//            writer.write(priorityName + "Priority" + "              Param : " + param + "<br>");
             if(priority != null)
                 priorityLinkManager.editUseResponsePriority(priorityName, priority);
         }
