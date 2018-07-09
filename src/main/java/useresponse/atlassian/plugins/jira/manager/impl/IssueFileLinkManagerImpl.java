@@ -6,12 +6,13 @@ import useresponse.atlassian.plugins.jira.manager.IssueFileLinkManager;
 import useresponse.atlassian.plugins.jira.model.IssueFileLink;
 import com.atlassian.activeobjects.external.ActiveObjects;
 import net.java.ao.Query;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Lists.newArrayList;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Arrays;
 import java.util.List;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Lists.newArrayList;
 
 @Scanned
 @Named
@@ -20,7 +21,7 @@ public class IssueFileLinkManagerImpl implements IssueFileLinkManager {
     @ComponentImport
     private final ActiveObjects ao;
 
-
+    @Inject
     public IssueFileLinkManagerImpl(ActiveObjects ao) {
         this.ao = checkNotNull(ao);
     }
