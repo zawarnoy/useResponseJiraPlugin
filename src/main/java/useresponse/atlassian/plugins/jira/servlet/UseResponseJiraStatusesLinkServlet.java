@@ -58,6 +58,9 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
     @Autowired
     private URPriorityManagerImpl urPriorityManager;
 
+    @Autowired
+    private IssueFileLinkManagerImpl fileLinkManager;
+
     @Inject
     public UseResponseJiraStatusesLinkServlet(ActiveObjects ao) {
         this.ao = checkNotNull(ao);
@@ -133,6 +136,14 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
 
         for(URPriority urPriority : urPriorityManager.all())
             writer.write(urPriority.getUseResponsePrioritySlug() + "|" +urPriority.getUseResponsePriorityValue() + "<br>");
+
+
+
+        writer.write("<h1>Files links </h1>");
+
+        for(IssueFileLink urPriority : fileLinkManager.all())
+            writer.write(urPriority.getJiraIssueId() + "|" +urPriority.getSentFilename() + "<br>");
+
 
         writer.close();
     }

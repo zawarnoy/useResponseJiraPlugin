@@ -173,8 +173,10 @@ public class IssueActionService {
         int issueId = issue.getId().intValue();
         ArrayList<Map> attachmentsData = new ArrayList<Map>();
 
+        String filename;
+
         for (Attachment attachment : attachments) {
-            String filename = attachment.getFilename();
+             filename = attachment.getFilename();
             if (checkNeedToSent(issueId, filename)) {
                 attachmentsData.add(transformAttachmentForRequest(attachment));
                 issueFileLinkManager.add(issueId, filename);
@@ -210,12 +212,17 @@ public class IssueActionService {
     }
 
     private Request addChangeableParametersToRequest(Request request, Issue issue) {
-        IssueRenderContext renderContext = new IssueRenderContext(issue);
-        JiraRendererPlugin renderer = rendererManager.getRendererForType("atlassian-wiki-renderer");
-        String html = renderer.render(issue.getDescription(), renderContext);
 
-        request.addParameter("content", html);//issue.getDescription());
-        request.addParameter("title", issue.getSummary());
+        try {
+            IssueRenderContext renderContext = new IssueRenderContext(issue);
+            JiraRendererPlugin renderer = rendererManager.getRendererForType("atlassian-wiki-renderer");
+            String html = renderer.render(issue.getDescription(), renderContext);
+            request.addParameter("content", html);
+            request.addParameter("title", issue.getSummary());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         try {
             request.addParameter("force_author", issue.getReporterUser().getEmailAddress());
         } catch (Exception e) {

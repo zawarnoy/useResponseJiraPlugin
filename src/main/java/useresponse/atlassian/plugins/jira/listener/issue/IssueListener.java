@@ -22,7 +22,6 @@ import com.atlassian.jira.issue.managers.DefaultAttachmentManager;
 import com.atlassian.activeobjects.external.ActiveObjects;
 
 
-
 @Component
 public class IssueListener implements InitializingBean, DisposableBean {
 
@@ -93,7 +92,7 @@ public class IssueListener implements InitializingBean, DisposableBean {
         }
     }
 
-    private void executeAction(IssueEvent issueEvent) throws Exception {
+    private void executeAction(IssueEvent issueEvent) {
         Long typeId = issueEvent.getEventTypeId();
         IssueActionService issueActionService = new IssueActionService(
                 pluginSettingsFactory,
@@ -106,19 +105,25 @@ public class IssueListener implements InitializingBean, DisposableBean {
                 issueFileLinkManager
         );
 
-        if (typeId.equals(EventType.ISSUE_CREATED_ID)) {
-            issueActionService.createAction(issueEvent.getIssue());
-        } else if (typeId.equals(EventType.ISSUE_COMMENTED_ID)) {
-            issueActionService.createCommentAction(issueEvent.getComment());
-        } else if (typeId.equals(EventType.ISSUE_COMMENT_EDITED_ID)) {
-            issueActionService.updateCommentAction(issueEvent.getComment());
-        } else if (typeId.equals(EventType.ISSUE_DELETED_ID)) {
-            issueActionService.deleteAction(issueEvent.getIssue());
-        } else if (typeId.equals(EventType.ISSUE_COMMENT_DELETED_ID)) {
-            issueActionService.deleteCommentAction(issueEvent);
-        } else {
-            issueActionService.updateAction(issueEvent.getIssue());
+        try {
+            if (typeId.equals(EventType.ISSUE_CREATED_ID)) {
+                issueActionService.createAction(issueEvent.getIssue());
+            } else if (typeId.equals(EventType.ISSUE_COMMENTED_ID)) {
+                issueActionService.createCommentAction(issueEvent.getComment());
+            } else if (typeId.equals(EventType.ISSUE_COMMENT_EDITED_ID)) {
+                issueActionService.updateCommentAction(issueEvent.getComment());
+            } else if (typeId.equals(EventType.ISSUE_DELETED_ID)) {
+                issueActionService.deleteAction(issueEvent.getIssue());
+            } else if (typeId.equals(EventType.ISSUE_COMMENT_DELETED_ID)) {
+                issueActionService.deleteCommentAction(issueEvent);
+            } else {
+                issueActionService.updateAction(issueEvent.getIssue());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
+
     }
 
 
