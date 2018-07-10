@@ -2,11 +2,18 @@
 <head>
     <title>UseResponse Settings</title>
     <meta name="decorator" content="atl.admin">
+
 </head>
 <body>
-<form id="admin" class="aui" action="" method="POST">
 
-    <h3>Connection settings</h3>
+
+##    $webResourceManager.requireResourcesForContext(
+##        "useresponse.atlassian.plugins.jira.jira-plugin:jira-plugin-resources")
+##
+##<img src="/images/urPicture.png" alt="">
+
+<form id="admin" class="aui" action="" method="POST">
+    <h3>Connection Settings</h3>
     <div class="field-group">
         <label for="domain">UseResponse Domain:</label>
         <input type="text" id="domain" name="domain" class="text" placeholder="Enter an domain here . . ."
@@ -21,7 +28,7 @@
 
     #if($!useResponseStatuses)
 
-        <h3>Statuses settings</h3>
+        <h3>Statuses Mapping</h3>
 
         #foreach($statusSlug in $statusSlugLinks.entrySet())
             <div class="field-group">
@@ -38,7 +45,7 @@
             </div>
         #end
 
-        <h3>Priorities settings</h3>
+        <h3>Priorities Mapping</h3>
 
         #foreach($prioritySlug in $prioritySlugLinks.entrySet())
             <div class="field-group">
@@ -47,9 +54,9 @@
                     #foreach($priority in $useResponsePriorities.entrySet())
                         <option
                             #if($prioritySlug.value == $priority.key)
-                                selected
+                                    selected
                             #end
-                                value="${priority.key}">${priority.value}</option>
+                                    value="${priority.key}">${priority.value}</option>
                     #end
                 </select>
             </div>

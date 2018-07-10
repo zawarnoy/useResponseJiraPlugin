@@ -86,7 +86,7 @@ public class SettingsService {
         pluginSettings.setUseResponseApiKey(apiKey);
     }
 
-    public boolean testURConnection(String urDomain, String urApiKey) throws Exception {
+    public static boolean testURConnection(String urDomain, String urApiKey) throws Exception {
         Request request = new GetRequest();
         String response = request.sendRequest(urDomain + ConstStorage.API_STRING +"me.json?apiKey=" + urApiKey);
 

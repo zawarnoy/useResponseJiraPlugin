@@ -9,7 +9,7 @@
     <param name="plugin-logo">images/pluginLogo.png</param>
   </plugin-info>
   <!-- add our i18n resource -->
-  <resource type="i18n" name="i18n" location="jira-plugin"/>
+  <resource type="i18n" name="i18n" location="UseResponse-plugin"/>
   <!-- add our web resources -->
   <web-resource key="jira-plugin-resources" name="jira-plugin Web Resources">
     <dependency>com.atlassian.auiplugin:ajs</dependency>
@@ -54,18 +54,18 @@
     <description key="issue-binder-servlet.description">The Issue Binder Servlet Plugin</description>
     <url-pattern>/urbinder</url-pattern>
   </servlet>
-  <servlet name="Use Response Jira Statuses Link Servlet" i18n-name-key="use-response-jira-statuses-link-servlet.name" key="use-response-jira-statuses-link-servlet" class="useresponse.atlassian.plugins.jira.servlet.UseResponseJiraStatusesLinkServlet">
-    <description key="use-response-jira-statuses-link-servlet.description">The Use Response Jira Statuses Link Servlet Plugin</description>
-    <url-pattern>/statuseslinkservlet</url-pattern>
-  </servlet>
+  <!--<servlet name="Use Response Jira Statuses Link Servlet" i18n-name-key="use-response-jira-statuses-link-servlet.name" key="use-response-jira-statuses-link-servlet" class="useresponse.atlassian.plugins.jira.servlet.UseResponseJiraStatusesLinkServlet">-->
+    <!--<description key="use-response-jira-statuses-link-servlet.description">The Use Response Jira Statuses Link Servlet Plugin</description>-->
+    <!--<url-pattern>/statuseslinkservlet</url-pattern>-->
+  <!--</servlet>-->
   <web-item name="UseResponse Settings" i18n-name-key="use-response-plugin-settings.name" key="use-response-plugin-settings" section="system.admin/globalsettings" weight="1000">
     <description key="use-response-plugin-settings.description">The UseResponse Plugin Settings</description>
-    <label key="use-response-plugin-settings.label"/>
+    <label key="UseResponse Settings"/>
     <link linkId="use-response-plugin-settings-link">/plugins/servlet/ursettings</link>
   </web-item>
-  <web-item name="UseResponse UseResponse link button" i18n-name-key="use-response-use-responselinkbutton.name" key="use-response-use-responselinkbutton" section="transitions-all" weight="1000">
-    <description key="use-response-use-responselinkbutton.description">The UseResponse UseResponse link button Plugin</description>
-    <label key="use-response-use-responselinkbutton.label"></label>
-    <link linkId="use-response-use-responselinkbutton-link">/plugins/servlet/urbinder?issue_id=$issue.id</link>
+  <web-item name="UseResponse UseResponse link button" i18n-name-key="useResponselinkbutton.name" key="useResponselinkbutton" section="transitions-all" weight="1000">
+    <description key="useResponselinkbutton.description">The UseResponse UseResponse link button Plugin</description>
+    <label key="Move to UseResponse"/>
+    <link linkId="useResponselinkbutton-link">/plugins/servlet/urbinder?issue_id=$issue.id</link>
   </web-item>
 </atlassian-plugin>

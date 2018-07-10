@@ -7,8 +7,9 @@ import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.templaterenderer.TemplateRenderer;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import com.atlassian.webresource.api.assembler.PageBuilderService;
+import com.atlassian.webresource.api.assembler.WebResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import useresponse.atlassian.plugins.jira.manager.PriorityLinkManager;
 import useresponse.atlassian.plugins.jira.manager.impl.PriorityLinkManagerImpl;
 import useresponse.atlassian.plugins.jira.manager.impl.StatusesLinkManagerImpl;
 import useresponse.atlassian.plugins.jira.manager.impl.URPriorityManagerImpl;
@@ -31,22 +32,22 @@ import java.util.Map;
 import com.atlassian.jira.config.DefaultStatusManager;
 import com.atlassian.jira.config.DefaultPriorityManager;
 import com.atlassian.activeobjects.external.ActiveObjects;
+import com.atlassian.plugin.webresource.WebResourceManager;
+import com.atlassian.plugin.webresource.WebResourceManagerImpl;
+
 
 @Scanned
 public class UseResponseSettingServlet extends HttpServlet {
 
     private static String SETTINGS_TEMPLATE = "/templates/ur_settings_template.vm";
 
-    @ComponentImport
+
     private final UserManager userManager;
-    @ComponentImport
     private final LoginUriProvider loginUriProvider;
-    @ComponentImport
     private final TemplateRenderer templateRenderer;
-    @ComponentImport
     private final PluginSettingsFactory pluginSettingsFactory;
-    @ComponentImport
     private final ActiveObjects ao;
+//    private final WebResourceManager webResourceManager;
 
     @Autowired
     private PriorityLinkManagerImpl priorityLinkManager;
@@ -56,12 +57,19 @@ public class UseResponseSettingServlet extends HttpServlet {
     private StatusesLinkManagerImpl linkManager;
 
     @Inject
-    public UseResponseSettingServlet(UserManager userManager, LoginUriProvider loginUriProvider, TemplateRenderer templateRenderer, PluginSettingsFactory pluginSettignsFactory, ActiveObjects ao) {
+    public UseResponseSettingServlet(@ComponentImport UserManager userManager,
+                                     @ComponentImport LoginUriProvider loginUriProvider,
+                                     @ComponentImport TemplateRenderer templateRenderer,
+                                     @ComponentImport PluginSettingsFactory pluginSettignsFactory,
+                                     @ComponentImport ActiveObjects ao
+//                                     @ComponentImport WebResourceManager webResourceManager
+                                     ) {
         this.userManager = userManager;
         this.loginUriProvider = loginUriProvider;
         this.templateRenderer = templateRenderer;
         this.pluginSettingsFactory = pluginSettignsFactory;
         this.ao = ao;
+//        this.webResourceManager = webResourceManager;
     }
 
     @Override
@@ -86,6 +94,7 @@ public class UseResponseSettingServlet extends HttpServlet {
 
         StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
         PrioritiesService prioritiesService = new PrioritiesService(ComponentAccessor.getComponent(DefaultPriorityManager.class), priorityLinkManager, urPriorityManager);
+
 
         PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
         Map<String, Object> context = new HashMap<String, Object>();
@@ -123,7 +132,7 @@ public class UseResponseSettingServlet extends HttpServlet {
         String apiKey = request.getParameter("apiKey");
 
         try {
-            if(!settingsService.testURConnection(domain, apiKey))
+            if(!SettingsService.testURConnection(domain, apiKey))
                 return;
             settingsService.setURParameters(domain, apiKey);
         } catch (Exception e) {
