@@ -25,7 +25,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -144,7 +143,7 @@ public class UseResponseSettingServlet extends HttpServlet {
         StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
 
         for(String statusName : statusesService.getStatusesNames()) {
-            StatusesLink link = linkManager.editOrAdd(statusName, request.getParameter(statusName + "Status"));
+            linkManager.editOrAdd(statusName, request.getParameter(statusName + "Status"));
         }
     }
 
@@ -153,7 +152,6 @@ public class UseResponseSettingServlet extends HttpServlet {
 
         for(String priorityName : prioritiesService.getPrioritiesNames()) {
             URPriority priority = urPriorityManager.findBySlug(request.getParameter(priorityName + "Priority"));
-            String param = request.getParameter(priorityName + "Priority");
             if(priority != null)
                 priorityLinkManager.editUseResponsePriority(priorityName, priority);
         }
