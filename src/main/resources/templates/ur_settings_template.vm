@@ -6,11 +6,20 @@
 </head>
 <body>
 
+<style>
+    form.aui .select {
+        padding: 0;
+    }
+</style>
 
 ##    $webResourceManager.requireResource(
 ##        "useresponse.atlassian.plugins.jira.jira-plugin:jira-plugin-resources")
 
-##<img src="${req.contextPath}/download/resources/useresponse.atlassian.plugins.jira.jira-plugin:jira-plugin-resources/images/urPicture.png" alt="">
+<div class="img-container" style="  display: flex; align-items: center; justify-content: center">
+    <img style="margin: 0;"
+         src="${baseUrl}/download/resources/useresponse.atlassian.plugins.jira.jira-plugin:jira-plugin-resources/images/urPicture.png"
+         alt="">
+</div>
 
 <form id="admin" class="aui" action="" method="POST">
     <h3>Connection Settings</h3>
@@ -32,8 +41,8 @@
 
         #foreach($statusSlug in $statusSlugLinks.entrySet())
             <div class="field-group">
-                <label for="${statusSlug.key}Status}">${statusSlug.key}</label>
-                <select name="${statusSlug.key}Status" id="${statusSlug.key}Status">
+                <label for="${statusSlug.key}Status">${statusSlug.key}</label>
+                <select class="select" name="${statusSlug.key}Status" id="${statusSlug.key}Status">
                     #foreach( $status in $useResponseStatuses.entrySet())
                         <option
                             #if($statusSlug.value == $status.value)
@@ -50,7 +59,7 @@
         #foreach($prioritySlug in $prioritySlugLinks.entrySet())
             <div class="field-group">
                 <label for="${prioritySlug.key}Priority">${prioritySlug.key}</label>
-                <select name="${prioritySlug.key}Priority" id="${prioritySlug.key}Priority">
+                <select class="select" name="${prioritySlug.key}Priority" id="${prioritySlug.key}Priority">
                     #foreach($priority in $useResponsePriorities.entrySet())
                         <option
                             #if($prioritySlug.value == $priority.key)
@@ -68,8 +77,8 @@
 
     #end
 
-    <div class="field-group">
-        <input type="submit" value="Save" class="button">
+    <div class="field-group" style="margin-top: 20px;">
+        <input type="submit" value="Save" class="aui-button aui-button-primary">
     </div>
 
 </form>

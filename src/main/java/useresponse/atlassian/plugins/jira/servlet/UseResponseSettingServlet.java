@@ -2,13 +2,13 @@ package useresponse.atlassian.plugins.jira.servlet;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
+import com.atlassian.sal.api.ApplicationProperties;
+import com.atlassian.sal.api.UrlMode;
 import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.templaterenderer.TemplateRenderer;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
-import com.atlassian.webresource.api.assembler.PageBuilderService;
-import com.atlassian.webresource.api.assembler.WebResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.manager.impl.PriorityLinkManagerImpl;
 import useresponse.atlassian.plugins.jira.manager.impl.StatusesLinkManagerImpl;
@@ -32,8 +32,6 @@ import java.util.Map;
 import com.atlassian.jira.config.DefaultStatusManager;
 import com.atlassian.jira.config.DefaultPriorityManager;
 import com.atlassian.activeobjects.external.ActiveObjects;
-import com.atlassian.plugin.webresource.WebResourceManager;
-import com.atlassian.plugin.webresource.WebResourceManagerImpl;
 import useresponse.atlassian.plugins.jira.storage.ConstStorage;
 
 
@@ -55,6 +53,8 @@ public class UseResponseSettingServlet extends HttpServlet {
     private URPriorityManagerImpl urPriorityManager;
     @Autowired
     private StatusesLinkManagerImpl linkManager;
+    @Autowired
+    private ApplicationProperties applicationProperties;
 
     @Inject
     public UseResponseSettingServlet(@ComponentImport UserManager userManager,
@@ -77,7 +77,6 @@ public class UseResponseSettingServlet extends HttpServlet {
             settingsService.redirectToLogin(request, response);
             return;
         }
-
 
         migrate();
         addURPriorities();
@@ -104,6 +103,7 @@ public class UseResponseSettingServlet extends HttpServlet {
             e.printStackTrace();
         }
 
+        context.put("baseUrl", applicationProperties.getBaseUrl(UrlMode.ABSOLUTE));
         context.put("useResponseStatuses", statuses);
 
         response.setContentType("text/html");

@@ -1,6 +1,5 @@
 package useresponse.atlassian.plugins.jira.servlet;
 
-import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.user.UserManager;
@@ -9,12 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.manager.impl.*;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Lists.newArrayList;
-
 import com.atlassian.activeobjects.external.ActiveObjects;
-
 import javax.inject.Inject;
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
@@ -23,9 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map;
-
-import com.atlassian.jira.config.DefaultStatusManager;
-import com.atlassian.jira.config.DefaultPriorityManager;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
 
@@ -62,7 +53,7 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
     public UseResponseJiraStatusesLinkServlet(@ComponentImport ActiveObjects ao,
                                               @ComponentImport UserManager userManager,
                                               @ComponentImport IssueManager issueManager) {
-        this.ao = checkNotNull(ao);
+        this.ao = ao;
         this.userManager = userManager;
         this.issueManager = issueManager;
     }

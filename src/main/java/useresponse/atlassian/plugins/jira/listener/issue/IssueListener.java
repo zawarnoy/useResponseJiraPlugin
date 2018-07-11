@@ -14,9 +14,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import useresponse.atlassian.plugins.jira.manager.impl.*;
-import useresponse.atlassian.plugins.jira.model.*;
 import useresponse.atlassian.plugins.jira.service.IssueActionService;
-import com.atlassian.jira.config.DefaultStatusManager;
 import com.atlassian.jira.issue.managers.DefaultAttachmentManager;
 
 import com.atlassian.activeobjects.external.ActiveObjects;
@@ -43,9 +41,6 @@ public class IssueListener implements InitializingBean, DisposableBean {
 
     @Autowired
     private PriorityLinkManagerImpl priorityLinkManager;
-
-    @Autowired
-    private URPriorityManagerImpl urPriorityManager;
 
     @Autowired
     private RendererManager rendererManager;
