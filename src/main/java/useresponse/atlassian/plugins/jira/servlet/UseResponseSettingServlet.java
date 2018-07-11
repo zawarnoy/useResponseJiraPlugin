@@ -34,6 +34,7 @@ import com.atlassian.jira.config.DefaultPriorityManager;
 import com.atlassian.activeobjects.external.ActiveObjects;
 import com.atlassian.plugin.webresource.WebResourceManager;
 import com.atlassian.plugin.webresource.WebResourceManagerImpl;
+import useresponse.atlassian.plugins.jira.storage.ConstStorage;
 
 
 @Scanned
@@ -47,7 +48,6 @@ public class UseResponseSettingServlet extends HttpServlet {
     private final TemplateRenderer templateRenderer;
     private final PluginSettingsFactory pluginSettingsFactory;
     private final ActiveObjects ao;
-//    private final WebResourceManager webResourceManager;
 
     @Autowired
     private PriorityLinkManagerImpl priorityLinkManager;
@@ -62,14 +62,12 @@ public class UseResponseSettingServlet extends HttpServlet {
                                      @ComponentImport TemplateRenderer templateRenderer,
                                      @ComponentImport PluginSettingsFactory pluginSettignsFactory,
                                      @ComponentImport ActiveObjects ao
-//                                     @ComponentImport WebResourceManager webResourceManager
                                      ) {
         this.userManager = userManager;
         this.loginUriProvider = loginUriProvider;
         this.templateRenderer = templateRenderer;
         this.pluginSettingsFactory = pluginSettignsFactory;
         this.ao = ao;
-//        this.webResourceManager = webResourceManager;
     }
 
     @Override
@@ -80,17 +78,9 @@ public class UseResponseSettingServlet extends HttpServlet {
             return;
         }
 
-        urPriorityManager.findOrAdd("low", "Low");
-        urPriorityManager.findOrAdd("normal", "Normal");
-        urPriorityManager.findOrAdd("high", "High");
-        urPriorityManager.findOrAdd("urgent", "Urgent");
 
-        ao.migrate(StatusesLink.class);
-        ao.migrate(CommentLink.class);
-        ao.migrate(UseResponseObject.class);
-        ao.migrate(URPriority.class);
-        ao.migrate(PriorityLink.class);
-        ao.migrate(IssueFileLink.class);
+        migrate();
+        addURPriorities();
 
         StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
         PrioritiesService prioritiesService = new PrioritiesService(ComponentAccessor.getComponent(DefaultPriorityManager.class), priorityLinkManager, urPriorityManager);
@@ -111,7 +101,7 @@ public class UseResponseSettingServlet extends HttpServlet {
         try {
             statuses = settingsService.getUseResponseStatuses(pluginSettings);
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
 
         context.put("useResponseStatuses", statuses);
@@ -128,6 +118,48 @@ public class UseResponseSettingServlet extends HttpServlet {
             return;
         }
 
+        setConnectionParameters(request, settingsService);
+        setStatuses(request);
+        setPriorities(request);
+
+        response.sendRedirect("ursettings");
+    }
+
+    private void migrate() {
+        ao.migrate(StatusesLink.class);
+        ao.migrate(CommentLink.class);
+        ao.migrate(UseResponseObject.class);
+        ao.migrate(URPriority.class);
+        ao.migrate(PriorityLink.class);
+        ao.migrate(IssueFileLink.class);
+    }
+
+    private void addURPriorities() {
+        for(Map.Entry<String, String> entry : ConstStorage.UR_PRIORITIES.entrySet()) {
+            urPriorityManager.findOrAdd(entry.getKey(), entry.getValue());
+        }
+    }
+
+    private void setStatuses(HttpServletRequest request) {
+        StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
+
+        for(String statusName : statusesService.getStatusesNames()) {
+            StatusesLink link = linkManager.editOrAdd(statusName, request.getParameter(statusName + "Status"));
+        }
+    }
+
+    private void setPriorities(HttpServletRequest request) {
+        PrioritiesService prioritiesService = new PrioritiesService(ComponentAccessor.getComponent(DefaultPriorityManager.class), priorityLinkManager, urPriorityManager);
+
+        for(String priorityName : prioritiesService.getPrioritiesNames()) {
+            URPriority priority = urPriorityManager.findBySlug(request.getParameter(priorityName + "Priority"));
+            String param = request.getParameter(priorityName + "Priority");
+            if(priority != null)
+                priorityLinkManager.editUseResponsePriority(priorityName, priority);
+        }
+    }
+
+    private void setConnectionParameters(HttpServletRequest request, SettingsService settingsService) {
         String domain = request.getParameter("domain");
         String apiKey = request.getParameter("apiKey");
 
@@ -138,22 +170,6 @@ public class UseResponseSettingServlet extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        PrintWriter writer = response.getWriter();
-
-        StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
-        for(String statusName : statusesService.getStatusesNames()) {
-            StatusesLink link = linkManager.editOrAdd(statusName, request.getParameter(statusName + "Status"));
-        }
-
-        PrioritiesService prioritiesService = new PrioritiesService(ComponentAccessor.getComponent(DefaultPriorityManager.class), priorityLinkManager, urPriorityManager);
-        for(String priorityName : prioritiesService.getPrioritiesNames()) {
-            URPriority priority = urPriorityManager.findBySlug(request.getParameter(priorityName + "Priority"));
-            String param = request.getParameter(priorityName + "Priority");
-            if(priority != null)
-                priorityLinkManager.editUseResponsePriority(priorityName, priority);
-        }
-
-        response.sendRedirect("ursettings");
     }
+
 }

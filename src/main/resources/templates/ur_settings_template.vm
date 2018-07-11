@@ -7,10 +7,10 @@
 <body>
 
 
-##    $webResourceManager.requireResourcesForContext(
+##    $webResourceManager.requireResource(
 ##        "useresponse.atlassian.plugins.jira.jira-plugin:jira-plugin-resources")
-##
-##<img src="/images/urPicture.png" alt="">
+
+##<img src="${req.contextPath}/download/resources/useresponse.atlassian.plugins.jira.jira-plugin:jira-plugin-resources/images/urPicture.png" alt="">
 
 <form id="admin" class="aui" action="" method="POST">
     <h3>Connection Settings</h3>

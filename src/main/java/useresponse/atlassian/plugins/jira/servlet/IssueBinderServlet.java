@@ -14,21 +14,12 @@ import com.atlassian.sal.api.user.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.manager.impl.*;
 import useresponse.atlassian.plugins.jira.model.*;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Lists.newArrayList;
-
-import com.atlassian.activeobjects.external.ActiveObjects;
-
 import javax.inject.Inject;
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-
-import com.atlassian.jira.config.DefaultStatusManager;
-import com.atlassian.jira.config.DefaultPriorityManager;
 import useresponse.atlassian.plugins.jira.service.IssueActionService;
 import useresponse.atlassian.plugins.jira.service.SettingsService;
 
@@ -36,19 +27,12 @@ import useresponse.atlassian.plugins.jira.service.SettingsService;
 @Scanned
 public class IssueBinderServlet extends HttpServlet {
 
-    @ComponentImport
     private final UserManager userManager;
-    @ComponentImport
     private final LoginUriProvider loginUriProvider;
-    @ComponentImport
     private final PluginSettingsFactory pluginSettingsFactory;
-    @ComponentImport
-    private AttachmentManager attachmentManager;
-    @ComponentImport
+    private final AttachmentManager attachmentManager;
     private final IssueManager issueManager;
-    @ComponentImport
     private final CommentManager commentManager;
-    @ComponentImport
     private final RendererManager rendererManager;
 
 
@@ -65,13 +49,13 @@ public class IssueBinderServlet extends HttpServlet {
 
 
     @Inject
-    public IssueBinderServlet(UserManager userManager,
-                              LoginUriProvider loginUriProvider,
-                              PluginSettingsFactory pluginSettignsFactory,
-                              AttachmentManager attachmentManager,
-                              IssueManager issueManager,
-                              CommentManager commentManager,
-                              RendererManager rendererManager) {
+    public IssueBinderServlet(@ComponentImport UserManager userManager,
+                              @ComponentImport LoginUriProvider loginUriProvider,
+                              @ComponentImport PluginSettingsFactory pluginSettignsFactory,
+                              @ComponentImport AttachmentManager attachmentManager,
+                              @ComponentImport IssueManager issueManager,
+                              @ComponentImport CommentManager commentManager,
+                              @ComponentImport RendererManager rendererManager) {
         this.userManager = userManager;
         this.loginUriProvider = loginUriProvider;
         this.pluginSettingsFactory = pluginSettignsFactory;
@@ -98,7 +82,8 @@ public class IssueBinderServlet extends HttpServlet {
                 priorityLinkManager,
                 attachmentManager,
                 rendererManager,
-                issueFileLinkManager);
+                issueFileLinkManager
+        );
 
 
         String jira_id = (req.getParameter("issue_id"));
@@ -118,7 +103,7 @@ public class IssueBinderServlet extends HttpServlet {
 
         }
 
-        for(Comment comment : commentManager.getComments(issue)) {
+        for (Comment comment : commentManager.getComments(issue)) {
             try {
                 issueActionService.createCommentAction(comment);
             } catch (Exception e) {
@@ -126,8 +111,8 @@ public class IssueBinderServlet extends HttpServlet {
             }
         }
 
-        resp.getWriter().write(issue.getKey());
-        resp.sendRedirect( "projects/" + issue.getProjectObject().getOriginalKey() + "/issues/" + issue.getKey());
+
+        resp.sendRedirect("projects/" + issue.getProjectObject().getOriginalKey() + "/issues/" + issue.getKey());
     }
 
     @Override

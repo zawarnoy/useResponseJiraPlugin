@@ -1,14 +1,14 @@
 package useresponse.atlassian.plugins.jira.servlet;
 
-import com.atlassian.jira.issue.status.Status;
-import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
+import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import com.atlassian.sal.api.user.UserManager;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.manager.impl.*;
-import useresponse.atlassian.plugins.jira.model.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
@@ -22,17 +22,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 
-import com.atlassian.jira.issue.priority.Priority;
-
-import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.DefaultStatusManager;
 import com.atlassian.jira.config.DefaultPriorityManager;
-import useresponse.atlassian.plugins.jira.service.PrioritiesService;
-import useresponse.atlassian.plugins.jira.service.StatusesService;
+import useresponse.atlassian.plugins.jira.request.PostRequest;
+import useresponse.atlassian.plugins.jira.request.Request;
 
 
 public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
@@ -40,8 +35,10 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
 
     private final Gson gson = new Gson();
 
-    @ComponentImport
+
     private final ActiveObjects ao;
+    private final UserManager userManager;
+    private final IssueManager issueManager;
 
     @Autowired
     private UseResponseObjectManagerImpl useResponseObjectManager;
@@ -62,8 +59,12 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
     private IssueFileLinkManagerImpl fileLinkManager;
 
     @Inject
-    public UseResponseJiraStatusesLinkServlet(ActiveObjects ao) {
+    public UseResponseJiraStatusesLinkServlet(@ComponentImport ActiveObjects ao,
+                                              @ComponentImport UserManager userManager,
+                                              @ComponentImport IssueManager issueManager) {
         this.ao = checkNotNull(ao);
+        this.userManager = userManager;
+        this.issueManager = issueManager;
     }
 
     @Override
@@ -71,97 +72,104 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
 
         PrintWriter writer = resp.getWriter();
 
-        try {
-            writer.write("<h1>Comments</h1>");
-            for (CommentLink object : commentLinkManager.all()) {
-                writer.print("ur id: " + object.getUseResponseCommentId() + " jira id:" + object.getJiraCommentId() + "<br>");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
-        try {
-            writer.write("<h1>Items</h1>");
-            for (UseResponseObject object : useResponseObjectManager.all()) {
-                writer.print("ur id: " + object.getUseResponseId() + " jira id:" + object.getJiraId() + "<br>");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        writer.write("<h1>Statuses</h1>");
-        DefaultStatusManager statusManager = ComponentAccessor.getComponent(DefaultStatusManager.class);
-        Collection<Status> statuses = statusManager.getStatuses();
-
-        Iterator<Status> iterator = statuses.iterator();
-        while (iterator.hasNext()) {
-            Status status = iterator.next();
-            writer.write(status.getSimpleStatus().getName() + "<br>");
-        }
-
-
-        StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
-
-        Map<String, String> statusSlug = statusesService.getStatusSlugLinks();
-
-        writer.write("<h1>Statuses Links</h1>");
-
-        for (Map.Entry<String, String> link : statusSlug.entrySet()) {
-            writer.print("JIRA: " + link.getKey() + "  UR: " + link.getValue() + "<br>");
-        }
-
-        DefaultPriorityManager priorityManager = ComponentAccessor.getComponent(DefaultPriorityManager.class);
-        PrioritiesService prioritiesService = new PrioritiesService(priorityManager, priorityLinkManger, urPriorityManager);
-
-
-        writer.write("<h1>Priority links </h1>");
-
-        for (Map.Entry<String, String> priorityLink : prioritiesService.getPrioritySlugLinks().entrySet()) {
-            writer.write(
-                    "JIRA: " + priorityLink.getKey() +
-                            " UR: " + priorityLink.getValue() + "<br>");
-        }
-
-
-        writer.write("<h1>JIra priorities </h1>");
-
-
-        for (String priority : prioritiesService.getPrioritiesNames()) {
-            writer.write(priority + "<br>");
-        }
-
-
-        writer.write("<h1>UR priorities </h1>");
-
-        for(URPriority urPriority : urPriorityManager.all())
-            writer.write(urPriority.getUseResponsePrioritySlug() + "|" +urPriority.getUseResponsePriorityValue() + "<br>");
-
-
-
-        writer.write("<h1>Files links </h1>");
-
-        for(IssueFileLink urPriority : fileLinkManager.all())
-            writer.write(urPriority.getJiraIssueId() + "|" +urPriority.getSentFilename() + "<br>");
-
+//        try {
+//            writer.write("<h1>Comments</h1>");
+//            for (CommentLink object : commentLinkManager.all()) {
+//                writer.print("ur id: " + object.getUseResponseCommentId() + " jira id:" + object.getJiraCommentId() + "<br>");
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//
+//        try {
+//            writer.write("<h1>Items</h1>");
+//            for (UseResponseObject object : useResponseObjectManager.all()) {
+//                writer.print("ur id: " + object.getUseResponseId() + " jira id:" + object.getJiraId() + "<br>");
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        writer.write("<h1>Statuses</h1>");
+//        DefaultStatusManager statusManager = ComponentAccessor.getComponent(DefaultStatusManager.class);
+//        Collection<Status> statuses = statusManager.getStatuses();
+//
+//        Iterator<Status> iterator = statuses.iterator();
+//        while (iterator.hasNext()) {
+//            Status status = iterator.next();
+//            writer.write(status.getSimpleStatus().getName() + "<br>");
+//        }
+//
+//
+//        StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
+//
+//        Map<String, String> statusSlug = statusesService.getStatusSlugLinks();
+//
+//        writer.write("<h1>Statuses Links</h1>");
+//
+//        for (Map.Entry<String, String> link : statusSlug.entrySet()) {
+//            writer.print("JIRA: " + link.getKey() + "  UR: " + link.getValue() + "<br>");
+//        }
+//
+//        DefaultPriorityManager priorityManager = ComponentAccessor.getComponent(DefaultPriorityManager.class);
+//        PrioritiesService prioritiesService = new PrioritiesService(priorityManager, priorityLinkManger, urPriorityManager);
+//
+//
+//        writer.write("<h1>Priority links </h1>");
+//
+//        for (Map.Entry<String, String> priorityLink : prioritiesService.getPrioritySlugLinks().entrySet()) {
+//            writer.write(
+//                    "JIRA: " + priorityLink.getKey() +
+//                            " UR: " + priorityLink.getValue() + "<br>");
+//        }
+//
+//
+//        writer.write("<h1>JIra priorities </h1>");
+//
+//
+//        for (String priority : prioritiesService.getPrioritiesNames()) {
+//            writer.write(priority + "<br>");
+//        }
+//
+//
+//        writer.write("<h1>UR priorities </h1>");
+//
+//        for(URPriority urPriority : urPriorityManager.all())
+//            writer.write(urPriority.getUseResponsePrioritySlug() + "|" +urPriority.getUseResponsePriorityValue() + "<br>");
+//
+//
+//
+//        writer.write("<h1>Files links </h1>");
+//
+//        for(IssueFileLink urPriority : fileLinkManager.all())
+//            writer.write(urPriority.getJiraIssueId() + "|" +urPriority.getSentFilename() + "<br>");
 
         writer.close();
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        PrintWriter writer = response.getWriter();
-
-        try {
-            writer.write("{ \"status\" : \"success\" }");
-        } catch (Exception ignored) {
-            writer.write("{ \"status\" : \"error\" }");
+        if(userManager.getRemoteUser() == null) {
+            return;
         }
+
+        Map map = request.getParameterMap();
+
+        if(map.get("use_response_id") == null){
+            return;
+        }
+
+        Request sentRequest = new PostRequest();
+
+        sentRequest.addParameter(map);
+
+//        sentRequest.sendRequest();
+
+        map.remove("use_response_id");
+
+        response.getWriter().write("checked");
     }
-
-
-
-
 
 
 }

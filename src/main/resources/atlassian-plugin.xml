@@ -54,10 +54,10 @@
     <description key="issue-binder-servlet.description">The Issue Binder Servlet Plugin</description>
     <url-pattern>/urbinder</url-pattern>
   </servlet>
-  <!--<servlet name="Use Response Jira Statuses Link Servlet" i18n-name-key="use-response-jira-statuses-link-servlet.name" key="use-response-jira-statuses-link-servlet" class="useresponse.atlassian.plugins.jira.servlet.UseResponseJiraStatusesLinkServlet">-->
-    <!--<description key="use-response-jira-statuses-link-servlet.description">The Use Response Jira Statuses Link Servlet Plugin</description>-->
-    <!--<url-pattern>/statuseslinkservlet</url-pattern>-->
-  <!--</servlet>-->
+  <servlet name="Use Response Jira Statuses Link Servlet" i18n-name-key="use-response-jira-statuses-link-servlet.name" key="use-response-jira-statuses-link-servlet" class="useresponse.atlassian.plugins.jira.servlet.UseResponseJiraStatusesLinkServlet">
+    <description key="use-response-jira-statuses-link-servlet.description">The Use Response Jira Statuses Link Servlet Plugin</description>
+    <url-pattern>/statuseslinkservlet</url-pattern>
+  </servlet>
   <web-item name="UseResponse Settings" i18n-name-key="use-response-plugin-settings.name" key="use-response-plugin-settings" section="system.admin/globalsettings" weight="1000">
     <description key="use-response-plugin-settings.description">The UseResponse Plugin Settings</description>
     <label key="UseResponse Settings"/>

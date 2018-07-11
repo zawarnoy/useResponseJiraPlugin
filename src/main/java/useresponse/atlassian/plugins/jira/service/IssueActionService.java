@@ -73,14 +73,14 @@ public class IssueActionService {
         Request request = new PostRequest();
         request.addParameter("ownership", "helpdesk");
         request.addParameter("object_type", "ticket");
-        request = addChangeableParametersToRequest(request, issue);
+        request = addStandardParametersToRequest(request, issue);
         String response = request.sendRequest(createPostIssueRequestUrl());
         useResponseObjectManager.add(getIdFromResponse(response), issue.getId().intValue());
     }
 
     public void updateAction(Issue issue) throws Exception {
         Request request = new PutRequest();
-        request = addChangeableParametersToRequest(request, issue);
+        request = addStandardParametersToRequest(request, issue);
         request.addParameter("status", findUseResponseStatusFromJiraStatus(issue.getStatus().getSimpleStatus().getName()));
         UseResponseObject object = useResponseObjectManager.findByJiraId(issue.getId().intValue());
         String response = request.sendRequest(createPutIssueRequestUrl(object.getUseResponseId()));
@@ -120,7 +120,7 @@ public class IssueActionService {
     }
 
     public void deleteCommentAction(IssueEvent issueEvent) {
-        // DOESN'T WORK
+        // TODO
     }
 
 
@@ -211,7 +211,7 @@ public class IssueActionService {
         return request;
     }
 
-    private Request addChangeableParametersToRequest(Request request, Issue issue) {
+    private Request addStandardParametersToRequest(Request request, Issue issue) {
 
         try {
             IssueRenderContext renderContext = new IssueRenderContext(issue);
@@ -222,7 +222,6 @@ public class IssueActionService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         try {
             request.addParameter("force_author", issue.getReporterUser().getEmailAddress());
         } catch (Exception e) {
@@ -248,7 +247,6 @@ public class IssueActionService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         request = prepareRequest(request);
         return request;
     }
