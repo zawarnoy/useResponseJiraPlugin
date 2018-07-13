@@ -61,7 +61,7 @@ public class UseResponseSettingServlet extends HttpServlet {
                                      @ComponentImport TemplateRenderer templateRenderer,
                                      @ComponentImport PluginSettingsFactory pluginSettignsFactory,
                                      @ComponentImport ActiveObjects ao
-                                     ) {
+    ) {
         this.userManager = userManager;
         this.loginUriProvider = loginUriProvider;
         this.templateRenderer = templateRenderer;

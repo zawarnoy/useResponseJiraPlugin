@@ -6,8 +6,7 @@ import useresponse.atlassian.plugins.jira.manager.IssueFileLinkManager;
 import useresponse.atlassian.plugins.jira.model.IssueFileLink;
 import com.atlassian.activeobjects.external.ActiveObjects;
 import net.java.ao.Query;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Lists.newArrayList;
+import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -45,7 +44,7 @@ public class IssueFileLinkManagerImpl implements IssueFileLinkManager {
 
     @Override
     public List<IssueFileLink> all() {
-        return newArrayList(ao.find(IssueFileLink.class));
+        return Arrays.asList(ao.find(IssueFileLink.class));
     }
 
     @Override

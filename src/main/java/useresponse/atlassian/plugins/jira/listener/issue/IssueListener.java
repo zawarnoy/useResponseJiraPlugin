@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 import useresponse.atlassian.plugins.jira.manager.impl.*;
 import useresponse.atlassian.plugins.jira.service.IssueActionService;
 import com.atlassian.jira.issue.managers.DefaultAttachmentManager;
-
 import com.atlassian.activeobjects.external.ActiveObjects;
 
 

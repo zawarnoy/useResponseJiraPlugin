@@ -9,10 +9,9 @@ import com.atlassian.activeobjects.external.ActiveObjects;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Arrays;
 import java.util.List;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Lists.newArrayList;
+import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
 
 @Scanned
 @Named
@@ -64,7 +63,7 @@ public class StatusesLinkManagerImpl implements StatusesLinkManager {
 
     @Override
     public List<StatusesLink> all() {
-        return newArrayList(ao.find(StatusesLink.class));
+        return Arrays.asList(ao.find(StatusesLink.class));
     }
 
     private StatusesLink add(String jiraStatusName, String useResponseStatusSlug) {

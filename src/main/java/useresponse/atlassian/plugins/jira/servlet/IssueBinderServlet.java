@@ -95,7 +95,6 @@ public class IssueBinderServlet extends HttpServlet {
         try {
             if (useResponseObject == null) {
                 issueActionService.createAction(issue);
-
             } else {
                 issueActionService.updateAction(issue);
             }
@@ -110,7 +109,6 @@ public class IssueBinderServlet extends HttpServlet {
                 e.printStackTrace();
             }
         }
-
 
         resp.sendRedirect("projects/" + issue.getProjectObject().getOriginalKey() + "/issues/" + issue.getKey());
     }

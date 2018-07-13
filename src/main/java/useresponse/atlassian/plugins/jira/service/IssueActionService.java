@@ -176,8 +176,8 @@ public class IssueActionService {
         String filename;
 
         for (Attachment attachment : attachments) {
-             filename = attachment.getFilename();
-            if (checkNeedToSent(issueId, filename)) {
+            filename = attachment.getFilename();
+            if (checkNeedToSentAttachment(issueId, filename)) {
                 attachmentsData.add(transformAttachmentForRequest(attachment));
                 issueFileLinkManager.add(issueId, filename);
             }
@@ -186,7 +186,7 @@ public class IssueActionService {
         return request;
     }
 
-    private boolean checkNeedToSent(int issueId, String attachmentName) {
+    private boolean checkNeedToSentAttachment(int issueId, String attachmentName) {
         return issueFileLinkManager.find(issueId, attachmentName) == null;
     }
 
@@ -203,16 +203,13 @@ public class IssueActionService {
     }
 
     private Request addResponsibleToRequest(Request request, Issue issue) {
-        try {
+        if (issue.getAssignee() != null) {
             request.addParameter("responsible_email", issue.getAssignee().getEmailAddress());
-        } catch (NullPointerException e) {
-            e.printStackTrace();
         }
         return request;
     }
 
     private Request addStandardParametersToRequest(Request request, Issue issue) {
-
         try {
             IssueRenderContext renderContext = new IssueRenderContext(issue);
             JiraRendererPlugin renderer = rendererManager.getRendererForType("atlassian-wiki-renderer");
@@ -222,20 +219,28 @@ public class IssueActionService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        try {
-            request.addParameter("force_author", issue.getReporterUser().getEmailAddress());
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (issue.getReporterUser() != null) {
+            try {
+                request.addParameter("force_author", issue.getReporterUser().getEmailAddress());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-        try {
-            request.addParameter("tags", getTagsFromLabels(issue.getLabels()));
-        } catch (Exception e) {
-            e.printStackTrace();
+
+        if (issue.getLabels() != null) {
+            try {
+                request.addParameter("tags", getTagsFromLabels(issue.getLabels()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-        try {
-            request.addParameter("priority", priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName()).getUseResponsePriority().getUseResponsePrioritySlug());
-        } catch (Exception e) {
-            e.printStackTrace();
+
+        if (priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName()) != null) {
+            try {
+                request.addParameter("priority", priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName()).getUseResponsePriority().getUseResponsePrioritySlug());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         try {
             request = addResponsibleToRequest(request, issue);

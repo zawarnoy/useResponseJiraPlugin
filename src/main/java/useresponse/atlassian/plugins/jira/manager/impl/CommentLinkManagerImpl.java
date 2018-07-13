@@ -6,10 +6,11 @@ import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.model.CommentLink;
 import net.java.ao.Query;
 import com.atlassian.activeobjects.external.ActiveObjects;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Lists.newArrayList;
+import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
+
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Arrays;
 import java.util.List;
 
 @Scanned
@@ -56,6 +57,6 @@ public class CommentLinkManagerImpl implements CommentLinkManager {
 
     @Override
     public List<CommentLink> all() {
-            return newArrayList(ao.find(CommentLink.class));
+            return Arrays.asList(ao.find(CommentLink.class));
     }
 }

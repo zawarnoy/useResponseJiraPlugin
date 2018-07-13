@@ -6,15 +6,14 @@ import useresponse.atlassian.plugins.jira.manager.PriorityLinkManager;
 import useresponse.atlassian.plugins.jira.model.PriorityLink;
 
 import com.atlassian.activeobjects.external.ActiveObjects;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Lists.newArrayList;
+import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
 
 import net.java.ao.Query;
 import useresponse.atlassian.plugins.jira.model.URPriority;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Arrays;
 import java.util.List;
 
 @Scanned
@@ -64,6 +63,6 @@ public class PriorityLinkManagerImpl implements PriorityLinkManager {
 
     @Override
     public List<PriorityLink> all() {
-        return newArrayList(ao.find(PriorityLink.class));
+        return Arrays.asList(ao.find(PriorityLink.class));
     }
 }

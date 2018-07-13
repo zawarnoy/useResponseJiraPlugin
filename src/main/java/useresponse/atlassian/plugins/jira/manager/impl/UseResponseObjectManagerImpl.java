@@ -9,10 +9,9 @@ import com.atlassian.activeobjects.external.ActiveObjects;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Arrays;
 import java.util.List;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Lists.newArrayList;
+import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
 
 @Scanned
 @Named
@@ -58,6 +57,6 @@ public class UseResponseObjectManagerImpl implements UseResponseObjectManager {
 
     @Override
     public List<UseResponseObject> all() {
-        return newArrayList(ao.find(UseResponseObject.class));
+        return Arrays.asList(ao.find(UseResponseObject.class));
     }
 }
