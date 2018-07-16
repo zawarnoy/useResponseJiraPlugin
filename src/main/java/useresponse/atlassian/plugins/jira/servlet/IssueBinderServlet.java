@@ -6,6 +6,7 @@ import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.jira.issue.comments.CommentManager;
+import com.atlassian.jira.security.xsrf.RequiresXsrfCheck;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.auth.LoginUriProvider;
@@ -66,6 +67,7 @@ public class IssueBinderServlet extends HttpServlet {
     }
 
     @Override
+    @RequiresXsrfCheck
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
         SettingsService settingsService = new SettingsService(userManager, loginUriProvider, pluginSettingsFactory);
@@ -98,9 +100,7 @@ public class IssueBinderServlet extends HttpServlet {
             } else {
                 issueActionService.updateAction(issue);
             }
-        } catch (Exception ignored) {
-
-        }
+        } catch (Exception ignored){}
 
         for (Comment comment : commentManager.getComments(issue)) {
             try {
