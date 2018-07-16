@@ -13,4 +13,5 @@ public interface UseResponseObjectManager {
     UseResponseObject findByUseResponseId(int useResponseId);
     UseResponseObject findByJiraId(int jiraId);
     List<UseResponseObject> all();
+    UseResponseObject changeAutosendingFlag(int jiraId, boolean autosendingFlag);
 }

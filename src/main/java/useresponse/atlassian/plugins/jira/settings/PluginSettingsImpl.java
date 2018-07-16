@@ -10,6 +10,7 @@ public class PluginSettingsImpl implements PluginSettings {
 
     private static final String USERESPONSE_API_KEY = PLUGIN_PREFIX + ".apiKey";
     private static final String USERESPONSE_DOMAIN = PLUGIN_PREFIX + ".domain";
+    private static final String USERESPONSE_AUTOSENDING_FLAG = PLUGIN_PREFIX + ".autosendingFlag";
     private final PluginSettingsFactory pluginSettingsFactory;
 
     public PluginSettingsImpl(PluginSettingsFactory pluginSettingsFactory) {
@@ -36,6 +37,15 @@ public class PluginSettingsImpl implements PluginSettings {
         pluginSettingsFactory.createGlobalSettings().put(USERESPONSE_API_KEY, apiKey);
     }
 
+    @Override
+    public String getAutosendingFlag() {
+        return (String) pluginSettingsFactory.createGlobalSettings().get(USERESPONSE_AUTOSENDING_FLAG);
+    }
+
+    @Override
+    public void setAutosendingFlag(String autosendingFlag) {
+        pluginSettingsFactory.createGlobalSettings().put(USERESPONSE_AUTOSENDING_FLAG, autosendingFlag);
+    }
 
 
 }

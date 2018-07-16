@@ -37,7 +37,7 @@ import useresponse.atlassian.plugins.jira.storage.ConstStorage;
 @Scanned
 public class UseResponseSettingServlet extends HttpServlet {
 
-    private static String SETTINGS_TEMPLATE = "/templates/ur_settings_template.vm";
+    private static String SETTINGS_TEMPLATE = "/templates/ur_connection_settings_template.vm";
 
 
     private final UserManager userManager;
@@ -83,18 +83,8 @@ public class UseResponseSettingServlet extends HttpServlet {
         StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
         PrioritiesService prioritiesService = new PrioritiesService(ComponentAccessor.getComponent(DefaultPriorityManager.class), priorityLinkManager, urPriorityManager);
 
-
         PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
         Map<String, Object> context = new HashMap<String, Object>();
-
-
-        context.put("domain", pluginSettings.getUseResponseDomain() == null ? "" : pluginSettings.getUseResponseDomain());
-        context.put("apiKey", pluginSettings.getUseResponseApiKey() == null ? "" : pluginSettings.getUseResponseApiKey());
-
-        context.put("statusSlugLinks", statusesService.getStatusSlugLinks());
-        context.put("prioritySlugLinks", prioritiesService.getPrioritySlugLinks());
-        context.put("useResponsePriorities", prioritiesService.getUseResponsePriorities());
-
         HashMap<String, String> statuses = null;
         try {
             statuses = settingsService.getUseResponseStatuses(pluginSettings);
@@ -102,8 +92,14 @@ public class UseResponseSettingServlet extends HttpServlet {
             e.printStackTrace();
         }
 
+        context.put("domain", pluginSettings.getUseResponseDomain() == null ? "" : pluginSettings.getUseResponseDomain());
+        context.put("apiKey", pluginSettings.getUseResponseApiKey() == null ? "" : pluginSettings.getUseResponseApiKey());
+        context.put("statusSlugLinks", statusesService.getStatusSlugLinks());
+        context.put("prioritySlugLinks", prioritiesService.getPrioritySlugLinks());
+        context.put("useResponsePriorities", prioritiesService.getUseResponsePriorities());
         context.put("baseUrl", applicationProperties.getBaseUrl(UrlMode.ABSOLUTE));
         context.put("useResponseStatuses", statuses);
+        context.put("autosending", pluginSettings.getAutosendingFlag() != null && Boolean.parseBoolean(pluginSettings.getAutosendingFlag()));
 
         response.setContentType("text/html");
         templateRenderer.render(SETTINGS_TEMPLATE, context, response.getWriter());
@@ -160,11 +156,12 @@ public class UseResponseSettingServlet extends HttpServlet {
     private void setConnectionParameters(HttpServletRequest request, SettingsService settingsService) {
         String domain = request.getParameter("domain");
         String apiKey = request.getParameter("apiKey");
+        String autosending = request.getParameter("autosending");
 
         try {
             if(!SettingsService.testURConnection(domain, apiKey))
                 return;
-            settingsService.setURParameters(domain, apiKey);
+            settingsService.setURParameters(domain, apiKey, autosending);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -150,7 +150,7 @@
             <artifactId>atlassian-plugins-webresource-api</artifactId>
             <version>3.5.39</version>
         </dependency>
-        <!--<dependency>-->
+      <!--<dependency>-->
             <!--<groupId>com.atlassian.plugins</groupId>-->
             <!--<artifactId>atlassian-plugins-webresource-api</artifactId>-->
             <!--<version>3.5.39</version>-->

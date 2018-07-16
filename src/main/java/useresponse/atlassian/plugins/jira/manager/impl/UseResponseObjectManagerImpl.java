@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Arrays;
 import java.util.List;
+
 import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
 
 @Scanned
@@ -30,6 +31,7 @@ public class UseResponseObjectManagerImpl implements UseResponseObjectManager {
         final UseResponseObject useResponseObject = ao.create(UseResponseObject.class);
         useResponseObject.setUseResponseId(useResponseId);
         useResponseObject.setJiraId(jiraId);
+        useResponseObject.setNeedOfSync(true);
         useResponseObject.save();
         return useResponseObject;
     }
@@ -58,5 +60,15 @@ public class UseResponseObjectManagerImpl implements UseResponseObjectManager {
     @Override
     public List<UseResponseObject> all() {
         return Arrays.asList(ao.find(UseResponseObject.class));
+    }
+
+    @Override
+    public UseResponseObject changeAutosendingFlag(int jiraId, boolean autosendingFlag) {
+        UseResponseObject object = findByJiraId(jiraId);
+        if (object != null) {
+            object.setNeedOfSync(autosendingFlag);
+            return object;
+        }
+        return null;
     }
 }

@@ -17,11 +17,12 @@ import useresponse.atlassian.plugins.jira.manager.impl.*;
 import useresponse.atlassian.plugins.jira.service.IssueActionService;
 import com.atlassian.jira.issue.managers.DefaultAttachmentManager;
 import com.atlassian.activeobjects.external.ActiveObjects;
+import useresponse.atlassian.plugins.jira.settings.PluginSettings;
+import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 
 
 @Component
 public class IssueListener implements InitializingBean, DisposableBean {
-
 
     @JiraImport
     private final EventPublisher eventPublisher;
@@ -50,11 +51,14 @@ public class IssueListener implements InitializingBean, DisposableBean {
     @ComponentImport
     private final PluginSettingsFactory pluginSettingsFactory;
 
+    private PluginSettings pluginSettings;
+
     @Autowired
     public IssueListener(EventPublisher eventPublisher, PluginSettingsFactory pluginSettingsFactory, ActiveObjects ao) {
         this.eventPublisher = eventPublisher;
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.ao = ao;
+        this.pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
     }
 
     /**
@@ -98,6 +102,10 @@ public class IssueListener implements InitializingBean, DisposableBean {
                 rendererManager,
                 issueFileLinkManager
         );
+
+        if (!Boolean.parseBoolean(pluginSettings.getAutosendingFlag())) {
+            return;
+        }
 
         try {
             if (typeId.equals(EventType.ISSUE_CREATED_ID)) {

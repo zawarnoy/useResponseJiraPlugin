@@ -7,4 +7,7 @@ public interface PluginSettings {
     String getUseResponseApiKey();
     void setUseResponseApiKey(String apiKey);
 
+    String getAutosendingFlag();
+    void setAutosendingFlag(String autosendingFlag);
+
 }

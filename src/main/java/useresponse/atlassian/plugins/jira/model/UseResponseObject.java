@@ -7,4 +7,6 @@ public interface UseResponseObject extends Entity {
     void setUseResponseId(int useResponseId);
     int getJiraId();
     void setJiraId(int jiraId);
+    boolean getNeedOfSync();
+    void setNeedOfSync(boolean needOfSync);
 }

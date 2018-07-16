@@ -80,10 +80,11 @@ public class SettingsService {
         return URI.create(builder.toString());
     }
 
-    public void setURParameters(String domain, String apiKey) {
+    public void setURParameters(String domain, String apiKey, String autosending) {
         PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
         pluginSettings.setUseResponseDomain(domain);
         pluginSettings.setUseResponseApiKey(apiKey);
+        pluginSettings.setAutosendingFlag(autosending);
     }
 
     public static boolean testURConnection(String urDomain, String urApiKey) throws Exception {
