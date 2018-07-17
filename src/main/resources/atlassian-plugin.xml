@@ -9,7 +9,8 @@
     <param name="plugin-logo">images/pluginLogo.png</param>
   </plugin-info>
   <!-- add our i18n resource -->
-  <resource type="i18n" name="i18n" location="UseResponse-plugin"/>
+  <!--location="jira-plugin" !!!!-->
+  <resource type="i18n" name="i18n" location="jira-plugin"/>
   <!-- add our web resources -->
   <web-resource key="jira-plugin-resources" name="jira-plugin Web Resources">
     <dependency>com.atlassian.auiplugin:ajs</dependency>
@@ -57,7 +58,7 @@
     <url-pattern>/ursettings</url-pattern>
     <condition class="useresponse.atlassian.plugins.jira.condition.UserIsAdminCondition"/>
   </servlet>
-  <servlet name="Issue Binder Servlet" i18n-name-key="issue-binder-servlet.name" key="issue-binder-servlet"
+  <servlet name="issue-binder-servlet.name" i18n-name-key="issue-binder-servlet.name" key="issue-binder-servlet"
            class="useresponse.atlassian.plugins.jira.servlet.IssueBinderServlet">
     <description key="issue-binder-servlet.description">The Issue Binder Servlet Plugin</description>
     <url-pattern>/urbinder</url-pattern>
@@ -70,10 +71,10 @@
     </description>
     <url-pattern>/statuseslinkservlet</url-pattern>
   </servlet>
-  <web-item name="UseResponse Settings" i18n-name-key="use-response-plugin-settings.name"
+  <web-item name="use-response-plugin-settings.label" i18n-name-key="use-response-plugin-settings.name"
             key="use-response-plugin-settings" section="system.admin/globalsettings" weight="1000">
     <description key="use-response-plugin-settings.description">The UseResponse Plugin Settings</description>
-    <label key="UseResponse Settings"/>
+    <label key="use-response-plugin-settings.label"/>
     <link linkId="use-response-plugin-settings-link">/plugins/servlet/ursettings</link>
     <condition class="useresponse.atlassian.plugins.jira.condition.UserIsAdminCondition"/>
   </web-item>
@@ -81,8 +82,14 @@
             key="useResponselinkbutton" section="transitions-all" weight="1000">
     <description key="useResponselinkbutton.description">The UseResponse link button Plugin</description>
     <label key="Move to UseResponse"/>
-    <link linkId="useResponselinkbutton">/plugins/servlet/urbinder?issue_id=$issue.id&amp;atl_token=${atl_token}</link>
-    <context-provider class="useresponse.atlassian.plugins.jira.provider.UseResponseLinkButtonProvider">
-    </context-provider>
+    <link linkId="useResponselinkbutton-link">/plugins/servlet/urbinder?issue_id=$issue.id&amp;atl_token=${atl_token}
+    </link>
+    <context-provider
+        class="useresponse.atlassian.plugins.jira.provider.UseResponseLinkButtonProvider"></context-provider>
+    <component-import key="resources"/>
   </web-item>
+  <web-resource name="Issue Page Resources" i18n-name-key="issue-page-resources.name" key="issue-page-resources">
+    <description key="issue-page-resources.description">The Issue Page Resources Plugin</description>
+    <context>issue.browse</context>
+  </web-resource>
 </atlassian-plugin>

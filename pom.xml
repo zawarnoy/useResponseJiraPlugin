@@ -9,7 +9,7 @@
         <name>UseResponse</name>
         <url>https://www.useresponse.com/</url>
     </organization>
-    <name>jira-plugin</name>
+    <name>UseResponse Plugin</name>
     <description>This is the useresponse.atlassian.plugins.jira:jira-plugin plugin for Atlassian JIRA.</description>
     <packaging>atlassian-plugin</packaging>
     <dependencies>

@@ -9,5 +9,4 @@ public interface PluginSettings {
 
     String getAutosendingFlag();
     void setAutosendingFlag(String autosendingFlag);
-
 }

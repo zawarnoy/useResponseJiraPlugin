@@ -11,18 +11,12 @@ import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.jira.issue.fields.renderer.IssueRenderContext;
 import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
 import com.atlassian.jira.issue.label.Label;
-import com.atlassian.jira.util.AttachmentUtils;
-import com.atlassian.jira.util.PathUtils;
-import com.atlassian.jira.util.io.InputStreamConsumer;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import sun.awt.AWTAccessor;
 import useresponse.atlassian.plugins.jira.manager.*;
 import useresponse.atlassian.plugins.jira.model.CommentLink;
-import useresponse.atlassian.plugins.jira.model.IssueFileLink;
 import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 import useresponse.atlassian.plugins.jira.request.DeleteRequest;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
@@ -32,12 +26,7 @@ import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 import useresponse.atlassian.plugins.jira.storage.ConstStorage;
 import com.atlassian.jira.issue.AttachmentManager;
-
 import org.apache.commons.io.IOUtils;
-
-
-import java.io.*;
-import java.nio.file.Files;
 import java.util.*;
 
 public class IssueActionService {
@@ -93,7 +82,7 @@ public class IssueActionService {
             return;
         }
         Request request = new PostRequest();
-        request = prepareRequest(request);
+        request = prepareRequest(request, comment.getId().intValue());
 
         int id = useResponseObjectManager.findByJiraId(comment.getIssue().getId().intValue()).getUseResponseId();
         request.addParameter("object_id", String.valueOf(id));
@@ -106,7 +95,7 @@ public class IssueActionService {
 
     public void updateCommentAction(Comment comment) throws Exception {
         Request request = new PostRequest();
-        request = prepareRequest(request);
+        request = prepareRequest(request, comment.getId().intValue());
         int id = commentLinkManager.findByJiraId(comment.getId().intValue()).getUseResponseCommentId();
         request.addParameter("content", comment.getBody());
         String response = request.sendRequest(createPutCommentRequestUrl(id));
@@ -114,7 +103,7 @@ public class IssueActionService {
 
     public void deleteAction(Issue issue) throws Exception {
         Request request = new DeleteRequest();
-        request = prepareRequest(request);
+        request = prepareRequest(request, issue.getId().intValue());
         int id = useResponseObjectManager.findByJiraId(issue.getId().intValue()).getUseResponseId();
         String response = request.sendRequest(createDeleteIssueRequestUrl(id));
     }
@@ -158,8 +147,8 @@ public class IssueActionService {
         return ((Long) ((JSONObject) object.get("success")).get("id")).intValue();
     }
 
-    private Request prepareRequest(Request request) {
-        request.addParameter("from_jira", "1");
+    private Request prepareRequest(Request request, int object_id) {
+        request.addParameter("jira_id", String.valueOf(object_id));
         request.addParameter("treat_as_html", "1");
         return request;
     }
@@ -252,7 +241,7 @@ public class IssueActionService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        request = prepareRequest(request);
+        request = prepareRequest(request, issue.getId().intValue());
         return request;
     }
 

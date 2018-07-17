@@ -4,7 +4,6 @@ import com.atlassian.jira.issue.priority.Priority;
 import useresponse.atlassian.plugins.jira.manager.PriorityLinkManager;
 import useresponse.atlassian.plugins.jira.manager.URPriorityManager;
 import useresponse.atlassian.plugins.jira.model.PriorityLink;
-import useresponse.atlassian.plugins.jira.model.StatusesLink;
 import useresponse.atlassian.plugins.jira.model.URPriority;
 import com.atlassian.jira.config.DefaultPriorityManager;
 

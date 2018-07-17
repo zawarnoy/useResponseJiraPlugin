@@ -36,7 +36,6 @@ public class IssueBinderServlet extends HttpServlet {
     private final CommentManager commentManager;
     private final RendererManager rendererManager;
 
-
     @Autowired
     private PriorityLinkManagerImpl priorityLinkManager;
     @Autowired

@@ -22,19 +22,23 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 public class SettingsService {
-
     private final PluginSettingsFactory pluginSettingsFactory;
     private final UserManager userManager;
     private final LoginUriProvider loginUriProvider;
+    private final PluginSettings pluginSettings;
 
     public SettingsService(UserManager userManager, LoginUriProvider loginUriProvider, PluginSettingsFactory pluginSettignsFactory) {
         this.pluginSettingsFactory = pluginSettignsFactory;
         this.loginUriProvider = loginUriProvider;
         this.userManager = userManager;
+        this.pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
     }
 
 
     public HashMap<String, String> getUseResponseStatuses(PluginSettings useResponseSettings) throws Exception {
+        if(pluginSettings.getUseResponseDomain() == null || pluginSettings.getUseResponseApiKey() == null) {
+            return null;
+        }
         String requestUrl = createUseResponseStatusesLinkFromSettings(useResponseSettings);
         Request statusesRequest = new GetRequest();
         return getStatusesFromJson(statusesRequest.sendRequest(requestUrl));
@@ -43,7 +47,7 @@ public class SettingsService {
     private String createUseResponseStatusesLinkFromSettings(PluginSettings settings) {
         String domain = settings.getUseResponseDomain();
         String apiKey = settings.getUseResponseApiKey();
-        return domain + ConstStorage.API_STRING +"statuses.json?object_type=ticket&apiKey=" + apiKey;
+        return domain + ConstStorage.API_STRING + "statuses.json?object_type=ticket&apiKey=" + apiKey;
     }
 
     private HashMap<String, String> getStatusesFromJson(String json) throws ParseException {
@@ -87,12 +91,23 @@ public class SettingsService {
         pluginSettings.setAutosendingFlag(autosending);
     }
 
-    public static boolean testURConnection(String urDomain, String urApiKey) throws Exception {
+    public static boolean testURConnection(String urDomain, String urApiKey){
         Request request = new GetRequest();
-        String response = request.sendRequest(urDomain + ConstStorage.API_STRING +"me.json?apiKey=" + urApiKey);
+        String response = null;
+        try {
+            response = request.sendRequest(urDomain + ConstStorage.API_STRING + "me.json?apiKey=" + urApiKey);
+        } catch (Exception e) {
+            return false;
+        }
 
         JSONParser parser = new JSONParser();
-        JSONObject data = (JSONObject) parser.parse(response);
+        JSONObject data = null;
+        try {
+            data = (JSONObject) parser.parse(response);
+        } catch (Exception e) {
+            return false;
+        }
+
         return data.get("error") == null;
     }
 

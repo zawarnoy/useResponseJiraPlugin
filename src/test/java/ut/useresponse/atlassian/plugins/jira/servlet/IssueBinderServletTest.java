@@ -32,6 +32,5 @@ public class IssueBinderServletTest {
         String expected = "test";
         when(mockRequest.getParameter(Mockito.anyString())).thenReturn(expected);
         assertEquals(expected,mockRequest.getParameter("some string"));
-
     }
 }
