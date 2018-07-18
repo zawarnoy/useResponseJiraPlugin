@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import useresponse.atlassian.plugins.jira.service.IssueActionService;
+//import useresponse.atlassian.plugins.jira.service.IssueActionService;
 import useresponse.atlassian.plugins.jira.service.SettingsService;
 
 
@@ -75,39 +75,39 @@ public class IssueBinderServlet extends HttpServlet {
             settingsService.redirectToLogin(req, resp);
         }
 
-        IssueActionService issueActionService = new IssueActionService(
-                pluginSettingsFactory,
-                commentLinkManager,
-                useResponseObjectManager,
-                statusesLinkManager,
-                priorityLinkManager,
-                attachmentManager,
-                rendererManager,
-                issueFileLinkManager
-        );
-
-
+//        IssueActionService issueActionService = new IssueActionService(
+//                pluginSettingsFactory,
+//                commentLinkManager,
+//                useResponseObjectManager,
+//                statusesLinkManager,
+//                priorityLinkManager,
+//                attachmentManager,
+//                rendererManager,
+//                issueFileLinkManager
+//        );
+//
+//
         String jira_id = (req.getParameter("issue_id"));
-        UseResponseObject useResponseObject;
-        useResponseObject = useResponseObjectManager.findByJiraId(Integer.valueOf(jira_id));
+//        UseResponseObject useResponseObject;
+//        useResponseObject = useResponseObjectManager.findByJiraId(Integer.valueOf(jira_id));
 
         Issue issue = issueManager.getIssueObject(Long.valueOf(jira_id));
 
-        try {
-            if (useResponseObject == null) {
-                issueActionService.createAction(issue);
-            } else {
-                issueActionService.updateAction(issue);
-            }
-        } catch (Exception ignored){}
-
-        for (Comment comment : commentManager.getComments(issue)) {
-            try {
-                issueActionService.createCommentAction(comment);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+//        try {
+//            if (useResponseObject == null) {
+//                issueActionService.createAction(issue);
+//            } else {
+//                issueActionService.updateAction(issue);
+//            }
+//        } catch (Exception ignored){}
+//
+//        for (Comment comment : commentManager.getComments(issue)) {
+//            try {
+//                issueActionService.createCommentAction(comment);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
 
         resp.sendRedirect("projects/" + issue.getProjectObject().getOriginalKey() + "/issues/" + issue.getKey());
     }

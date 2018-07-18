@@ -13,8 +13,15 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import useresponse.atlassian.plugins.jira.action.listener.Action;
+import useresponse.atlassian.plugins.jira.action.listener.comment.CreateCommentAction;
+import useresponse.atlassian.plugins.jira.action.listener.comment.DeleteCommentAction;
+import useresponse.atlassian.plugins.jira.action.listener.comment.UpdateCommentAction;
+import useresponse.atlassian.plugins.jira.action.listener.issue.CreateIssueAction;
+import useresponse.atlassian.plugins.jira.action.listener.issue.DeleteIssueAction;
+import useresponse.atlassian.plugins.jira.action.listener.issue.UpdateIssueAction;
 import useresponse.atlassian.plugins.jira.manager.impl.*;
-import useresponse.atlassian.plugins.jira.service.IssueActionService;
+//import useresponse.atlassian.plugins.jira.service.IssueActionService;
 import com.atlassian.jira.issue.managers.DefaultAttachmentManager;
 import com.atlassian.activeobjects.external.ActiveObjects;
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
@@ -92,40 +99,28 @@ public class IssueListener implements InitializingBean, DisposableBean {
 
     private void executeAction(IssueEvent issueEvent) {
         Long typeId = issueEvent.getEventTypeId();
-        IssueActionService issueActionService = new IssueActionService(
-                pluginSettingsFactory,
-                commentLinkManager,
-                useResponseObjectManager,
-                statusesLinkManager,
-                priorityLinkManager,
-                ComponentAccessor.getComponent(DefaultAttachmentManager.class),
-                rendererManager,
-                issueFileLinkManager
-        );
 
         if (!Boolean.parseBoolean(pluginSettings.getAutosendingFlag())) {
             return;
         }
 
-        try {
-            if (typeId.equals(EventType.ISSUE_CREATED_ID)) {
-                issueActionService.createAction(issueEvent.getIssue());
-            } else if (typeId.equals(EventType.ISSUE_COMMENTED_ID)) {
-                issueActionService.createCommentAction(issueEvent.getComment());
-            } else if (typeId.equals(EventType.ISSUE_COMMENT_EDITED_ID)) {
-                issueActionService.updateCommentAction(issueEvent.getComment());
-            } else if (typeId.equals(EventType.ISSUE_DELETED_ID)) {
-                issueActionService.deleteAction(issueEvent.getIssue());
-            } else if (typeId.equals(EventType.ISSUE_COMMENT_DELETED_ID)) {
-                issueActionService.deleteCommentAction(issueEvent);
-            } else {
-                issueActionService.updateAction(issueEvent.getIssue());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        Action action;
+
+        if (typeId.equals(EventType.ISSUE_CREATED_ID)) {
+            action = new CreateIssueAction(issueEvent, useResponseObjectManager, rendererManager, priorityLinkManager, pluginSettingsFactory, ComponentAccessor.getComponent(DefaultAttachmentManager.class), issueFileLinkManager);
+        } else if (typeId.equals(EventType.ISSUE_COMMENTED_ID)) {
+            action = new CreateCommentAction(issueEvent, commentLinkManager, useResponseObjectManager, pluginSettingsFactory);
+        } else if (typeId.equals(EventType.ISSUE_COMMENT_EDITED_ID)) {
+            action = new UpdateCommentAction(issueEvent, commentLinkManager, useResponseObjectManager, pluginSettingsFactory);
+        } else if (typeId.equals(EventType.ISSUE_DELETED_ID)) {
+            action = new DeleteIssueAction(issueEvent, useResponseObjectManager, pluginSettingsFactory);
+        } else if (typeId.equals(EventType.ISSUE_COMMENT_DELETED_ID)) {
+            action = new DeleteCommentAction();
+        } else {
+            action = new UpdateIssueAction(issueEvent, useResponseObjectManager, rendererManager, priorityLinkManager, pluginSettingsFactory, ComponentAccessor.getComponent(DefaultAttachmentManager.class), issueFileLinkManager, statusesLinkManager);
         }
 
-
+        (new Thread(action, "Issue event Thread")).start();
     }
 
 
