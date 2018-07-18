@@ -2,6 +2,7 @@ package useresponse.atlassian.plugins.jira.action.listener.issue;
 
 import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.issue.AttachmentManager;
+import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import org.json.simple.parser.ParseException;
@@ -13,14 +14,14 @@ import useresponse.atlassian.plugins.jira.request.Request;
 
 public class CreateIssueAction extends AbstractIssueAction {
 
-    public CreateIssueAction(IssueEvent issueEvent,
+    public CreateIssueAction(Issue issue,
                              UseResponseObjectManager useResponseObjectManager,
                              RendererManager rendererManager,
                              PriorityLinkManager priorityLinkManager,
                              PluginSettingsFactory pluginSettingsFactory,
                              AttachmentManager attachmentManager,
                              IssueFileLinkManager issueFileLinkManager) {
-        this.issueEvent = issueEvent;
+        this.issue = issue;
         this.useResponseObjectManager = useResponseObjectManager;
         this.rendererManager = rendererManager;
         this.priorityLinkManager = priorityLinkManager;
@@ -38,15 +39,15 @@ public class CreateIssueAction extends AbstractIssueAction {
 
     @Override
     public void handleResponse(String response) throws ParseException {
-        useResponseObjectManager.add(getIdFromResponse(response), issueEvent.getIssue().getId().intValue());
+        useResponseObjectManager.add(getIdFromResponse(response), issue.getId().intValue());
     }
 
     @Override
     public Request addParameters(Request request) {
         request.addParameter("ownership", "helpdesk");
         request.addParameter("object_type", "ticket");
-        request = prepareRequest(request, issueEvent.getIssue().getId().intValue());
-        return addStandardParametersToRequest(request, issueEvent.getIssue());
+        request = prepareRequest(request, issue.getId().intValue());
+        return addStandardParametersToRequest(request, issue);
     }
 
 }

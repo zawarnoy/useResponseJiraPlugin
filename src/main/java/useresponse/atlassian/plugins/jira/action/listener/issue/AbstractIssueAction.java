@@ -4,6 +4,7 @@ import com.atlassian.jira.issue.AttachmentManager;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.jira.issue.attachment.Attachment;
+import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.jira.issue.fields.renderer.IssueRenderContext;
 import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
 import com.atlassian.jira.issue.label.Label;
@@ -18,6 +19,7 @@ import java.util.*;
 
 public abstract class AbstractIssueAction extends AbstractAction {
 
+    protected Issue issue;
     protected RendererManager rendererManager;
     protected PriorityLinkManager priorityLinkManager;
     protected UseResponseObjectManager useResponseObjectManager;

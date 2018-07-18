@@ -107,17 +107,17 @@ public class IssueListener implements InitializingBean, DisposableBean {
         Action action;
 
         if (typeId.equals(EventType.ISSUE_CREATED_ID)) {
-            action = new CreateIssueAction(issueEvent, useResponseObjectManager, rendererManager, priorityLinkManager, pluginSettingsFactory, ComponentAccessor.getComponent(DefaultAttachmentManager.class), issueFileLinkManager);
+            action = new CreateIssueAction(issueEvent.getIssue(), useResponseObjectManager, rendererManager, priorityLinkManager, pluginSettingsFactory, ComponentAccessor.getComponent(DefaultAttachmentManager.class), issueFileLinkManager);
         } else if (typeId.equals(EventType.ISSUE_COMMENTED_ID)) {
-            action = new CreateCommentAction(issueEvent, commentLinkManager, useResponseObjectManager, pluginSettingsFactory);
+            action = new CreateCommentAction(issueEvent.getComment(), commentLinkManager, useResponseObjectManager, pluginSettingsFactory);
         } else if (typeId.equals(EventType.ISSUE_COMMENT_EDITED_ID)) {
-            action = new UpdateCommentAction(issueEvent, commentLinkManager, useResponseObjectManager, pluginSettingsFactory);
+            action = new UpdateCommentAction(issueEvent.getComment(), commentLinkManager, useResponseObjectManager, pluginSettingsFactory);
         } else if (typeId.equals(EventType.ISSUE_DELETED_ID)) {
-            action = new DeleteIssueAction(issueEvent, useResponseObjectManager, pluginSettingsFactory);
+            action = new DeleteIssueAction(issueEvent.getIssue(), useResponseObjectManager, pluginSettingsFactory);
         } else if (typeId.equals(EventType.ISSUE_COMMENT_DELETED_ID)) {
             action = new DeleteCommentAction();
         } else {
-            action = new UpdateIssueAction(issueEvent, useResponseObjectManager, rendererManager, priorityLinkManager, pluginSettingsFactory, ComponentAccessor.getComponent(DefaultAttachmentManager.class), issueFileLinkManager, statusesLinkManager);
+            action = new UpdateIssueAction(issueEvent.getIssue(), useResponseObjectManager, rendererManager, priorityLinkManager, pluginSettingsFactory, ComponentAccessor.getComponent(DefaultAttachmentManager.class), issueFileLinkManager, statusesLinkManager);
         }
 
         (new Thread(action, "Issue event Thread")).start();

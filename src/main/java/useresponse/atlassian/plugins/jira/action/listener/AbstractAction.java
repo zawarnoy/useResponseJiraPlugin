@@ -1,5 +1,6 @@
 package useresponse.atlassian.plugins.jira.action.listener;
 
+import com.atlassian.jira.entity.WithId;
 import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.issue.AttachmentManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
@@ -15,7 +16,6 @@ import useresponse.atlassian.plugins.jira.storage.ConstStorage;
 
 public abstract class AbstractAction implements Action {
 
-    protected IssueEvent issueEvent;
     protected Request request;
     protected PluginSettingsFactory pluginSettingsFactory;
 
@@ -33,11 +33,10 @@ public abstract class AbstractAction implements Action {
 
     @Override
     public void run() {
-        execute(this.issueEvent);
+        execute();
     }
 
-    @Override
-    public void execute(IssueEvent event) {
+    private void execute() {
         request = addParameters(request);
         try {
             String response = request.sendRequest(createUrl());

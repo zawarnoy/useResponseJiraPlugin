@@ -2,6 +2,7 @@ package useresponse.atlassian.plugins.jira.action.listener.issue;
 
 import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.issue.AttachmentManager;
+import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import useresponse.atlassian.plugins.jira.manager.IssueFileLinkManager;
@@ -15,7 +16,7 @@ public class UpdateIssueAction extends AbstractIssueAction {
 
     private final StatusesLinkManager statusesLinkManager;
 
-    public UpdateIssueAction(IssueEvent issueEvent,
+    public UpdateIssueAction(Issue issue,
                              UseResponseObjectManager useResponseObjectManager,
                              RendererManager rendererManager,
                              PriorityLinkManager priorityLinkManager,
@@ -23,7 +24,7 @@ public class UpdateIssueAction extends AbstractIssueAction {
                              AttachmentManager attachmentManager,
                              IssueFileLinkManager issueFileLinkManager,
                              StatusesLinkManager statusesLinkManager) {
-        this.issueEvent = issueEvent;
+        this.issue = issue;
         this.useResponseObjectManager = useResponseObjectManager;
         this.rendererManager = rendererManager;
         this.priorityLinkManager = priorityLinkManager;
@@ -37,7 +38,7 @@ public class UpdateIssueAction extends AbstractIssueAction {
 
     @Override
     public String createUrl() {
-        int useResponseId = useResponseObjectManager.findByJiraId(issueEvent.getIssue().getId().intValue()).getUseResponseId();
+        int useResponseId = useResponseObjectManager.findByJiraId(issue.getId().intValue()).getUseResponseId();
         return collectUrl("objects/" + useResponseId + ".json");
     }
 
@@ -48,10 +49,10 @@ public class UpdateIssueAction extends AbstractIssueAction {
 
     @Override
     public Request addParameters(Request request) {
-        addStandardParametersToRequest(request, issueEvent.getIssue());
-        request = prepareRequest(request, issueEvent.getIssue().getId().intValue());
+        addStandardParametersToRequest(request, issue);
+        request = prepareRequest(request, issue.getId().intValue());
         try {
-            request.addParameter("status", findUseResponseStatusFromJiraStatus(issueEvent.getIssue().getStatus().getName()));
+            request.addParameter("status", findUseResponseStatusFromJiraStatus(issue.getStatus().getName()));
         } catch (Exception e) {
             e.printStackTrace();
         }
