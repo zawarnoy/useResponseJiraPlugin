@@ -13,7 +13,9 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import useresponse.atlassian.plugins.jira.action.listener.Action;
+import useresponse.atlassian.plugins.jira.action.ActionFactory;
+import useresponse.atlassian.plugins.jira.action.Action;
+import useresponse.atlassian.plugins.jira.action.listener.ListenerActionFactory;
 import useresponse.atlassian.plugins.jira.action.listener.comment.CreateCommentAction;
 import useresponse.atlassian.plugins.jira.action.listener.comment.DeleteCommentAction;
 import useresponse.atlassian.plugins.jira.action.listener.comment.UpdateCommentAction;
@@ -21,7 +23,6 @@ import useresponse.atlassian.plugins.jira.action.listener.issue.CreateIssueActio
 import useresponse.atlassian.plugins.jira.action.listener.issue.DeleteIssueAction;
 import useresponse.atlassian.plugins.jira.action.listener.issue.UpdateIssueAction;
 import useresponse.atlassian.plugins.jira.manager.impl.*;
-//import useresponse.atlassian.plugins.jira.service.IssueActionService;
 import com.atlassian.jira.issue.managers.DefaultAttachmentManager;
 import com.atlassian.activeobjects.external.ActiveObjects;
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
@@ -90,6 +91,9 @@ public class IssueListener implements InitializingBean, DisposableBean {
 
     @EventListener
     public void onIssueEvent(IssueEvent issueEvent) {
+        if (!Boolean.parseBoolean(pluginSettings.getAutosendingFlag())) {
+            return;
+        }
         try {
             executeAction(issueEvent);
         } catch (Exception e) {
@@ -100,27 +104,35 @@ public class IssueListener implements InitializingBean, DisposableBean {
     private void executeAction(IssueEvent issueEvent) {
         Long typeId = issueEvent.getEventTypeId();
 
-        if (!Boolean.parseBoolean(pluginSettings.getAutosendingFlag())) {
-            return;
-        }
+        ActionFactory actionFactory = new ListenerActionFactory(
+                issueEvent.getIssue(),
+                useResponseObjectManager,
+                rendererManager,
+                priorityLinkManager,
+                pluginSettingsFactory,
+                issueFileLinkManager,
+                statusesLinkManager,
+                commentLinkManager
+        );
 
         Action action;
 
         if (typeId.equals(EventType.ISSUE_CREATED_ID)) {
-            action = new CreateIssueAction(issueEvent.getIssue(), useResponseObjectManager, rendererManager, priorityLinkManager, pluginSettingsFactory, ComponentAccessor.getComponent(DefaultAttachmentManager.class), issueFileLinkManager);
+            action = actionFactory.createAction(CreateIssueAction.class);
         } else if (typeId.equals(EventType.ISSUE_COMMENTED_ID)) {
-            action = new CreateCommentAction(issueEvent.getComment(), commentLinkManager, useResponseObjectManager, pluginSettingsFactory);
+            action = actionFactory.createAction(CreateCommentAction.class);
         } else if (typeId.equals(EventType.ISSUE_COMMENT_EDITED_ID)) {
-            action = new UpdateCommentAction(issueEvent.getComment(), commentLinkManager, useResponseObjectManager, pluginSettingsFactory);
+            action = actionFactory.createAction(UpdateCommentAction.class);
         } else if (typeId.equals(EventType.ISSUE_DELETED_ID)) {
-            action = new DeleteIssueAction(issueEvent.getIssue(), useResponseObjectManager, pluginSettingsFactory);
+            action = actionFactory.createAction(DeleteIssueAction.class);
         } else if (typeId.equals(EventType.ISSUE_COMMENT_DELETED_ID)) {
-            action = new DeleteCommentAction();
+            action = actionFactory.createAction(DeleteCommentAction.class);
         } else {
-            action = new UpdateIssueAction(issueEvent.getIssue(), useResponseObjectManager, rendererManager, priorityLinkManager, pluginSettingsFactory, ComponentAccessor.getComponent(DefaultAttachmentManager.class), issueFileLinkManager, statusesLinkManager);
+            action = actionFactory.createAction(UpdateIssueAction.class);
         }
 
-        (new Thread(action, "Issue event Thread")).start();
+        if (action != null)
+            (new Thread(action, "Issue event Thread")).start();
     }
 
 

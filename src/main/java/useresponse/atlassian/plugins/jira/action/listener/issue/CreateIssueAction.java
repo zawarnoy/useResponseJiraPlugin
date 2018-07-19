@@ -1,5 +1,6 @@
 package useresponse.atlassian.plugins.jira.action.listener.issue;
 
+import com.atlassian.jira.entity.WithId;
 import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.issue.AttachmentManager;
 import com.atlassian.jira.issue.Issue;

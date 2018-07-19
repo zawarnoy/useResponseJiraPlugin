@@ -56,6 +56,11 @@ public class CommentLinkManagerImpl implements CommentLinkManager {
     }
 
     @Override
+    public void delete(CommentLink commentLink) {
+        ao.delete(commentLink);
+    }
+
+    @Override
     public List<CommentLink> all() {
             return Arrays.asList(ao.find(CommentLink.class));
     }

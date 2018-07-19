@@ -11,5 +11,6 @@ public interface CommentLinkManager {
     CommentLink findByUseResponseId(int useResponseCommentId);
     CommentLink findByJiraId(int jiraCommentId);
     CommentLink findOrAdd(int useResponseCommentId, int jiraCommentId);
+    void delete(CommentLink commentLink);
     List<CommentLink> all();
 }

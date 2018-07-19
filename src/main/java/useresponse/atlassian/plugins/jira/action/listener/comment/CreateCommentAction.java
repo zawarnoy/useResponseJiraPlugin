@@ -11,7 +11,7 @@ import useresponse.atlassian.plugins.jira.request.Request;
 
 public class CreateCommentAction extends AbstractCommentAction {
 
-    public CreateCommentAction(Comment comment, CommentLinkManager commentLinkManager, UseResponseObjectManager useResponseObjectManager, PluginSettingsFactory pluginSettingsFactory) {
+    public  CreateCommentAction(Comment comment, CommentLinkManager commentLinkManager, UseResponseObjectManager useResponseObjectManager, PluginSettingsFactory pluginSettingsFactory) {
         this.comment = comment;
         this.commentLinkManager = commentLinkManager;
         this.useResponseObjectManager = useResponseObjectManager;

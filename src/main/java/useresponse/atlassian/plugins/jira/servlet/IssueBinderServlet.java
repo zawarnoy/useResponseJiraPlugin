@@ -13,8 +13,13 @@ import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.user.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import useresponse.atlassian.plugins.jira.action.Action;
+import useresponse.atlassian.plugins.jira.action.listener.comment.CreateCommentAction;
+import useresponse.atlassian.plugins.jira.action.listener.issue.CreateIssueAction;
+import useresponse.atlassian.plugins.jira.action.listener.issue.UpdateIssueAction;
 import useresponse.atlassian.plugins.jira.manager.impl.*;
 import useresponse.atlassian.plugins.jira.model.*;
+
 import javax.inject.Inject;
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
@@ -77,26 +82,11 @@ public class IssueBinderServlet extends HttpServlet {
 
 
         String jira_id = (req.getParameter("issue_id"));
-        UseResponseObject useResponseObject;
-        useResponseObject = useResponseObjectManager.findByJiraId(Integer.valueOf(jira_id));
+        UseResponseObject useResponseObject = useResponseObjectManager.findByJiraId(Integer.valueOf(jira_id));
 
         Issue issue = issueManager.getIssueObject(Long.valueOf(jira_id));
 
-        try {
-            if (useResponseObject == null) {
-                issueActionService.createAction(issue);
-            } else {
-                issueActionService.updateAction(issue);
-            }
-        } catch (Exception ignored){}
-
-        for (Comment comment : commentManager.getComments(issue)) {
-            try {
-                issueActionService.createCommentAction(comment);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        executeMoving(useResponseObject, issue);
 
         resp.sendRedirect("projects/" + issue.getProjectObject().getOriginalKey() + "/issues/" + issue.getKey());
     }
@@ -104,6 +94,35 @@ public class IssueBinderServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+    }
+
+    private void executeMoving(UseResponseObject useResponseObject, Issue issue) {
+        Action action = null;
+
+        try {
+            if (useResponseObject == null) {
+                action = new CreateIssueAction(issue, useResponseObjectManager, rendererManager, priorityLinkManager, pluginSettingsFactory, attachmentManager, issueFileLinkManager);
+            } else {
+                action = new UpdateIssueAction(issue, useResponseObjectManager, rendererManager, priorityLinkManager, pluginSettingsFactory, attachmentManager, issueFileLinkManager, statusesLinkManager);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (action != null) {
+            (new Thread(action, "Issue binder thread")).start();
+        }
+
+        for (Comment comment : commentManager.getComments(issue)) {
+            try {
+                action = new CreateCommentAction(comment, commentLinkManager, useResponseObjectManager, pluginSettingsFactory);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (action != null) {
+                (new Thread(action, "Issue binder thread")).start();
+            }
+        }
     }
 
 }

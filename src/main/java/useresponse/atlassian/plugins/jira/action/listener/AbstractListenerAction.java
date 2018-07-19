@@ -1,35 +1,20 @@
 package useresponse.atlassian.plugins.jira.action.listener;
 
-import com.atlassian.jira.entity.WithId;
-import com.atlassian.jira.event.issue.IssueEvent;
-import com.atlassian.jira.issue.AttachmentManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import useresponse.atlassian.plugins.jira.manager.IssueFileLinkManager;
+import useresponse.atlassian.plugins.jira.action.Action;
 import useresponse.atlassian.plugins.jira.request.Request;
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 import useresponse.atlassian.plugins.jira.storage.ConstStorage;
 
 
-public abstract class AbstractAction implements Action {
+public abstract class AbstractListenerAction implements Action {
 
     protected Request request;
     protected PluginSettingsFactory pluginSettingsFactory;
-
-    protected abstract Request addParameters(Request request);
-
-    protected abstract String createUrl();
-
-    protected abstract void handleResponse(String response) throws Exception;
-
-    protected Request prepareRequest(Request request, int objectId) {
-        request.addParameter("jira_id", objectId);
-        request.addParameter("treat_as_html", 1);
-        return request;
-    }
 
     @Override
     public void run() {
@@ -44,6 +29,18 @@ public abstract class AbstractAction implements Action {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    protected abstract Request addParameters(Request request);
+
+    protected abstract String createUrl();
+
+    protected abstract void handleResponse(String response) throws Exception;
+
+    protected Request prepareRequest(Request request, int objectId) {
+        request.addParameter("jira_id", objectId);
+        request.addParameter("treat_as_html", 1);
+        return request;
     }
 
     protected String collectUrl(String requestString) {

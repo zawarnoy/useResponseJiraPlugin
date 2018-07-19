@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class RequestImpl implements Request {
+public abstract class AbstractRequest implements Request {
 
     private static final int REQUEST_TIMEOUT = 15000;
     private static boolean sslConfigured = false;
