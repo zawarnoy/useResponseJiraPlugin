@@ -48,14 +48,10 @@ public class UpdateIssueAction extends AbstractIssueAction {
     }
 
     @Override
-    public Request addParameters(Request request) {
+    public Request addParameters(Request request) throws Exception {
         addStandardParametersToRequest(request, issue);
         request = prepareRequest(request, issue.getId().intValue());
-        try {
-            request.addParameter("status", findUseResponseStatusFromJiraStatus(issue.getStatus().getName()));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        request.addParameter("status", findUseResponseStatusFromJiraStatus(issue.getStatus().getName()));
         return request;
     }
 

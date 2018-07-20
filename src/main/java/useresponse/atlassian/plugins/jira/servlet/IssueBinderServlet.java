@@ -14,8 +14,12 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.user.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.action.Action;
+import useresponse.atlassian.plugins.jira.action.listener.ListenerActionFactory;
+import useresponse.atlassian.plugins.jira.action.listener.comment.CommentActionFactory;
 import useresponse.atlassian.plugins.jira.action.listener.comment.CreateCommentAction;
+import useresponse.atlassian.plugins.jira.action.listener.comment.UpdateCommentAction;
 import useresponse.atlassian.plugins.jira.action.listener.issue.CreateIssueAction;
+import useresponse.atlassian.plugins.jira.action.listener.issue.IssueActionFactory;
 import useresponse.atlassian.plugins.jira.action.listener.issue.UpdateIssueAction;
 import useresponse.atlassian.plugins.jira.manager.impl.*;
 import useresponse.atlassian.plugins.jira.model.*;
@@ -96,33 +100,56 @@ public class IssueBinderServlet extends HttpServlet {
 
     }
 
-    private void executeMoving(UseResponseObject useResponseObject, Issue issue) {
+    private String executeMoving(UseResponseObject useResponseObject, Issue issue) {
         Action action = null;
+        String error = null;
+
+        ListenerActionFactory issueActionFactory = new IssueActionFactory(
+                issue,
+                useResponseObjectManager,
+                rendererManager,
+                priorityLinkManager,
+                pluginSettingsFactory,
+                issueFileLinkManager,
+                statusesLinkManager);
+
+        ListenerActionFactory commentActionFactory = new CommentActionFactory(
+                null,
+                useResponseObjectManager,
+                pluginSettingsFactory,
+                commentLinkManager);
+
 
         try {
             if (useResponseObject == null) {
-                action = new CreateIssueAction(issue, useResponseObjectManager, rendererManager, priorityLinkManager, pluginSettingsFactory, attachmentManager, issueFileLinkManager);
+                action = issueActionFactory.createAction(CreateIssueAction.class);
             } else {
-                action = new UpdateIssueAction(issue, useResponseObjectManager, rendererManager, priorityLinkManager, pluginSettingsFactory, attachmentManager, issueFileLinkManager, statusesLinkManager);
+                action = issueActionFactory.createAction(UpdateIssueAction.class);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } finally {
+            if (action != null) {
+                Thread thread = new Thread(action, "Issue binder thread");
+                thread.start();
+                error = action.getError();
+            }
         }
 
-        if (action != null) {
-            (new Thread(action, "Issue binder thread")).start();
-        }
 
         for (Comment comment : commentManager.getComments(issue)) {
-            try {
-                action = new CreateCommentAction(comment, commentLinkManager, useResponseObjectManager, pluginSettingsFactory);
-            } catch (Exception e) {
-                e.printStackTrace();
+            CommentLink commentLink = commentLinkManager.findByJiraId(comment.getId().intValue());
+            commentActionFactory.setEntity(comment);
+            if (commentLink == null) {
+                action = commentActionFactory.createAction(CreateCommentAction.class);
+            } else{
+                action = commentActionFactory.createAction(UpdateCommentAction.class);
             }
             if (action != null) {
                 (new Thread(action, "Issue binder thread")).start();
+                error = action.getError();
             }
-        }
     }
+
+        return error;
+}
 
 }

@@ -26,37 +26,28 @@ public abstract class AbstractIssueAction extends AbstractListenerAction {
     protected IssueFileLinkManager issueFileLinkManager;
 
 
-    protected Request addStandardParametersToRequest(Request request, Issue issue) {
-        try {
-            IssueRenderContext renderContext = new IssueRenderContext(issue);
-            JiraRendererPlugin renderer = rendererManager.getRendererForType("atlassian-wiki-renderer");
-            String html = renderer.render(issue.getDescription(), renderContext);
-            request.addParameter("content", html);
-            request.addParameter("title", issue.getSummary());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    protected Request addStandardParametersToRequest(Request request, Issue issue) throws Exception {
+        IssueRenderContext renderContext = new IssueRenderContext(issue);
+        JiraRendererPlugin renderer = rendererManager.getRendererForType("atlassian-wiki-renderer");
+        String html = renderer.render(issue.getDescription(), renderContext);
+        request.addParameter("content", html);
+        request.addParameter("title", issue.getSummary());
+
         if (issue.getReporterUser() != null) {
-            try {
-                request.addParameter("force_author", issue.getReporterUser().getEmailAddress());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            request.addParameter("force_author", issue.getReporterUser().getEmailAddress());
         }
 
         if (issue.getLabels() != null) {
-            try {
-                request.addParameter("tags", getTagsFromLabels(issue.getLabels()));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            request.addParameter("tags", getTagsFromLabels(issue.getLabels()));
         }
 
         if (priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName()) != null) {
             try {
                 request.addParameter("priority", priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName()).getUseResponsePriority().getUseResponsePrioritySlug());
-            } catch (Exception e) {
-                e.printStackTrace();
+            } finally {
+
+
+
             }
         }
         try {

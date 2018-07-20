@@ -15,6 +15,7 @@ public abstract class AbstractListenerAction implements Action {
 
     protected Request request;
     protected PluginSettingsFactory pluginSettingsFactory;
+    private String error = null;
 
     @Override
     public void run() {
@@ -22,16 +23,20 @@ public abstract class AbstractListenerAction implements Action {
     }
 
     private void execute() {
-        request = addParameters(request);
         try {
+            request = addParameters(request);
             String response = request.sendRequest(createUrl());
             handleResponse(response);
         } catch (Exception e) {
-            e.printStackTrace();
+            error = e.getMessage();
         }
     }
 
-    protected abstract Request addParameters(Request request);
+    public String getError(){
+        return error;
+    }
+
+    protected abstract Request addParameters(Request request) throws Exception;
 
     protected abstract String createUrl();
 
