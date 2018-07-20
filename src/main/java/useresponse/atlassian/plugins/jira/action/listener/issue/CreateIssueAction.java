@@ -44,7 +44,7 @@ public class CreateIssueAction extends AbstractIssueAction {
     }
 
     @Override
-    public Request addParameters(Request request) {
+    public Request addParameters(Request request) throws Exception {
         request.addParameter("ownership", "helpdesk");
         request.addParameter("object_type", "ticket");
         request = prepareRequest(request, issue.getId().intValue());
