@@ -1,6 +1,10 @@
 package useresponse.atlassian.plugins.jira.servlet;
 
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.util.BuildUtils;
+import com.atlassian.jira.util.JiraVelocityHelper;
+import com.atlassian.jira.util.JiraVelocityUtils;
+import com.atlassian.jira.util.velocity.VelocityRequestContext;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.sal.api.UrlMode;
@@ -9,7 +13,9 @@ import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.templaterenderer.TemplateRenderer;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
+import useresponse.atlassian.plugins.jira.exception.ConnectionException;
 import useresponse.atlassian.plugins.jira.manager.impl.PriorityLinkManagerImpl;
 import useresponse.atlassian.plugins.jira.manager.impl.StatusesLinkManagerImpl;
 import useresponse.atlassian.plugins.jira.manager.impl.URPriorityManagerImpl;
@@ -19,12 +25,16 @@ import useresponse.atlassian.plugins.jira.service.SettingsService;
 import useresponse.atlassian.plugins.jira.service.StatusesService;
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
+
 import javax.inject.Inject;
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,7 +48,7 @@ import useresponse.atlassian.plugins.jira.storage.ConstStorage;
 public class UseResponseSettingServlet extends HttpServlet {
 
     private static String SETTINGS_TEMPLATE = "/templates/ur_connection_settings_template.vm";
-
+    private static String LINK_TEMPLATE = "/templates/ur_link_settings_template.vm";
 
     private final UserManager userManager;
     private final LoginUriProvider loginUriProvider;
@@ -77,13 +87,13 @@ public class UseResponseSettingServlet extends HttpServlet {
             return;
         }
 
+        PrioritiesService prioritiesService = new PrioritiesService(ComponentAccessor.getComponent(DefaultPriorityManager.class), priorityLinkManager, urPriorityManager);
+        StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
+        PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
+
         migrate();
         addURPriorities();
 
-        StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
-        PrioritiesService prioritiesService = new PrioritiesService(ComponentAccessor.getComponent(DefaultPriorityManager.class), priorityLinkManager, urPriorityManager);
-
-        PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
         Map<String, Object> context = new HashMap<String, Object>();
         HashMap<String, String> statuses = null;
         try {
@@ -113,11 +123,42 @@ public class UseResponseSettingServlet extends HttpServlet {
             return;
         }
 
-        setConnectionParameters(request, settingsService);
-        setStatuses(request);
-        setPriorities(request);
+        PrioritiesService prioritiesService = new PrioritiesService(ComponentAccessor.getComponent(DefaultPriorityManager.class), priorityLinkManager, urPriorityManager);
+        StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
+        PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
 
-        response.sendRedirect("ursettings");
+        HashMap<String, Object> map = new HashMap<>();
+        HashMap<String, Object> context = new HashMap<>();
+
+        try {
+            setConnectionParameters(request, settingsService);
+            setStatuses(request);
+            setPriorities(request);
+
+
+            context.put("statusSlugLinks", statusesService.getStatusSlugLinks());
+            context.put("prioritySlugLinks", prioritiesService.getPrioritySlugLinks());
+            context.put("useResponsePriorities", prioritiesService.getUseResponsePriorities());
+            context.put("baseUrl", applicationProperties.getBaseUrl(UrlMode.ABSOLUTE));
+            context.put("useResponseStatuses", settingsService.getUseResponseStatuses(pluginSettings));
+
+            Writer writer = new StringWriter();
+
+            templateRenderer.render(LINK_TEMPLATE, context, writer);
+
+
+
+            map.put("status", "success");
+            map.put("linkTemplate", writer.toString());  //RENDERED TEMPLATE
+        } catch (Exception e) {
+            map.put("status", "error");
+            map.put("message", e.getMessage());
+        }
+
+        String responseBody = (new Gson()).toJson(map);
+
+        response.getWriter().write(responseBody);
+//        response.sendRedirect("ursettings");
     }
 
     private void migrate() {
@@ -130,7 +171,7 @@ public class UseResponseSettingServlet extends HttpServlet {
     }
 
     private void addURPriorities() {
-        for(Map.Entry<String, String> entry : ConstStorage.UR_PRIORITIES.entrySet()) {
+        for (Map.Entry<String, String> entry : ConstStorage.UR_PRIORITIES.entrySet()) {
             urPriorityManager.findOrAdd(entry.getKey(), entry.getValue());
         }
     }
@@ -138,7 +179,7 @@ public class UseResponseSettingServlet extends HttpServlet {
     private void setStatuses(HttpServletRequest request) {
         StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
 
-        for(String statusName : statusesService.getStatusesNames()) {
+        for (String statusName : statusesService.getStatusesNames()) {
             linkManager.editOrAdd(statusName, request.getParameter(statusName + "Status"));
         }
     }
@@ -146,25 +187,21 @@ public class UseResponseSettingServlet extends HttpServlet {
     private void setPriorities(HttpServletRequest request) {
         PrioritiesService prioritiesService = new PrioritiesService(ComponentAccessor.getComponent(DefaultPriorityManager.class), priorityLinkManager, urPriorityManager);
 
-        for(String priorityName : prioritiesService.getPrioritiesNames()) {
+        for (String priorityName : prioritiesService.getPrioritiesNames()) {
             URPriority priority = urPriorityManager.findBySlug(request.getParameter(priorityName + "Priority"));
-            if(priority != null)
+            if (priority != null)
                 priorityLinkManager.editUseResponsePriority(priorityName, priority);
         }
     }
 
-    private void setConnectionParameters(HttpServletRequest request, SettingsService settingsService) {
+    private void setConnectionParameters(HttpServletRequest request, SettingsService settingsService) throws ConnectionException {
         String domain = request.getParameter("domain");
         String apiKey = request.getParameter("apiKey");
         String autosending = request.getParameter("autosending");
 
-        try {
-            if(!SettingsService.testURConnection(domain, apiKey))
-                return;
-            settingsService.setURParameters(domain, apiKey, autosending);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        if (!SettingsService.testURConnection(domain, apiKey))
+            throw (new ConnectionException("Wrong domain/apiKey"));
+        settingsService.setURParameters(domain, apiKey, autosending);
     }
 
 }

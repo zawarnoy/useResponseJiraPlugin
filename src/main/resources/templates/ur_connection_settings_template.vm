@@ -10,6 +10,7 @@
 
 </style>
 
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     $webResourceManager.requireResource(
         "useresponse.atlassian.plugins.jira.jira-plugin:jira-plugin-resources")
 

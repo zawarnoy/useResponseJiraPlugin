@@ -45,21 +45,19 @@ public abstract class AbstractIssueAction extends AbstractListenerAction {
             try {
                 request.addParameter("priority", priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName()).getUseResponsePriority().getUseResponsePrioritySlug());
             } finally {
-
-
+                try {
+                    request = addResponsibleToRequest(request, issue);
+                } finally {
+                    try {
+                        request = addAttachmentsToRequest(request, issue);
+                    } finally {
+                        return request;
+                    }
+                }
 
             }
         }
-        try {
-            request = addResponsibleToRequest(request, issue);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            request = addAttachmentsToRequest(request, issue);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
         return request;
     }
 

@@ -123,7 +123,7 @@ public class IssueListener implements InitializingBean, DisposableBean {
         if (typeId.equals(EventType.ISSUE_CREATED_ID)) {
             action = issueActionFactory.createAction(CreateIssueAction.class);
         } else if (typeId.equals(EventType.ISSUE_COMMENTED_ID)) {
-            action = issueActionFactory.createAction(CreateCommentAction.class);
+            action = commentActionFactory.createAction(CreateCommentAction.class);
         } else if (typeId.equals(EventType.ISSUE_COMMENT_EDITED_ID)) {
             action = commentActionFactory.createAction(UpdateCommentAction.class);
         } else if (typeId.equals(EventType.ISSUE_DELETED_ID)) {

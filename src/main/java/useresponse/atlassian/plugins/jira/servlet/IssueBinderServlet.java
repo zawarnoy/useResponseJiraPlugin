@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-//import useresponse.atlassian.plugins.jira.service.IssueActionService;
+
 import useresponse.atlassian.plugins.jira.service.SettingsService;
 
 
@@ -111,13 +111,15 @@ public class IssueBinderServlet extends HttpServlet {
                 priorityLinkManager,
                 pluginSettingsFactory,
                 issueFileLinkManager,
-                statusesLinkManager);
+                statusesLinkManager
+        );
 
         ListenerActionFactory commentActionFactory = new CommentActionFactory(
                 null,
                 useResponseObjectManager,
                 pluginSettingsFactory,
-                commentLinkManager);
+                commentLinkManager
+        );
 
 
         try {
@@ -140,16 +142,16 @@ public class IssueBinderServlet extends HttpServlet {
             commentActionFactory.setEntity(comment);
             if (commentLink == null) {
                 action = commentActionFactory.createAction(CreateCommentAction.class);
-            } else{
+            } else {
                 action = commentActionFactory.createAction(UpdateCommentAction.class);
             }
             if (action != null) {
                 (new Thread(action, "Issue binder thread")).start();
                 error = action.getError();
             }
-    }
+        }
 
         return error;
-}
+    }
 
 }
