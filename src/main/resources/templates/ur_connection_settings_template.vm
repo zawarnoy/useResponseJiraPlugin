@@ -14,6 +14,11 @@
     $webResourceManager.requireResource(
         "useresponse.atlassian.plugins.jira.jira-plugin:jira-plugin-resources")
 
+
+<div id="hellopreloader">
+    <div id="hellopreloader_preload"></div>
+</div>
+
 <div class="img-container" style="  display: flex; align-items: center; justify-content: center">
     <img style="margin: 0;"
          src="${baseUrl}/download/resources/useresponse.atlassian.plugins.jira.jira-plugin:jira-plugin-resources/images/urPicture.png"
