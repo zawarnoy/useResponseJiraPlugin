@@ -4,6 +4,7 @@ import com.atlassian.jira.entity.WithId;
 import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import org.json.simple.parser.ParseException;
 import useresponse.atlassian.plugins.jira.action.type.ActionType;
 import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
@@ -28,7 +29,7 @@ public class CreateCommentAction extends AbstractCommentAction {
     }
 
     @Override
-    public void handleResponse(String response) throws Exception {
+    public void handleResponse(String response) throws ParseException {
         commentLinkManager.findOrAdd(getIdFromResponse(response), comment.getId().intValue());
     }
 

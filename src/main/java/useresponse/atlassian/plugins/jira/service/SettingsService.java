@@ -110,4 +110,8 @@ public class SettingsService {
         return data.get("error") == null;
     }
 
+    public static boolean testURConnection(PluginSettingsFactory pluginSettingsFactory){
+        PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
+        return testURConnection(pluginSettings.getUseResponseDomain(), pluginSettings.getUseResponseApiKey());
+    }
 }

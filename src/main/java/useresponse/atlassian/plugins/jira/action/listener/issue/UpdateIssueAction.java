@@ -13,6 +13,8 @@ import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.request.PutRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
 
+import java.io.IOException;
+
 public class UpdateIssueAction extends AbstractIssueAction {
 
     private final StatusesLinkManager statusesLinkManager;
@@ -50,7 +52,7 @@ public class UpdateIssueAction extends AbstractIssueAction {
     }
 
     @Override
-    public Request addParameters(Request request) throws Exception {
+    public Request addParameters(Request request) throws IOException {
         addStandardParametersToRequest(request, issue);
         request = prepareRequest(request, issue.getId().intValue());
         request.addParameter("status", findUseResponseStatusFromJiraStatus(issue.getStatus().getName()));

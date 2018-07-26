@@ -14,6 +14,8 @@ import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
 
+import java.io.IOException;
+
 public class CreateIssueAction extends AbstractIssueAction {
 
     public CreateIssueAction(Issue issue,
@@ -46,7 +48,7 @@ public class CreateIssueAction extends AbstractIssueAction {
     }
 
     @Override
-    public Request addParameters(Request request) throws Exception {
+    public Request addParameters(Request request) throws IOException {
         request.addParameter("ownership", "helpdesk");
         request.addParameter("object_type", "ticket");
         request = prepareRequest(request, issue.getId().intValue());

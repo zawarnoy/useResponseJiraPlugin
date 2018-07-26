@@ -14,6 +14,7 @@ import useresponse.atlassian.plugins.jira.manager.PriorityLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.request.Request;
 
+import java.io.IOException;
 import java.util.*;
 
 public abstract class AbstractIssueAction extends AbstractListenerAction {
@@ -26,7 +27,7 @@ public abstract class AbstractIssueAction extends AbstractListenerAction {
     protected IssueFileLinkManager issueFileLinkManager;
 
 
-    protected Request addStandardParametersToRequest(Request request, Issue issue) throws Exception {
+    protected Request addStandardParametersToRequest(Request request, Issue issue) throws IOException {
         IssueRenderContext renderContext = new IssueRenderContext(issue);
         JiraRendererPlugin renderer = rendererManager.getRendererForType("atlassian-wiki-renderer");
         String html = renderer.render(issue.getDescription(), renderContext);
@@ -62,7 +63,7 @@ public abstract class AbstractIssueAction extends AbstractListenerAction {
         return request;
     }
 
-    private Request addAttachmentsToRequest(Request request, Issue issue) throws Exception {
+    private Request addAttachmentsToRequest(Request request, Issue issue) throws IOException {
         Collection<Attachment> attachments = attachmentManager.getAttachments(issue);
         int issueId = issue.getId().intValue();
         ArrayList<Map> attachmentsData = new ArrayList<Map>();
@@ -88,7 +89,7 @@ public abstract class AbstractIssueAction extends AbstractListenerAction {
         return issueFileLinkManager.find(issueId, attachmentName) == null;
     }
 
-    private Map<String, String> transformAttachmentForRequest(Attachment attachment) throws Exception {
+    private Map<String, String> transformAttachmentForRequest(Attachment attachment) throws IOException {
         String body = null;
         Map<String, String> attachmentData = new HashMap<>();
         body = attachmentManager.streamAttachmentContent(attachment, inputStream -> {

@@ -36,7 +36,7 @@ public class UpdateCommentAction extends AbstractCommentAction {
     }
 
     @Override
-    protected void handleResponse(String response) throws Exception {
+    protected void handleResponse(String response) {
 
     }
 }

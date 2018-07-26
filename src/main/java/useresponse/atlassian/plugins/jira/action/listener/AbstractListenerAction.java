@@ -5,15 +5,25 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import useresponse.atlassian.plugins.jira.action.Action;
-import useresponse.atlassian.plugins.jira.action.type.ActionType;
+import useresponse.atlassian.plugins.jira.exception.ConnectionException;
+import useresponse.atlassian.plugins.jira.exception.InvalidResponseException;
 import useresponse.atlassian.plugins.jira.request.Request;
+import useresponse.atlassian.plugins.jira.service.SettingsService;
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 import useresponse.atlassian.plugins.jira.storage.ConstStorage;
 
+import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+
 /**
  * Parent of all actions which preform data transfer to UseResponse
- *
+ * _
+ * (+_+)
+ * -|-
+ * /\
+ * <p>
  * Contains methods which can help with transfer
  */
 public abstract class AbstractListenerAction implements Action {
@@ -23,7 +33,7 @@ public abstract class AbstractListenerAction implements Action {
     protected int actionType;
 
     /**
-     * Returns error which could appear during the execution on successful completion returns action name.
+     * Returns error which could appear during the execution on successful completion returns action type.
      *
      * @return String;
      */
@@ -32,23 +42,26 @@ public abstract class AbstractListenerAction implements Action {
         try {
             execute();
             return String.valueOf(actionType);
-        } catch (Exception e) {
+        } catch (IOException | NoSuchAlgorithmException | InvalidResponseException | ParseException | KeyManagementException | ConnectionException e) {
             return e.getMessage();
         }
     }
 
-    private void execute() throws Exception {
+    private void execute() throws ConnectionException, NoSuchAlgorithmException, KeyManagementException, InvalidResponseException, IOException, ParseException {
+        if (!SettingsService.testURConnection(pluginSettingsFactory)) {
+            throw new ConnectionException("Can't connect to UseResponse services");
+        }
         request = addParameters(request);
-        String response = request.sendRequest(createUrl());
+        String url = createUrl();
+        String response = request.sendRequest(url);
         handleResponse(response);
     }
 
-
-    protected abstract Request addParameters(Request request) throws Exception;
+    protected abstract Request addParameters(Request request) throws IOException;
 
     protected abstract String createUrl();
 
-    protected abstract void handleResponse(String response) throws Exception;
+    protected abstract void handleResponse(String response) throws ParseException;
 
     protected Request prepareRequest(Request request, int objectId) {
         request.addParameter("jira_id", objectId);

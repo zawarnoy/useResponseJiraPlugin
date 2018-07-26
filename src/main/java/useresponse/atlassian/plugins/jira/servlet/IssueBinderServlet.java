@@ -96,23 +96,23 @@ public class IssueBinderServlet extends HttpServlet {
         HashMap<String, String> responseMap = new HashMap<>();
 
 
-        String jira_id = (req.getParameter("issue_id"));
-        UseResponseObject useResponseObject = useResponseObjectManager.findByJiraId(Integer.valueOf(jira_id));
-        Issue issue = issueManager.getIssueObject(Long.valueOf(jira_id));
+        String jiraId = (req.getParameter("issue_id"));
+        UseResponseObject useResponseObject = useResponseObjectManager.findByJiraId(Integer.valueOf(jiraId));
+        Issue issue = issueManager.getIssueObject(Long.valueOf(jiraId));
 
-        LinkedSet<Future<String>> futureList = executeMoving(useResponseObject, issue);
+        if(!SettingsService.testURConnection(pluginSettingsFactory)) {
+            responseMap.put("status", "error");
+            responseMap.put("slug", "Check your Domain/apiKey settings");
+            responseMap.put("message", "Can't connect to UseResponse");
+        } else {
+            LinkedSet<Future<String>> futureList = executeMoving(useResponseObject, issue);
+            Handler<LinkedSet<Future<String>>, IssueBinderResponseData> handler = new IssueBinderServletHandler();
+            IssueBinderResponseData responseData = handler.handle(futureList);
+            responseMap.put("message", responseData.message);
+            responseMap.put("data", responseData.data);
+            responseMap.put("status", "success");
+        }
 
-        Handler<LinkedSet<Future<String>>, IssueBinderResponseData> handler = new IssueBinderServletHandler();
-
-        IssueBinderResponseData responseData = handler.handle(futureList);
-
-        responseMap.put("status", "success");
-        responseMap.put("message", responseData.message);
-        responseMap.put("data", responseData.data);
-
-//            responseMap.put("status", "error");
-//            responseMap.put("kek", "tuta");
-//            responseMap.put("message", e.getMessage());
 
         resp.getWriter().write((new Gson()).toJson(responseMap));
 
@@ -143,7 +143,7 @@ public class IssueBinderServlet extends HttpServlet {
                 commentLinkManager
         );
 
-        ExecutorService executor = Executors.newCachedThreadPool();
+        ExecutorService executor = Executors.newFixedThreadPool(20);
         LinkedSet<Future<String>> futureList = new LinkedSet<>();
 
         if (useResponseObject == null) {

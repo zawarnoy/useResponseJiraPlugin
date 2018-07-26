@@ -32,7 +32,7 @@ public class DeleteCommentAction extends AbstractCommentAction {
     }
 
     @Override
-    protected void handleResponse(String response) throws Exception {
+    protected void handleResponse(String response) {
 //        commentLinkManager.delete(commentLinkManager.findByJiraId(comment.getId().intValue()));
     }
 

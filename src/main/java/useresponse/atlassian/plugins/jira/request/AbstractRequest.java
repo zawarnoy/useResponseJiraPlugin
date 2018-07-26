@@ -2,6 +2,7 @@ package useresponse.atlassian.plugins.jira.request;
 
 
 import com.google.gson.Gson;
+import useresponse.atlassian.plugins.jira.exception.InvalidResponseException;
 
 import javax.net.ssl.*;
 import java.io.BufferedReader;
@@ -9,6 +10,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
@@ -38,7 +40,7 @@ public abstract class AbstractRequest implements Request {
     }
 
     @Override
-    public String sendRequest(String url) throws Exception {
+    public String sendRequest(String url) throws IOException, InvalidResponseException, NoSuchAlgorithmException, KeyManagementException {
         byte[] postData = getJsonFromParameters().getBytes(StandardCharsets.UTF_8);
         URL urlObj = new URL(url);
         URLConnection conn = urlObj.openConnection();
@@ -86,7 +88,7 @@ public abstract class AbstractRequest implements Request {
         }
 
         if (responseCode == 0 || responseCode >= 300) {
-            throw new Exception(responseMessage);
+            throw new InvalidResponseException(responseMessage);
         }
 
         InputStreamReader input = new InputStreamReader(conn.getInputStream());

@@ -31,6 +31,6 @@ public class DeleteIssueAction extends AbstractIssueAction {
     }
 
     @Override
-    protected void handleResponse(String response) throws Exception {
+    protected void handleResponse(String response) {
     }
 }

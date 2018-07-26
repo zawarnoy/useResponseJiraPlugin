@@ -7,7 +7,11 @@ AJS.$(document).ready(function () {
                 console.log(receivedData);
                 receivedData = JSON.parse(receivedData);
 
-                swal(receivedData.message);
+                if(receivedData.status === "success") {
+                    swal(receivedData.message, "", "success");
+                } else {
+                    swal(receivedData.message, receivedData.slug, "error");
+                }
             }
         );
 
