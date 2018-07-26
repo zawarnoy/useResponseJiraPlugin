@@ -102,8 +102,8 @@ public class IssueBinderServlet extends HttpServlet {
 
         if(!SettingsService.testURConnection(pluginSettingsFactory)) {
             responseMap.put("status", "error");
-            responseMap.put("slug", "Check your Domain/apiKey settings");
             responseMap.put("message", "Can't connect to UseResponse");
+            responseMap.put("slug", "Check your Domain/ApiKey settings");
         } else {
             LinkedSet<Future<String>> futureList = executeMoving(useResponseObject, issue);
             Handler<LinkedSet<Future<String>>, IssueBinderResponseData> handler = new IssueBinderServletHandler();
@@ -143,7 +143,7 @@ public class IssueBinderServlet extends HttpServlet {
                 commentLinkManager
         );
 
-        ExecutorService executor = Executors.newFixedThreadPool(20);
+        ExecutorService executor = Executors.newFixedThreadPool(9);
         LinkedSet<Future<String>> futureList = new LinkedSet<>();
 
         if (useResponseObject == null) {
