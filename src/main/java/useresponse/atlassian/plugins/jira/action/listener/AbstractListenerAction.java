@@ -5,36 +5,44 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import useresponse.atlassian.plugins.jira.action.Action;
+import useresponse.atlassian.plugins.jira.action.type.ActionType;
 import useresponse.atlassian.plugins.jira.request.Request;
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 import useresponse.atlassian.plugins.jira.storage.ConstStorage;
 
-
+/**
+ * Parent of all actions which preform data transfer to UseResponse
+ *
+ * Contains methods which can help with transfer
+ */
 public abstract class AbstractListenerAction implements Action {
 
     protected Request request;
     protected PluginSettingsFactory pluginSettingsFactory;
-    private String error = null;
+    protected int actionType;
 
+    /**
+     * Returns error which could appear during the execution on successful completion returns action name.
+     *
+     * @return String;
+     */
     @Override
-    public void run() {
-        execute();
-    }
-
-    private void execute() {
+    public String call() {
         try {
-            request = addParameters(request);
-            String response = request.sendRequest(createUrl());
-            handleResponse(response);
+            execute();
+            return String.valueOf(actionType);
         } catch (Exception e) {
-            error = e.getMessage();
+            return e.getMessage();
         }
     }
 
-    public String getError(){
-        return error;
+    private void execute() throws Exception {
+        request = addParameters(request);
+        String response = request.sendRequest(createUrl());
+        handleResponse(response);
     }
+
 
     protected abstract Request addParameters(Request request) throws Exception;
 

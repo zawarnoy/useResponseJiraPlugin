@@ -32,32 +32,33 @@ public abstract class AbstractIssueAction extends AbstractListenerAction {
         String html = renderer.render(issue.getDescription(), renderContext);
         request.addParameter("content", html);
         request.addParameter("title", issue.getSummary());
+        request = addReporterToRequest(request, issue);
+        request = addPriorityToRequest(request, issue);
+        request = addLabelsToRequest(request, issue);
+        request = addAttachmentsToRequest(request, issue);
+        request = addResponsibleToRequest(request, issue);
 
-        if (issue.getReporterUser() != null) {
-            request.addParameter("force_author", issue.getReporterUser().getEmailAddress());
-        }
+        return request;
+    }
 
+    private Request addLabelsToRequest(Request request, Issue issue) {
         if (issue.getLabels() != null) {
             request.addParameter("tags", getTagsFromLabels(issue.getLabels()));
         }
+        return request;
+    }
 
-        if (priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName()) != null) {
-            try {
-                request.addParameter("priority", priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName()).getUseResponsePriority().getUseResponsePrioritySlug());
-            } finally {
-                try {
-                    request = addResponsibleToRequest(request, issue);
-                } finally {
-                    try {
-                        request = addAttachmentsToRequest(request, issue);
-                    } finally {
-                        return request;
-                    }
-                }
-
-            }
+    private Request addReporterToRequest(Request request, Issue issue) {
+        if (issue.getReporterUser() != null) {
+            request.addParameter("force_author", issue.getReporterUser().getEmailAddress());
         }
+        return request;
+    }
 
+    private Request addPriorityToRequest(Request request, Issue issue) {
+        if (priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName()) != null) {
+            request.addParameter("priority", priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName()).getUseResponsePriority().getUseResponsePrioritySlug());
+        }
         return request;
     }
 
@@ -67,6 +68,10 @@ public abstract class AbstractIssueAction extends AbstractListenerAction {
         ArrayList<Map> attachmentsData = new ArrayList<Map>();
 
         String filename;
+
+        if (attachments.isEmpty()) {
+            return request;
+        }
 
         for (Attachment attachment : attachments) {
             filename = attachment.getFilename();

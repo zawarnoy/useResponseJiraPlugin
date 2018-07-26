@@ -7,6 +7,7 @@ import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import org.json.simple.parser.ParseException;
+import useresponse.atlassian.plugins.jira.action.type.ActionType;
 import useresponse.atlassian.plugins.jira.manager.IssueFileLinkManager;
 import useresponse.atlassian.plugins.jira.manager.PriorityLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
@@ -31,6 +32,7 @@ public class CreateIssueAction extends AbstractIssueAction {
         this.issueFileLinkManager = issueFileLinkManager;
 
         this.request = new PostRequest();
+        this.actionType = ActionType.CREATE_ISSUE_ID;
     }
 
     @Override

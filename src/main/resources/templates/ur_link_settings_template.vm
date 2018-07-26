@@ -34,4 +34,25 @@
     </div>
     #end
 
+<h3 for="">Autosending</h3>
+<div class="field-group">
+    <div class="switch-field">
+
+        <input type="radio" id="autosendingYes" name="autosending" value="true"
+            #if(${autosending})
+               checked
+            #end
+        />
+        <label class="radio_check" style="color : white;" for="autosendingYes">Yes</label>
+
+
+        <input type="radio" id="autosendingNo" name="autosending" value="false"
+            #if(!${autosending})
+               checked
+            #end
+        />
+        <label class="radio_check" style="color : white;" for="autosendingNo">No</label>
+    </div>
+</div>
+
 #end

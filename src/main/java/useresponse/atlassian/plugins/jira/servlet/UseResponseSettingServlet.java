@@ -31,7 +31,6 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -47,8 +46,11 @@ import useresponse.atlassian.plugins.jira.storage.ConstStorage;
 @Scanned
 public class UseResponseSettingServlet extends HttpServlet {
 
-    private static String SETTINGS_TEMPLATE = "/templates/ur_connection_settings_template.vm";
-    private static String LINK_TEMPLATE = "/templates/ur_link_settings_template.vm";
+    private static final String SETTINGS_TEMPLATE = "/templates/ur_connection_settings_template.vm";
+    private static final String LINK_TEMPLATE = "/templates/ur_link_settings_template.vm";
+
+    private static final String SUCCESSFULL_CONNECTION_STRING = "Your connection is successfull!";
+    private static final String SETTINGS_ARE_CHANCHED_STRING = "Settings are changed!";
 
     private final UserManager userManager;
     private final LoginUriProvider loginUriProvider;
@@ -117,6 +119,7 @@ public class UseResponseSettingServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
         SettingsService settingsService = new SettingsService(userManager, loginUriProvider, pluginSettingsFactory);
         if (!settingsService.checkIsAdmin(userManager.getRemoteUserKey())) {
             settingsService.redirectToLogin(request, response);
@@ -131,34 +134,36 @@ public class UseResponseSettingServlet extends HttpServlet {
         HashMap<String, Object> context = new HashMap<>();
 
         try {
-            setConnectionParameters(request, settingsService);
-            setStatuses(request);
-            setPriorities(request);
-
+            setParameters(request, settingsService);
 
             context.put("statusSlugLinks", statusesService.getStatusSlugLinks());
             context.put("prioritySlugLinks", prioritiesService.getPrioritySlugLinks());
             context.put("useResponsePriorities", prioritiesService.getUseResponsePriorities());
             context.put("baseUrl", applicationProperties.getBaseUrl(UrlMode.ABSOLUTE));
             context.put("useResponseStatuses", settingsService.getUseResponseStatuses(pluginSettings));
+            context.put("autosending", pluginSettings.getAutosendingFlag() != null && Boolean.parseBoolean(pluginSettings.getAutosendingFlag()));
 
             Writer writer = new StringWriter();
-
             templateRenderer.render(LINK_TEMPLATE, context, writer);
 
 
-
+            map.put("linkTemplate", writer.toString());
             map.put("status", "success");
-            map.put("linkTemplate", writer.toString());  //RENDERED TEMPLATE
-        } catch (Exception e) {
+            map.put("message", checkOnAutosendingParamExisting(request) ? SETTINGS_ARE_CHANCHED_STRING : SUCCESSFULL_CONNECTION_STRING);
+        } catch (
+                Exception e)
+
+        {
             map.put("status", "error");
             map.put("message", e.getMessage());
         }
 
         String responseBody = (new Gson()).toJson(map);
 
-        response.getWriter().write(responseBody);
-//        response.sendRedirect("ursettings");
+        response.getWriter().
+
+                write(responseBody);
+
     }
 
     private void migrate() {
@@ -173,6 +178,16 @@ public class UseResponseSettingServlet extends HttpServlet {
     private void addURPriorities() {
         for (Map.Entry<String, String> entry : ConstStorage.UR_PRIORITIES.entrySet()) {
             urPriorityManager.findOrAdd(entry.getKey(), entry.getValue());
+        }
+    }
+
+    private void setParameters(HttpServletRequest request, SettingsService settingsService) throws ConnectionException {
+        setConnectionParameters(request, settingsService);
+        setStatuses(request);
+        setPriorities(request);
+        String autosending = request.getParameter("autosending");
+        if (autosending != null) {
+            (new PluginSettingsImpl(pluginSettingsFactory)).setAutosendingFlag(autosending);
         }
     }
 
@@ -197,11 +212,14 @@ public class UseResponseSettingServlet extends HttpServlet {
     private void setConnectionParameters(HttpServletRequest request, SettingsService settingsService) throws ConnectionException {
         String domain = request.getParameter("domain");
         String apiKey = request.getParameter("apiKey");
-        String autosending = request.getParameter("autosending");
 
         if (!SettingsService.testURConnection(domain, apiKey))
             throw (new ConnectionException("Wrong domain/apiKey"));
-        settingsService.setURParameters(domain, apiKey, autosending);
+        settingsService.setURParameters(domain, apiKey);
+    }
+
+    private boolean checkOnAutosendingParamExisting(HttpServletRequest request) {
+        return request.getParameter("autosending") != null;
     }
 
 }

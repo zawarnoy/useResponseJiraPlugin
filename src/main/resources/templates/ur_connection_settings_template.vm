@@ -14,51 +14,33 @@
     $webResourceManager.requireResource(
         "useresponse.atlassian.plugins.jira.jira-plugin:jira-plugin-resources")
 
-
 <div id="hellopreloader">
     <div id="hellopreloader_preload"></div>
 </div>
 
-<div class="img-container" style="  display: flex; align-items: center; justify-content: center">
-    <img style="margin: 0;"
-         src="${baseUrl}/download/resources/useresponse.atlassian.plugins.jira.jira-plugin:jira-plugin-resources/images/urPicture.png"
-         alt="">
+<div class="img-container" style="">
+    <a href="https://www.useresponse.com/" target="_blank"><img style="margin: 0;"
+                                                                src="${baseUrl}/download/resources/useresponse.atlassian.plugins.jira.jira-plugin:jira-plugin-resources/images/urPicture.png"
+                                                                alt="">
+    </a>
 </div>
 
 <form id="admin" class="aui" action="" method="POST">
     <h3>Connection Settings</h3>
-    <div class="field-group">
-        <label for="domain">UseResponse Domain:</label>
-        <input type="text" id="domain" name="domain" class="text" placeholder="Enter an domain here . . ."
-               value="${domain}">
+    <div class="useresponse-domain">
+        <div class="field-group">
+            <label for="domain">UseResponse Domain:</label>
+            <input type="text" id="domain" name="domain" class="text" placeholder="Enter an domain here . . ."
+                   value="${domain}">
+        </div>
+        <label for="" class="help-label">Example: https://yourcompany.useresponse.com/</label>
     </div>
+
     <div class="field-group">
         <label for="apiKey">UseResponse ApiKey:</label>
         <input type="text" id="apiKey" name="apiKey" class="text" placeholder="Enter apiKey here . . ."
                value="${apiKey}">
     </div>
-
-    <div class="field-group">
-        <label for="apiKey">Setting Autosending:</label>
-        <div class="switch-field">
-
-            <input type="radio" id="autosendingYes" name="autosending" value="true"
-                #if(${autosending})
-                   checked
-                #end
-            />
-            <label style="color : white;" for="autosendingYes">Yes</label>
-
-
-            <input type="radio" id="autosendingNo" name="autosending" value="false"
-                #if(!${autosending})
-                   checked
-                #end
-            />
-            <label style="color : white;" for="autosendingNo">No</label>
-        </div>
-    </div>
-
 
     <div id="link-settings">
         #if($!useResponseStatuses)
@@ -98,6 +80,28 @@
             #end
 
         #end
+
+        <h3 for="">Autosending</h3>
+        <div class="field-group">
+            <div class="switch-field">
+
+                <input type="radio" id="autosendingYes" name="autosending" value="true"
+                    #if(${autosending})
+                       checked
+                    #end
+                />
+                <label class="radio_check" style="color : white;" for="autosendingYes">Yes</label>
+
+
+                <input type="radio" id="autosendingNo" name="autosending" value="false"
+                    #if(!${autosending})
+                       checked
+                    #end
+                />
+                <label class="radio_check" style="color : white;" for="autosendingNo">No</label>
+            </div>
+        </div>
+
     </div>
 
     <div class="field-group" style="margin-top: 20px;">

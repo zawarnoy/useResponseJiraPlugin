@@ -3,6 +3,7 @@ package useresponse.atlassian.plugins.jira.action.listener.issue;
 import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import useresponse.atlassian.plugins.jira.action.type.ActionType;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.request.DeleteRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
@@ -15,6 +16,7 @@ public class DeleteIssueAction extends AbstractIssueAction {
         this.pluginSettingsFactory = pluginSettingsFactory;
 
         this.request = new DeleteRequest();
+        this.actionType = ActionType.DELETE_ISSUE_ID;
     }
 
     @Override

@@ -12,6 +12,7 @@ import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.user.UserManager;
+import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.action.Action;
 import useresponse.atlassian.plugins.jira.action.listener.ListenerActionFactory;
@@ -30,9 +31,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import useresponse.atlassian.plugins.jira.service.SettingsService;
-
+import useresponse.atlassian.plugins.jira.service.handler.Handler;
+import useresponse.atlassian.plugins.jira.service.handler.servlet.binder.IssueBinderResponseData;
+import useresponse.atlassian.plugins.jira.service.handler.servlet.binder.IssueBinderServletHandler;
+import useresponse.atlassian.plugins.jira.set.linked.LinkedSet;
 
 @Scanned
 public class IssueBinderServlet extends HttpServlet {
@@ -84,15 +93,29 @@ public class IssueBinderServlet extends HttpServlet {
             settingsService.redirectToLogin(req, resp);
         }
 
+        HashMap<String, String> responseMap = new HashMap<>();
+
 
         String jira_id = (req.getParameter("issue_id"));
         UseResponseObject useResponseObject = useResponseObjectManager.findByJiraId(Integer.valueOf(jira_id));
-
         Issue issue = issueManager.getIssueObject(Long.valueOf(jira_id));
 
-        executeMoving(useResponseObject, issue);
+        LinkedSet<Future<String>> futureList = executeMoving(useResponseObject, issue);
 
-        resp.sendRedirect("projects/" + issue.getProjectObject().getOriginalKey() + "/issues/" + issue.getKey());
+        Handler<LinkedSet<Future<String>>, IssueBinderResponseData> handler = new IssueBinderServletHandler();
+
+        IssueBinderResponseData responseData = handler.handle(futureList);
+
+        responseMap.put("status", "success");
+        responseMap.put("message", responseData.message);
+        responseMap.put("data", responseData.data);
+
+//            responseMap.put("status", "error");
+//            responseMap.put("kek", "tuta");
+//            responseMap.put("message", e.getMessage());
+
+        resp.getWriter().write((new Gson()).toJson(responseMap));
+
     }
 
     @Override
@@ -100,9 +123,8 @@ public class IssueBinderServlet extends HttpServlet {
 
     }
 
-    private String executeMoving(UseResponseObject useResponseObject, Issue issue) {
-        Action action = null;
-        String error = null;
+    private LinkedSet<Future<String>> executeMoving(UseResponseObject useResponseObject, Issue issue) {
+        Action action;
 
         ListenerActionFactory issueActionFactory = new IssueActionFactory(
                 issue,
@@ -121,21 +143,18 @@ public class IssueBinderServlet extends HttpServlet {
                 commentLinkManager
         );
 
+        ExecutorService executor = Executors.newCachedThreadPool();
+        LinkedSet<Future<String>> futureList = new LinkedSet<>();
 
-        try {
-            if (useResponseObject == null) {
-                action = issueActionFactory.createAction(CreateIssueAction.class);
-            } else {
-                action = issueActionFactory.createAction(UpdateIssueAction.class);
-            }
-        } finally {
-            if (action != null) {
-                Thread thread = new Thread(action, "Issue binder thread");
-                thread.start();
-                error = action.getError();
-            }
+        if (useResponseObject == null) {
+            action = issueActionFactory.createAction(CreateIssueAction.class);
+        } else {
+            action = issueActionFactory.createAction(UpdateIssueAction.class);
         }
 
+        if (action != null) {
+            futureList.add(executor.submit(action));
+        }
 
         for (Comment comment : commentManager.getComments(issue)) {
             CommentLink commentLink = commentLinkManager.findByJiraId(comment.getId().intValue());
@@ -145,13 +164,14 @@ public class IssueBinderServlet extends HttpServlet {
             } else {
                 action = commentActionFactory.createAction(UpdateCommentAction.class);
             }
+
             if (action != null) {
-                (new Thread(action, "Issue binder thread")).start();
-                error = action.getError();
+                futureList.add(executor.submit(action));
             }
         }
 
-        return error;
+        return futureList;
     }
+
 
 }

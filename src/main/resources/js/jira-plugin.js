@@ -1,18 +1,15 @@
-var hellopreloader = document.getElementById("hellopreloader_preload");
+AJS.$(document).ready(function () {
 
-function fadeOutnojquery(el) {
-    el.style.opacity = 0.5;
-    var interhellopreloader = setInterval(function () {
-        el.style.opacity = el.style.opacity - 0.05;
-        if (el.style.opacity <= 0.05) {
-            clearInterval(interhellopreloader);
-            hellopreloader.style.display = "none";
-        }
-    }, 16);
-}
+    AJS.$(".radio_check").on('click', function () {
+        var neededRadio = AJS.$("#" + AJS.$(this).attr("for"));
 
+        AJS.$("input[name=" + neededRadio.attr("name") + "]").each(function () {
+            console.log(AJS.$(this).attr("id"));
+            AJS.$(this).removeAttr('checked');
+        });
 
-$(document).ready(function () {
+        neededRadio.attr('checked', 'checked');
+    });
 
     AJS.$("#submit-button").on('click', function (event) {
 
@@ -21,8 +18,14 @@ $(document).ready(function () {
 
         AJS.$('form input, form select').each(
             function () {
-                var container = AJS.$(this);
-                data[container.attr('name')] = container.attr('value');
+                var field = AJS.$(this);
+                if (field.attr("type") === 'radio') {
+                    if (field.is(':checked')) {
+                        data[field.attr('name')] = field.attr('value');
+                    }
+                } else {
+                    data[field.attr('name')] = field.attr('value');
+                }
             }
         );
 
@@ -36,7 +39,7 @@ $(document).ready(function () {
 
             if (response.status === "success") {
                 AJS.$('#link-settings').html(response.linkTemplate);
-                swal("Settings was changed!", "", "success");
+                swal(response.message, "", "success");
             } else {
                 swal(response.message, "", "error");
             }

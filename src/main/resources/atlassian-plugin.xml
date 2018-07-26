@@ -89,6 +89,11 @@
   </web-item>
   <web-resource name="Issue Page Resources" i18n-name-key="issue-page-resources.name" key="issue-page-resources">
     <description key="issue-page-resources.description">The Issue Page Resources Plugin</description>
-    <context>issue.browse</context>
+    <resource type="download" name="issuePage.js" location="/js/issuePage.js"/>
+    <resource type="download" name="sweetalert.min.js" location="/js/sweetalert.min.js"/>
+    <resource type="download" name="swal-customizing.css" location="/css/swal-customizing.css"/>
+    <context>jira.view.issue</context>
+    <context>jira.navigator.simple</context>
+    <context>jira.navigator.advanced</context>
   </web-resource>
 </atlassian-plugin>

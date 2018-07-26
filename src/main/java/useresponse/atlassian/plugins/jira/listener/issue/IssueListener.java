@@ -27,6 +27,13 @@ import com.atlassian.activeobjects.external.ActiveObjects;
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import static sun.swing.SwingUtilities2.submit;
+
 
 @Component
 public class IssueListener implements InitializingBean, DisposableBean {
@@ -134,12 +141,11 @@ public class IssueListener implements InitializingBean, DisposableBean {
             action = issueActionFactory.createAction(UpdateIssueAction.class);
         }
 
+        ExecutorService executor = Executors.newCachedThreadPool();
 
+        Future<String> future = null;
         if (action != null) {
-            Thread thread = new Thread(action, "Issue event Thread");
-            thread.start();
+            future = executor.submit(action);
         }
     }
-
-
 }

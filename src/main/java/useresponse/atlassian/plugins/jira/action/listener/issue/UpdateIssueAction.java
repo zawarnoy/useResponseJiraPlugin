@@ -5,6 +5,7 @@ import com.atlassian.jira.issue.AttachmentManager;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import useresponse.atlassian.plugins.jira.action.type.ActionType;
 import useresponse.atlassian.plugins.jira.manager.IssueFileLinkManager;
 import useresponse.atlassian.plugins.jira.manager.PriorityLinkManager;
 import useresponse.atlassian.plugins.jira.manager.StatusesLinkManager;
@@ -34,6 +35,7 @@ public class UpdateIssueAction extends AbstractIssueAction {
         this.statusesLinkManager = statusesLinkManager;
 
         this.request = new PutRequest();
+        this.actionType = ActionType.UPDATE_ISSUE_ID;
     }
 
     @Override
@@ -43,7 +45,7 @@ public class UpdateIssueAction extends AbstractIssueAction {
     }
 
     @Override
-    public void handleResponse(String response) throws Exception {
+    public void handleResponse(String response) {
 
     }
 
@@ -55,7 +57,7 @@ public class UpdateIssueAction extends AbstractIssueAction {
         return request;
     }
 
-    private String findUseResponseStatusFromJiraStatus(String jiraStatus) throws Exception {
+    private String findUseResponseStatusFromJiraStatus(String jiraStatus) {
         return statusesLinkManager.findByJiraStatusName(jiraStatus).getUseResponseStatusSlug();
     }
 }
