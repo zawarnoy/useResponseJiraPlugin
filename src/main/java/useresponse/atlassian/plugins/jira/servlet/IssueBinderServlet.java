@@ -22,6 +22,7 @@ import useresponse.atlassian.plugins.jira.action.listener.comment.UpdateCommentA
 import useresponse.atlassian.plugins.jira.action.listener.issue.CreateIssueAction;
 import useresponse.atlassian.plugins.jira.action.listener.issue.IssueActionFactory;
 import useresponse.atlassian.plugins.jira.action.listener.issue.UpdateIssueAction;
+import useresponse.atlassian.plugins.jira.exception.InvalidResponseException;
 import useresponse.atlassian.plugins.jira.manager.impl.*;
 import useresponse.atlassian.plugins.jira.model.*;
 
@@ -31,16 +32,25 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import useresponse.atlassian.plugins.jira.request.Request;
 import useresponse.atlassian.plugins.jira.service.SettingsService;
 import useresponse.atlassian.plugins.jira.service.handler.Handler;
 import useresponse.atlassian.plugins.jira.service.handler.servlet.binder.IssueBinderResponseData;
 import useresponse.atlassian.plugins.jira.service.handler.servlet.binder.IssueBinderServletHandler;
+import useresponse.atlassian.plugins.jira.service.request.RequestBuilder;
+import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestBuilder;
+import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestParametersBuilder;
+import useresponse.atlassian.plugins.jira.service.request.parameters.builder.IssueRequestBuilder;
+import useresponse.atlassian.plugins.jira.service.request.parameters.builder.IssueRequestParametersBuilder;
 import useresponse.atlassian.plugins.jira.set.linked.LinkedSet;
+import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 
 @Scanned
 public class IssueBinderServlet extends HttpServlet {
@@ -92,28 +102,62 @@ public class IssueBinderServlet extends HttpServlet {
             settingsService.redirectToLogin(req, resp);
         }
 
-        HashMap<String, String> responseMap = new HashMap<>();
-
-
-        String jiraId = (req.getParameter("issue_id"));
-        UseResponseObject useResponseObject = useResponseObjectManager.findByJiraId(Integer.valueOf(jiraId));
-        Issue issue = issueManager.getIssueObject(Long.valueOf(jiraId));
-
-        if(!SettingsService.testURConnection(pluginSettingsFactory)) {
-            responseMap.put("status", "error");
-            responseMap.put("message", "Can't connect to UseResponse");
-            responseMap.put("slug", "Check your Domain/ApiKey settings");
-        } else {
-            LinkedSet<Future<String>> futureList = executeMoving(useResponseObject, issue);
-            Handler<LinkedSet<Future<String>>, IssueBinderResponseData> handler = new IssueBinderServletHandler();
-            IssueBinderResponseData responseData = handler.handle(futureList);
-            responseMap.put("message", responseData.message);
-            responseMap.put("data", responseData.data);
-            responseMap.put("status", "success");
+        if (!SettingsService.testURConnection(pluginSettingsFactory)) {
+            resp.getWriter().write("Conn");
         }
 
+//        HashMap<String, String> responseMap = new HashMap<>();
+//        String jiraId = (req.getParameter("issue_id"));
+//        UseResponseObject useResponseObject = useResponseObjectManager.findByJiraId(Integer.valueOf(jiraId));
+//        Issue issue = issueManager.getIssueObject(Long.valueOf(jiraId));
+//
+//        if(!SettingsService.testURConnection(pluginSettingsFactory)) {
+//            responseMap.put("status", "error");
+//            responseMap.put("message", "Can't connect to UseResponse");
+//            responseMap.put("slug", "Check your Domain/ApiKey settings");
+//        } else {
+//            LinkedSet<Future<String>> futureList = executeMoving(useResponseObject, issue);
+//            Handler<LinkedSet<Future<String>>, IssueBinderResponseData> handler = new IssueBinderServletHandler();
+//            IssueBinderResponseData responseData = handler.handle(futureList);
+//            responseMap.put("message", responseData.message);
+//            responseMap.put("data", responseData.data);
+//            responseMap.put("status", "success");
+//        }
+//        resp.getWriter().write((new Gson()).toJson(responseMap));
 
-        resp.getWriter().write((new Gson()).toJson(responseMap));
+        CommentRequestParametersBuilder commentRequestParametersBuilder = new CommentRequestParametersBuilder(
+                commentLinkManager,
+                useResponseObjectManager);
+
+        IssueRequestParametersBuilder issueRequestParametersBuilder = new IssueRequestParametersBuilder(
+                rendererManager,
+                priorityLinkManager,
+                useResponseObjectManager,
+                attachmentManager,
+                issueFileLinkManager,
+                pluginSettingsFactory,
+                statusesLinkManager
+        );
+
+        CommentRequestBuilder commentRequestBuilder = new CommentRequestBuilder(commentRequestParametersBuilder, commentLinkManager);
+        IssueRequestBuilder issueRequestBuilder = new IssueRequestBuilder(issueRequestParametersBuilder, useResponseObjectManager);
+        RequestBuilder requestBuilder = new RequestBuilder(issueRequestBuilder, commentRequestBuilder, commentManager);
+
+
+        Issue issue = issueManager.getIssueObject(Long.valueOf(req.getParameter("issue_id")));
+        Request request = request = requestBuilder.build(issue);
+
+        String response = null;
+
+        try {
+            response = request.sendRequest("http://useresponse/api/4.0/jira-tickets/entry/add.json?apiKey=" + (new PluginSettingsImpl(pluginSettingsFactory)).getUseResponseApiKey());
+        } catch (InvalidResponseException | NoSuchAlgorithmException | KeyManagementException e) {
+            e.printStackTrace();
+        }
+
+        if (response != null) {
+            resp.getWriter().write(response);
+        }
 
     }
 

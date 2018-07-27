@@ -3,6 +3,7 @@ package useresponse.atlassian.plugins.jira.request;
 
 import com.google.gson.Gson;
 import useresponse.atlassian.plugins.jira.exception.InvalidResponseException;
+import useresponse.atlassian.plugins.jira.exception.UndefinedUrl;
 
 import javax.net.ssl.*;
 import java.io.BufferedReader;
@@ -28,6 +29,12 @@ public abstract class AbstractRequest implements Request {
 
     protected Map<Object, Object> parameters = new HashMap<Object, Object>();
     protected String requestType;
+    protected String url;
+
+    @Override
+    public Map<Object, Object> getParameters() {
+        return parameters;
+    }
 
     @Override
     public void addParameter(Object name, Object value) {
@@ -37,6 +44,14 @@ public abstract class AbstractRequest implements Request {
     @Override
     public void addParameter(Map map) {
         parameters.putAll(map);
+    }
+
+    @Override
+    public String sendRequest() throws UndefinedUrl, NoSuchAlgorithmException, KeyManagementException, InvalidResponseException, IOException {
+        if(url == null) {
+            throw new UndefinedUrl("URL for sending is undefined!");
+        }
+        return sendRequest(url);
     }
 
     @Override
