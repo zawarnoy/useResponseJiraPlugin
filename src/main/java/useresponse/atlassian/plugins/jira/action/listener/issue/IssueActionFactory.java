@@ -6,7 +6,7 @@ import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.jira.issue.managers.DefaultAttachmentManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-import useresponse.atlassian.plugins.jira.action.Action;
+import useresponse.atlassian.plugins.jira.action.listener.Action;
 import useresponse.atlassian.plugins.jira.action.listener.AbsctractListenerActionFactory;
 import useresponse.atlassian.plugins.jira.manager.IssueFileLinkManager;
 import useresponse.atlassian.plugins.jira.manager.PriorityLinkManager;

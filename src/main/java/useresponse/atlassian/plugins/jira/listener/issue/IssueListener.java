@@ -13,7 +13,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import useresponse.atlassian.plugins.jira.action.listener.ListenerActionFactory;
-import useresponse.atlassian.plugins.jira.action.Action;
+import useresponse.atlassian.plugins.jira.action.listener.Action;
 import useresponse.atlassian.plugins.jira.action.listener.comment.CommentActionFactory;
 import useresponse.atlassian.plugins.jira.action.listener.comment.CreateCommentAction;
 import useresponse.atlassian.plugins.jira.action.listener.comment.DeleteCommentAction;
@@ -27,7 +27,6 @@ import com.atlassian.activeobjects.external.ActiveObjects;
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;

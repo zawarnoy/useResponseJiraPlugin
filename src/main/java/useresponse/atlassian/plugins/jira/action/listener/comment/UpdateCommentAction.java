@@ -1,13 +1,11 @@
 package useresponse.atlassian.plugins.jira.action.listener.comment;
 
-import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-import useresponse.atlassian.plugins.jira.action.type.ActionType;
+import useresponse.atlassian.plugins.jira.action.listener.type.ActionType;
 import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
-import useresponse.atlassian.plugins.jira.request.PutRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
 
 public class UpdateCommentAction extends AbstractCommentAction {

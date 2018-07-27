@@ -1,4 +1,4 @@
-package useresponse.atlassian.plugins.jira.action.type;
+package useresponse.atlassian.plugins.jira.action.listener.type;
 
 public class ActionType {
     public static final int CREATE_ISSUE_ID = 1;

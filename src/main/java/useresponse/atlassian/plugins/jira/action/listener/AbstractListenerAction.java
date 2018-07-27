@@ -4,7 +4,6 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import useresponse.atlassian.plugins.jira.action.Action;
 import useresponse.atlassian.plugins.jira.exception.ConnectionException;
 import useresponse.atlassian.plugins.jira.exception.InvalidResponseException;
 import useresponse.atlassian.plugins.jira.request.Request;
