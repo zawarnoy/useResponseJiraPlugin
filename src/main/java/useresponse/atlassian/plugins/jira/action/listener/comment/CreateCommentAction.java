@@ -8,15 +8,18 @@ import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
+import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestBuilder;
+
+import java.util.HashMap;
 
 public class CreateCommentAction extends AbstractCommentAction {
 
-    public  CreateCommentAction(Comment comment, CommentLinkManager commentLinkManager, UseResponseObjectManager useResponseObjectManager, PluginSettingsFactory pluginSettingsFactory) {
+    public  CreateCommentAction(Comment comment, CommentLinkManager commentLinkManager, UseResponseObjectManager useResponseObjectManager, PluginSettingsFactory pluginSettingsFactory, CommentRequestBuilder builder) {
         this.comment = comment;
         this.commentLinkManager = commentLinkManager;
         this.useResponseObjectManager = useResponseObjectManager;
         this.pluginSettingsFactory = pluginSettingsFactory;
-
+        this.parametersBuilder = builder;
         this.request = new PostRequest();
         this.actionType = ActionType.CREATE_COMMENT_ID;
     }
@@ -33,10 +36,7 @@ public class CreateCommentAction extends AbstractCommentAction {
 
     @Override
     public Request addParameters(Request request) {
-        request = prepareRequest(request, comment.getId().intValue());
-        int id = useResponseObjectManager.findByJiraId(comment.getIssue().getId().intValue()).getUseResponseId();
-        request.addParameter("content", comment.getBody());
-        request.addParameter("object_id", String.valueOf(id));
+        request.addParameter(parametersBuilder.build(comment));
         return request;
     }
 }

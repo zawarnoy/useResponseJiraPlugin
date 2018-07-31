@@ -11,6 +11,7 @@ import useresponse.atlassian.plugins.jira.manager.PriorityLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
+import useresponse.atlassian.plugins.jira.service.request.parameters.builder.IssueRequestBuilder;
 
 import java.io.IOException;
 
@@ -22,7 +23,7 @@ public class CreateIssueAction extends AbstractIssueAction {
                              PriorityLinkManager priorityLinkManager,
                              PluginSettingsFactory pluginSettingsFactory,
                              AttachmentManager attachmentManager,
-                             IssueFileLinkManager issueFileLinkManager) {
+                             IssueFileLinkManager issueFileLinkManager, IssueRequestBuilder issueRequestBuilder) {
         this.issue = issue;
         this.useResponseObjectManager = useResponseObjectManager;
         this.rendererManager = rendererManager;
@@ -30,6 +31,7 @@ public class CreateIssueAction extends AbstractIssueAction {
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.attachmentManager = attachmentManager;
         this.issueFileLinkManager = issueFileLinkManager;
+        this.builder = issueRequestBuilder;
 
         this.request = new PostRequest();
         this.actionType = ActionType.CREATE_ISSUE_ID;
@@ -47,10 +49,8 @@ public class CreateIssueAction extends AbstractIssueAction {
 
     @Override
     public Request addParameters(Request request) throws IOException {
-        request.addParameter("ownership", "helpdesk");
-        request.addParameter("object_type", "ticket");
-        request = prepareRequest(request, issue.getId().intValue());
-        return addStandardParametersToRequest(request, issue);
+        request.addParameter(builder.build(issue));
+        return request;
     }
 
 }

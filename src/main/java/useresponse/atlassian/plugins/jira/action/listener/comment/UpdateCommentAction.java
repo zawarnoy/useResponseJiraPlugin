@@ -7,23 +7,25 @@ import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
+import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestBuilder;
+
+import java.util.HashMap;
 
 public class UpdateCommentAction extends AbstractCommentAction {
 
-    public UpdateCommentAction(Comment comment, CommentLinkManager commentLinkManager, UseResponseObjectManager useResponseObjectManager, PluginSettingsFactory pluginSettingsFactory) {
+    public UpdateCommentAction(Comment comment, CommentLinkManager commentLinkManager, UseResponseObjectManager useResponseObjectManager, PluginSettingsFactory pluginSettingsFactory, CommentRequestBuilder commentRequestBuilder) {
         this.comment = comment;
         this.commentLinkManager = commentLinkManager;
         this.useResponseObjectManager = useResponseObjectManager;
         this.pluginSettingsFactory = pluginSettingsFactory;
-
+        this.parametersBuilder = commentRequestBuilder;
         this.request = new PostRequest();
         this.actionType = ActionType.UPDATE_COMMENT_ID;
     }
 
     @Override
     protected Request addParameters(Request request) {
-        request = prepareRequest(request, comment.getId().intValue());
-        request.addParameter("content", comment.getBody());
+        request.addParameter(parametersBuilder.build(comment));
         return request;
     }
 

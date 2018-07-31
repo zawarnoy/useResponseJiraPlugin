@@ -62,12 +62,6 @@ public abstract class AbstractListenerAction implements Action {
 
     protected abstract void handleResponse(String response) throws ParseException;
 
-    protected Request prepareRequest(Request request, int objectId) {
-        request.addParameter("jira_id", objectId);
-        request.addParameter("treat_as_html", 1);
-        return request;
-    }
-
     protected String collectUrl(String requestString) {
         PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
         return pluginSettings.getUseResponseDomain() + ConstStorage.API_STRING + requestString + "?apiKey=" + pluginSettings.getUseResponseApiKey();

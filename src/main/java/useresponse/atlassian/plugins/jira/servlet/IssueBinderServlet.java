@@ -4,7 +4,6 @@ import com.atlassian.jira.issue.AttachmentManager;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.RendererManager;
-import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.security.xsrf.RequiresXsrfCheck;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
@@ -12,20 +11,10 @@ import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.user.UserManager;
-import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
-import useresponse.atlassian.plugins.jira.action.listener.Action;
-import useresponse.atlassian.plugins.jira.action.listener.ListenerActionFactory;
-import useresponse.atlassian.plugins.jira.action.listener.comment.CommentActionFactory;
-import useresponse.atlassian.plugins.jira.action.listener.comment.CreateCommentAction;
-import useresponse.atlassian.plugins.jira.action.listener.comment.UpdateCommentAction;
-import useresponse.atlassian.plugins.jira.action.listener.issue.CreateIssueAction;
-import useresponse.atlassian.plugins.jira.action.listener.issue.IssueActionFactory;
-import useresponse.atlassian.plugins.jira.action.listener.issue.UpdateIssueAction;
 import useresponse.atlassian.plugins.jira.exception.InvalidResponseException;
+import useresponse.atlassian.plugins.jira.exception.UndefinedUrl;
 import useresponse.atlassian.plugins.jira.manager.impl.*;
-import useresponse.atlassian.plugins.jira.model.*;
-
 import javax.inject.Inject;
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
@@ -34,23 +23,16 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
 import useresponse.atlassian.plugins.jira.request.Request;
 import useresponse.atlassian.plugins.jira.service.SettingsService;
-import useresponse.atlassian.plugins.jira.service.handler.Handler;
-import useresponse.atlassian.plugins.jira.service.handler.servlet.binder.IssueBinderResponseData;
-import useresponse.atlassian.plugins.jira.service.handler.servlet.binder.IssueBinderServletHandler;
 import useresponse.atlassian.plugins.jira.service.request.RequestBuilder;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestBuilder;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestParametersBuilder;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.IssueRequestBuilder;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.IssueRequestParametersBuilder;
-import useresponse.atlassian.plugins.jira.set.linked.LinkedSet;
+import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
+import useresponse.atlassian.plugins.jira.storage.ConstStorage;
 
 @Scanned
 public class IssueBinderServlet extends HttpServlet {
@@ -141,17 +123,21 @@ public class IssueBinderServlet extends HttpServlet {
 
         CommentRequestBuilder commentRequestBuilder = new CommentRequestBuilder(commentRequestParametersBuilder, commentLinkManager);
         IssueRequestBuilder issueRequestBuilder = new IssueRequestBuilder(issueRequestParametersBuilder, useResponseObjectManager);
+
         RequestBuilder requestBuilder = new RequestBuilder(issueRequestBuilder, commentRequestBuilder, commentManager);
 
 
         Issue issue = issueManager.getIssueObject(Long.valueOf(req.getParameter("issue_id")));
-        Request request = request = requestBuilder.build(issue);
 
+        Request request = requestBuilder.build(issue);
         String response = null;
+        PluginSettings pluginSettings =  new PluginSettingsImpl(pluginSettingsFactory);
+
+        request.setUrl(pluginSettings.getUseResponseDomain() + ConstStorage.API_STRING + ConstStorage.JIRA_DATA_HANDLER_ROUTE + "?apiKey=" + pluginSettings.getUseResponseApiKey());
 
         try {
-            response = request.sendRequest("http://useresponse/api/4.0/jira-tickets/entry/add.json?apiKey=" + (new PluginSettingsImpl(pluginSettingsFactory)).getUseResponseApiKey());
-        } catch (InvalidResponseException | NoSuchAlgorithmException | KeyManagementException e) {
+            response = request.sendRequest();
+        } catch (InvalidResponseException | NoSuchAlgorithmException | KeyManagementException | UndefinedUrl e) {
             e.printStackTrace();
         }
 
@@ -161,60 +147,64 @@ public class IssueBinderServlet extends HttpServlet {
 
     }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-    }
-
-    private LinkedSet<Future<String>> executeMoving(UseResponseObject useResponseObject, Issue issue) {
-        Action action;
-
-        ListenerActionFactory issueActionFactory = new IssueActionFactory(
-                issue,
-                useResponseObjectManager,
-                rendererManager,
-                priorityLinkManager,
-                pluginSettingsFactory,
-                issueFileLinkManager,
-                statusesLinkManager
-        );
-
-        ListenerActionFactory commentActionFactory = new CommentActionFactory(
-                null,
-                useResponseObjectManager,
-                pluginSettingsFactory,
-                commentLinkManager
-        );
-
-        ExecutorService executor = Executors.newFixedThreadPool(9);
-        LinkedSet<Future<String>> futureList = new LinkedSet<>();
-
-        if (useResponseObject == null) {
-            action = issueActionFactory.createAction(CreateIssueAction.class);
-        } else {
-            action = issueActionFactory.createAction(UpdateIssueAction.class);
-        }
-
-        if (action != null) {
-            futureList.add(executor.submit(action));
-        }
-
-        for (Comment comment : commentManager.getComments(issue)) {
-            CommentLink commentLink = commentLinkManager.findByJiraId(comment.getId().intValue());
-            commentActionFactory.setEntity(comment);
-            if (commentLink == null) {
-                action = commentActionFactory.createAction(CreateCommentAction.class);
-            } else {
-                action = commentActionFactory.createAction(UpdateCommentAction.class);
-            }
-
-            if (action != null) {
-                futureList.add(executor.submit(action));
-            }
-        }
-
-        return futureList;
-    }
+//    private LinkedSet<Future<String>> executeMoving(UseResponseObject useResponseObject, Issue issue) {
+//        Action action;
+//
+//        ListenerActionFactory issueActionFactory = new IssueActionFactory(
+//                issue,
+//                useResponseObjectManager,
+//                rendererManager,
+//                priorityLinkManager,
+//                pluginSettingsFactory,
+//                issueFileLinkManager,
+//                statusesLinkManager,
+//                new IssueRequestBuilder(
+//                        new IssueRequestParametersBuilder(rendererManager, priorityLinkManager, useResponseObjectManager, attachmentManager, issueFileLinkManager, pluginSettingsFactory, statusesLinkManager),
+//                        useResponseObjectManager
+//                )
+//
+//        );
+//
+//        ListenerActionFactory commentActionFactory = new CommentActionFactory(
+//                null,
+//                useResponseObjectManager,
+//                pluginSettingsFactory,
+//                commentLinkManager,
+//                new CommentRequestBuilder(
+//                        new CommentRequestParametersBuilder(commentLinkManager, useResponseObjectManager),
+//                        commentLinkManager
+//                )
+//        );
+//
+//        ExecutorService executor = Executors.newFixedThreadPool(9);
+//        LinkedSet<Future<String>> futureList = new LinkedSet<>();
+//
+//        if (useResponseObject == null) {
+//            action = issueActionFactory.createAction(CreateIssueAction.class);
+//        } else {
+//            action = issueActionFactory.createAction(UpdateIssueAction.class);
+//        }
+//
+//        if (action != null) {
+//            futureList.add(executor.submit(action));
+//        }
+//
+//        for (Comment comment : commentManager.getComments(issue)) {
+//            CommentLink commentLink = commentLinkManager.findByJiraId(comment.getId().intValue());
+//            commentActionFactory.setEntity(comment);
+//            if (commentLink == null) {
+//                action = commentActionFactory.createAction(CreateCommentAction.class);
+//            } else {
+//                action = commentActionFactory.createAction(UpdateCommentAction.class);
+//            }
+//
+//            if (action != null) {
+//                futureList.add(executor.submit(action));
+//            }
+//        }
+//
+//        return futureList;
+//    }
 
 
 }

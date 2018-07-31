@@ -12,6 +12,10 @@ public class IssueRequestBuilder {
     private IssueRequestParametersBuilder builder;
     private UseResponseObjectManager objectManager;
 
+    /**
+     * @param builder
+     * @param objectManager Builds request map for issue
+     */
     public IssueRequestBuilder(IssueRequestParametersBuilder builder, UseResponseObjectManager objectManager) {
         this.builder = builder;
         this.objectManager = objectManager;
@@ -19,21 +23,28 @@ public class IssueRequestBuilder {
 
     public Map<Object, Object> build(Issue issue) throws IOException {
         if (objectManager.findByJiraId(issue.getId().intValue()) == null) {
-            return buildNewIssueMap(issue);
+            return buildNewIssueRequestMap(issue);
         } else {
-            return buildUpdateIssueMap(issue);
+            return buildUpdateIssueRequestMap(issue);
         }
     }
 
-    private Map<Object, Object> buildNewIssueMap(Issue issue) throws IOException {
+    private Map<Object, Object> buildNewIssueRequestMap(Issue issue) throws IOException {
         builder.setRequestMap(new HashMap<Object, Object>());
-        builder.addStandardParametersToMap(issue).addOwnershipToMap().addObjectTypeToMap().addObjectIdToMap(issue);
+        builder.
+                addStandardParametersToMap(issue).
+                addCreatedAt(issue).
+                addAuthorToRequest(issue).
+                addAddAction();
         return builder.getRequestMap();
     }
 
-    private Map<Object, Object> buildUpdateIssueMap(Issue issue) throws IOException {
+    private Map<Object, Object> buildUpdateIssueRequestMap(Issue issue) throws IOException {
         builder.setRequestMap(new HashMap<Object, Object>());
-        builder.addStandardParametersToMap(issue).addOwnershipToMap().addObjectTypeToMap().addObjectIdToMap(issue);
+        builder.
+                addStandardParametersToMap(issue).
+                addStatusToMap(issue).
+                addEditAction();
         return builder.getRequestMap();
     }
 }

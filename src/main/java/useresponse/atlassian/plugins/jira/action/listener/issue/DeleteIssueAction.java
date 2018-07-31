@@ -20,7 +20,7 @@ public class DeleteIssueAction extends AbstractIssueAction {
 
     @Override
     protected Request addParameters(Request request) {
-        return prepareRequest(request, issue.getId().intValue());
+        return request;
     }
 
     @Override

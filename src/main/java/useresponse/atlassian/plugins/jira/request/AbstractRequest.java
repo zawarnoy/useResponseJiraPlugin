@@ -55,6 +55,11 @@ public abstract class AbstractRequest implements Request {
     }
 
     @Override
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    @Override
     public String sendRequest(String url) throws IOException, InvalidResponseException, NoSuchAlgorithmException, KeyManagementException {
         byte[] postData = getJsonFromParameters().getBytes(StandardCharsets.UTF_8);
         URL urlObj = new URL(url);

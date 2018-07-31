@@ -26,13 +26,20 @@ public class CommentRequestBuilder {
 
     private Map<Object, Object> buildNewCommentMap(Comment comment) {
         builder.setRequestMap(new HashMap<>());
-        builder.addContent(comment).addCreatedAt(comment).addCreatorEmail(comment).addHtmlTreat().addObjectIdToMap(comment);
+        builder.
+                addStandardParametersForRequest(comment).
+                addCreatedAt(comment).
+                addObjectIdToMap(comment).
+                addJiraObjectIdToMap(comment).
+                addAuthorToRequest(comment);
         return builder.getRequestMap();
     }
 
     private Map<Object, Object> buildUpdateCommentMap(Comment comment) {
         builder.setRequestMap(new HashMap<>());
-        builder.addContent(comment).addUseResponseIdToMap(comment).addHtmlTreat().addObjectIdToMap(comment);
+        builder.addStandardParametersForRequest(comment).
+                addJiraObjectIdToMap(comment).
+                addUseResponseIdToMap(comment);
         return builder.getRequestMap();
     }
 }

@@ -7,22 +7,24 @@ import useresponse.atlassian.plugins.jira.action.listener.Action;
 import useresponse.atlassian.plugins.jira.action.listener.AbsctractListenerActionFactory;
 import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
+import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestBuilder;
 
 public class CommentActionFactory extends AbsctractListenerActionFactory {
 
-    public CommentActionFactory(WithId entity, UseResponseObjectManager useResponseObjectManager, PluginSettingsFactory pluginSettingsFactory, CommentLinkManager commentLinkManager) {
+    public CommentActionFactory(WithId entity, UseResponseObjectManager useResponseObjectManager, PluginSettingsFactory pluginSettingsFactory, CommentLinkManager commentLinkManager, CommentRequestBuilder commentRequestBuilder) {
         this.entity = entity;
         this.useResponseObjectManager = useResponseObjectManager;
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.commentLinkManager = commentLinkManager;
+        this.commentRequestBuilder = commentRequestBuilder;
     }
 
     @Override
     public Action createAction(Class actionClass) {
         if (actionClass.getCanonicalName().equals(CreateCommentAction.class.getCanonicalName())) {
-            return new CreateCommentAction((Comment) entity, commentLinkManager, useResponseObjectManager, pluginSettingsFactory);
+            return new CreateCommentAction((Comment) entity, commentLinkManager, useResponseObjectManager, pluginSettingsFactory, commentRequestBuilder);
         } else if (actionClass.getCanonicalName().equals(UpdateCommentAction.class.getCanonicalName())) {
-            return new UpdateCommentAction((Comment) entity, commentLinkManager, useResponseObjectManager, pluginSettingsFactory);
+            return new UpdateCommentAction((Comment) entity, commentLinkManager, useResponseObjectManager, pluginSettingsFactory, commentRequestBuilder);
         } else if (actionClass.getCanonicalName().equals(DeleteCommentAction.class.getCanonicalName())) {
             return new DeleteCommentAction((Comment) entity, commentLinkManager, pluginSettingsFactory);
         } else {

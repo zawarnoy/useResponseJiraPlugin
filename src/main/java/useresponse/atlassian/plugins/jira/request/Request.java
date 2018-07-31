@@ -12,13 +12,14 @@ import java.util.Map;
 public interface Request {
     /**
      * @return Map
-     *
      */
     Map getParameters();
 
     void addParameter(Object name, Object value);
 
     void addParameter(Map map);
+
+    void setUrl(String url);
 
     String sendRequest() throws UndefinedUrl, NoSuchAlgorithmException, KeyManagementException, InvalidResponseException, IOException;
 

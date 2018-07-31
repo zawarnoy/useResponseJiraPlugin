@@ -4,6 +4,7 @@ import com.atlassian.event.api.EventListener;
 import com.atlassian.event.api.EventPublisher;
 import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.event.type.EventType;
+import com.atlassian.jira.issue.AttachmentManager;
 import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.plugin.spring.scanner.annotation.imports.JiraImport;
@@ -24,6 +25,10 @@ import useresponse.atlassian.plugins.jira.action.listener.issue.IssueActionFacto
 import useresponse.atlassian.plugins.jira.action.listener.issue.UpdateIssueAction;
 import useresponse.atlassian.plugins.jira.manager.impl.*;
 import com.atlassian.activeobjects.external.ActiveObjects;
+import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestBuilder;
+import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestParametersBuilder;
+import useresponse.atlassian.plugins.jira.service.request.parameters.builder.IssueRequestBuilder;
+import useresponse.atlassian.plugins.jira.service.request.parameters.builder.IssueRequestParametersBuilder;
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 
@@ -64,14 +69,18 @@ public class IssueListener implements InitializingBean, DisposableBean {
     @ComponentImport
     private final PluginSettingsFactory pluginSettingsFactory;
 
+    @ComponentImport
+    private final AttachmentManager attachmentManager;
+
     private PluginSettings pluginSettings;
 
     @Autowired
-    public IssueListener(EventPublisher eventPublisher, PluginSettingsFactory pluginSettingsFactory, ActiveObjects ao) {
+    public IssueListener(EventPublisher eventPublisher, PluginSettingsFactory pluginSettingsFactory, ActiveObjects ao, AttachmentManager attachmentManager) {
         this.eventPublisher = eventPublisher;
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.ao = ao;
         this.pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
+        this.attachmentManager = attachmentManager;
     }
 
     /**
@@ -109,6 +118,16 @@ public class IssueListener implements InitializingBean, DisposableBean {
     private void executeAction(IssueEvent issueEvent) {
         Long typeId = issueEvent.getEventTypeId();
 
+        IssueRequestBuilder issueRequestBuilder = new IssueRequestBuilder(
+                new IssueRequestParametersBuilder(rendererManager, priorityLinkManager, useResponseObjectManager, attachmentManager, issueFileLinkManager, pluginSettingsFactory, statusesLinkManager),
+                useResponseObjectManager
+        );
+
+        CommentRequestBuilder commentRequestBuilder = new CommentRequestBuilder(
+                new CommentRequestParametersBuilder(commentLinkManager, useResponseObjectManager),
+                commentLinkManager
+        );
+
         ListenerActionFactory issueActionFactory = new IssueActionFactory(
                 issueEvent.getIssue(),
                 useResponseObjectManager,
@@ -116,13 +135,17 @@ public class IssueListener implements InitializingBean, DisposableBean {
                 priorityLinkManager,
                 pluginSettingsFactory,
                 issueFileLinkManager,
-                statusesLinkManager);
+                statusesLinkManager,
+                issueRequestBuilder);
 
         ListenerActionFactory commentActionFactory = new CommentActionFactory(
                 issueEvent.getComment(),
                 useResponseObjectManager,
                 pluginSettingsFactory,
-                commentLinkManager);
+                commentLinkManager,
+                commentRequestBuilder);
+
+
 
         Action action;
 

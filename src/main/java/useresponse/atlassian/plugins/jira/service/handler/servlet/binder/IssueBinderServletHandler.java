@@ -1,19 +1,24 @@
 package useresponse.atlassian.plugins.jira.service.handler.servlet.binder;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import useresponse.atlassian.plugins.jira.service.handler.Handler;
 import useresponse.atlassian.plugins.jira.set.linked.LinkedSet;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-public class IssueBinderServletHandler implements Handler<LinkedSet<Future<String>>, IssueBinderResponseData> {
+public class IssueBinderServletHandler implements Handler<String, String> {
 
     private AnswerData answerData;
     private IssueBinderResponseData responseData;
 
-    @Override
     public IssueBinderResponseData handle(LinkedSet<Future<String>> futureArrayList) {
         answerData = new AnswerData();
         responseData = new IssueBinderResponseData();
@@ -65,5 +70,43 @@ public class IssueBinderServletHandler implements Handler<LinkedSet<Future<Strin
             handleException(e);
             return responseData;
         }
+    }
+
+    @Override
+    public String handle(String response) {
+
+        Gson gson = new Gson();
+        String responseForUser = null;
+
+        JsonObject data = gson.fromJson(response, JsonObject.class);
+
+        JsonObject issueData = data.getAsJsonObject("issue");
+        if (issueData != null) {
+            // TODO
+            handleIssueData(issueData);
+        }
+
+        JsonArray commentsData = data.getAsJsonArray("comments");
+        if (commentsData != null) {
+            // TODO
+            handleCommentsData(commentsData);
+        }
+
+        return responseForUser;
+    }
+
+    private void handleIssueData(JsonObject issueData) {
+
+    }
+
+    private void handleCommentsData(JsonArray commentsData) {
+        Iterator<JsonElement> iterator = commentsData.iterator();
+        while (iterator.hasNext()) {
+            handleOneCommentData(iterator.next().getAsJsonObject());
+        }
+    }
+
+    private void handleOneCommentData(JsonObject commentData) {
+
     }
 }

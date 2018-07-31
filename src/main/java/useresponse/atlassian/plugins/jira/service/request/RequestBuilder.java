@@ -3,7 +3,6 @@ package useresponse.atlassian.plugins.jira.service.request;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.jira.issue.comments.CommentManager;
-import com.google.gson.Gson;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestBuilder;
@@ -15,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Build request for sending in UseResponse system
+ * Class for building request for sending in UseResponse system
  *
  */
 
@@ -31,6 +30,14 @@ public class RequestBuilder {
         this.commentManager = commentManager;
     }
 
+    /**
+     *
+     * @param issue
+     * @return Request
+     * @throws IOException
+     *
+     * Returns prepared request for sending in to UseResponse system
+     */
     public Request build(Issue issue) throws IOException {
         Request request = new PostRequest();
         Map<Object, Object> requestMap = new HashMap<>();

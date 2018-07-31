@@ -11,6 +11,7 @@ import useresponse.atlassian.plugins.jira.manager.StatusesLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.request.PutRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
+import useresponse.atlassian.plugins.jira.service.request.parameters.builder.IssueRequestBuilder;
 
 import java.io.IOException;
 
@@ -25,7 +26,7 @@ public class UpdateIssueAction extends AbstractIssueAction {
                              PluginSettingsFactory pluginSettingsFactory,
                              AttachmentManager attachmentManager,
                              IssueFileLinkManager issueFileLinkManager,
-                             StatusesLinkManager statusesLinkManager) {
+                             StatusesLinkManager statusesLinkManager, IssueRequestBuilder issueRequestBuilder) {
         this.issue = issue;
         this.useResponseObjectManager = useResponseObjectManager;
         this.rendererManager = rendererManager;
@@ -34,6 +35,7 @@ public class UpdateIssueAction extends AbstractIssueAction {
         this.attachmentManager = attachmentManager;
         this.issueFileLinkManager = issueFileLinkManager;
         this.statusesLinkManager = statusesLinkManager;
+        this.builder = issueRequestBuilder;
 
         this.request = new PutRequest();
         this.actionType = ActionType.UPDATE_ISSUE_ID;
@@ -52,9 +54,7 @@ public class UpdateIssueAction extends AbstractIssueAction {
 
     @Override
     public Request addParameters(Request request) throws IOException {
-        addStandardParametersToRequest(request, issue);
-        request = prepareRequest(request, issue.getId().intValue());
-        request.addParameter("status", findUseResponseStatusFromJiraStatus(issue.getStatus().getName()));
+        request.addParameter(builder.build(issue));
         return request;
     }
 

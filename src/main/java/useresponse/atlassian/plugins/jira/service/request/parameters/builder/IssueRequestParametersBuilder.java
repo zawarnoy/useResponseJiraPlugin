@@ -15,9 +15,9 @@ import useresponse.atlassian.plugins.jira.manager.PriorityLinkManager;
 import useresponse.atlassian.plugins.jira.manager.StatusesLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.model.StatusesLink;
-import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class IssueRequestParametersBuilder extends RequestParametersBuilder {
@@ -47,9 +47,9 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
         this.statusesLinkManager = statusesLinkManager;
     }
 
-    public IssueRequestParametersBuilder addOwnershipToMap() {
-        requestMap.put("ownership", "helpdesk");
-        return this;
+    private Map<Object, Object> addOwnershipToMap(Map<Object, Object> map) {
+        map.put("ownership", "helpdesk");
+        return map;
     }
 
     public IssueRequestParametersBuilder addUseResponseId(Issue issue) {
@@ -57,32 +57,35 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
         return this;
     }
 
-    public IssueRequestParametersBuilder addObjectTypeToMap() {
-        requestMap.put("object_type", "ticket");
+    public IssueRequestParametersBuilder addCreatedAt(Issue issue) {
+        requestMap.put("created_at", (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(issue.getCreated()));
         return this;
+    }
+
+    public Map<Object, Object> addObjectTypeToMap(Map<Object, Object> map) {
+        map.put("object_type", "ticket");
+        return map;
     }
 
     public IssueRequestParametersBuilder addStatusToMap(Issue issue) {
         StatusesLink statusesLink = statusesLinkManager.findByJiraStatusName((issue.getStatus().getName()));
-        if(statusesLink != null) {
+        if (statusesLink != null) {
             requestMap.put("status", statusesLink.getUseResponseStatusSlug());
         }
         return this;
     }
 
     public IssueRequestParametersBuilder addStandardParametersToMap(Issue issue) throws IOException {
-        IssueRenderContext renderContext = new IssueRenderContext(issue);
-        JiraRendererPlugin renderer = rendererManager.getRendererForType("atlassian-wiki-renderer");
-        String html = renderer.render(issue.getDescription(), renderContext);
-
-        requestMap.put("content", html);
-        requestMap.put("title", issue.getSummary());
-        requestMap = addReporterToMap(requestMap, issue);
-        requestMap = addPriorityToMap(requestMap, issue);
-        requestMap = addLabelsToMap(requestMap, issue);
+        requestMap = addOwnershipToMap  (requestMap);
+        requestMap = addHtmlTreat       (requestMap);
+        requestMap = addObjectTypeToMap (requestMap);
+        requestMap = addContentToRequest(requestMap, issue);
+        requestMap = addTitleToRequest  (requestMap, issue);
+        requestMap = addReporterToMap   (requestMap, issue);
+        requestMap = addPriorityToMap   (requestMap, issue);
+        requestMap = addLabelsToMap     (requestMap, issue);
         requestMap = addAttachmentsToMap(requestMap, issue);
-        requestMap = addAttachmentsToMap(requestMap, issue);
-
+        requestMap = addResponsibleToMap(requestMap, issue);
         return this;
     }
 
@@ -90,6 +93,19 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
         if (issue.getLabels() != null) {
             map.put("tags", getTagsFromLabels(issue.getLabels()));
         }
+        return map;
+    }
+
+    private Map<Object, Object> addTitleToRequest(Map<Object, Object> map, Issue issue) {
+        map.put("title", issue.getSummary());
+        return map;
+    }
+
+    private Map<Object, Object> addContentToRequest(Map<Object, Object> map, Issue issue) {
+        IssueRenderContext renderContext = new IssueRenderContext(issue);
+        JiraRendererPlugin renderer = rendererManager.getRendererForType("atlassian-wiki-renderer");
+        String html = renderer.render(issue.getDescription(), renderContext);
+        map.put("content", html);
         return map;
     }
 
@@ -161,4 +177,9 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
         return result;
     }
 
+    @Override
+    public <T extends WithId> RequestParametersBuilder addAuthorToRequest(T entity) {
+        requestMap.put("force_author", ((Issue)entity).getCreator().getEmailAddress());
+        return this;
+    }
 }
