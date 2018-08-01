@@ -3,7 +3,7 @@ package useresponse.atlassian.plugins.jira.request;
 
 import com.google.gson.Gson;
 import useresponse.atlassian.plugins.jira.exception.InvalidResponseException;
-import useresponse.atlassian.plugins.jira.exception.UndefinedUrl;
+import useresponse.atlassian.plugins.jira.exception.UndefinedUrlException;
 
 import javax.net.ssl.*;
 import java.io.BufferedReader;
@@ -11,7 +11,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
@@ -19,7 +18,6 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractRequest implements Request {
@@ -47,9 +45,9 @@ public abstract class AbstractRequest implements Request {
     }
 
     @Override
-    public String sendRequest() throws UndefinedUrl, NoSuchAlgorithmException, KeyManagementException, InvalidResponseException, IOException {
+    public String sendRequest() throws UndefinedUrlException, NoSuchAlgorithmException, KeyManagementException, InvalidResponseException, IOException {
         if(url == null) {
-            throw new UndefinedUrl("URL for sending is undefined!");
+            throw new UndefinedUrlException("URL for sending is undefined!");
         }
         return sendRequest(url);
     }

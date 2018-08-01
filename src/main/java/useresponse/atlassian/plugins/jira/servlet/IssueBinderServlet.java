@@ -11,20 +11,30 @@ import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.user.UserManager;
+import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
+import useresponse.atlassian.plugins.jira.exception.ConnectionException;
 import useresponse.atlassian.plugins.jira.exception.InvalidResponseException;
-import useresponse.atlassian.plugins.jira.exception.UndefinedUrl;
+import useresponse.atlassian.plugins.jira.exception.UndefinedUrlException;
 import useresponse.atlassian.plugins.jira.manager.impl.*;
+
 import javax.inject.Inject;
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.WriteAbortedException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+
 import useresponse.atlassian.plugins.jira.request.Request;
 import useresponse.atlassian.plugins.jira.service.SettingsService;
+import useresponse.atlassian.plugins.jira.service.handler.Handler;
+import useresponse.atlassian.plugins.jira.service.handler.servlet.binder.IssueBinderServletHandler;
 import useresponse.atlassian.plugins.jira.service.request.RequestBuilder;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestBuilder;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestParametersBuilder;
@@ -56,6 +66,7 @@ public class IssueBinderServlet extends HttpServlet {
     @Autowired
     private IssueFileLinkManagerImpl issueFileLinkManager;
 
+    private final Gson gson;
 
     @Inject
     public IssueBinderServlet(@ComponentImport UserManager userManager,
@@ -72,6 +83,7 @@ public class IssueBinderServlet extends HttpServlet {
         this.issueManager = issueManager;
         this.commentManager = commentManager;
         this.rendererManager = rendererManager;
+        this.gson = new Gson();
     }
 
     @Override
@@ -88,28 +100,10 @@ public class IssueBinderServlet extends HttpServlet {
             resp.getWriter().write("Conn");
         }
 
-//        HashMap<String, String> responseMap = new HashMap<>();
-//        String jiraId = (req.getParameter("issue_id"));
-//        UseResponseObject useResponseObject = useResponseObjectManager.findByJiraId(Integer.valueOf(jiraId));
-//        Issue issue = issueManager.getIssueObject(Long.valueOf(jiraId));
-//
-//        if(!SettingsService.testURConnection(pluginSettingsFactory)) {
-//            responseMap.put("status", "error");
-//            responseMap.put("message", "Can't connect to UseResponse");
-//            responseMap.put("slug", "Check your Domain/ApiKey settings");
-//        } else {
-//            LinkedSet<Future<String>> futureList = executeMoving(useResponseObject, issue);
-//            Handler<LinkedSet<Future<String>>, IssueBinderResponseData> handler = new IssueBinderServletHandler();
-//            IssueBinderResponseData responseData = handler.handle(futureList);
-//            responseMap.put("message", responseData.message);
-//            responseMap.put("data", responseData.data);
-//            responseMap.put("status", "success");
-//        }
-//        resp.getWriter().write((new Gson()).toJson(responseMap));
-
         CommentRequestParametersBuilder commentRequestParametersBuilder = new CommentRequestParametersBuilder(
                 commentLinkManager,
-                useResponseObjectManager);
+                useResponseObjectManager
+        );
 
         IssueRequestParametersBuilder issueRequestParametersBuilder = new IssueRequestParametersBuilder(
                 rendererManager,
@@ -126,85 +120,75 @@ public class IssueBinderServlet extends HttpServlet {
 
         RequestBuilder requestBuilder = new RequestBuilder(issueRequestBuilder, commentRequestBuilder, commentManager);
 
-
         Issue issue = issueManager.getIssueObject(Long.valueOf(req.getParameter("issue_id")));
 
-        Request request = requestBuilder.build(issue);
-        String response = null;
-        PluginSettings pluginSettings =  new PluginSettingsImpl(pluginSettingsFactory);
-
-        request.setUrl(pluginSettings.getUseResponseDomain() + ConstStorage.API_STRING + ConstStorage.JIRA_DATA_HANDLER_ROUTE + "?apiKey=" + pluginSettings.getUseResponseApiKey());
-
-        try {
-            response = request.sendRequest();
-        } catch (InvalidResponseException | NoSuchAlgorithmException | KeyManagementException | UndefinedUrl e) {
-            e.printStackTrace();
+        if(issue == null) {
+            return;
         }
 
-        if (response != null) {
-            resp.getWriter().write(response);
+//        resp.getWriter().write((String) issue.getExternalFieldValue("useresponse_id"));
+
+        Request request = requestBuilder.build(issue);
+        PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
+
+        String responseForUser;
+
+        try {
+            request.setUrl(pluginSettings.getUseResponseDomain() + ConstStorage.API_STRING + ConstStorage.JIRA_DATA_HANDLER_ROUTE + "?apiKey=" + pluginSettings.getUseResponseApiKey());
+            String response = request.sendRequest();
+
+            Handler<String, String> handler = new IssueBinderServletHandler(useResponseObjectManager, commentLinkManager);
+            responseForUser = handler.handle(response);
+
+        } catch (InvalidResponseException | NoSuchAlgorithmException | KeyManagementException | UndefinedUrlException e) {
+            e.printStackTrace();
+            responseForUser = handleException(e);
+        }
+
+        if(req.getHeader("x-requested-with") == null) {
+            resp.sendRedirect("projects/" + issue.getProjectObject().getOriginalKey() + "/issues/" + issue.getKey());
+        }
+
+        if (responseForUser != null) {
+            resp.getWriter().write(responseForUser);
         }
 
     }
 
-//    private LinkedSet<Future<String>> executeMoving(UseResponseObject useResponseObject, Issue issue) {
-//        Action action;
-//
-//        ListenerActionFactory issueActionFactory = new IssueActionFactory(
-//                issue,
-//                useResponseObjectManager,
-//                rendererManager,
-//                priorityLinkManager,
-//                pluginSettingsFactory,
-//                issueFileLinkManager,
-//                statusesLinkManager,
-//                new IssueRequestBuilder(
-//                        new IssueRequestParametersBuilder(rendererManager, priorityLinkManager, useResponseObjectManager, attachmentManager, issueFileLinkManager, pluginSettingsFactory, statusesLinkManager),
-//                        useResponseObjectManager
-//                )
-//
-//        );
-//
-//        ListenerActionFactory commentActionFactory = new CommentActionFactory(
-//                null,
-//                useResponseObjectManager,
-//                pluginSettingsFactory,
-//                commentLinkManager,
-//                new CommentRequestBuilder(
-//                        new CommentRequestParametersBuilder(commentLinkManager, useResponseObjectManager),
-//                        commentLinkManager
-//                )
-//        );
-//
-//        ExecutorService executor = Executors.newFixedThreadPool(9);
-//        LinkedSet<Future<String>> futureList = new LinkedSet<>();
-//
-//        if (useResponseObject == null) {
-//            action = issueActionFactory.createAction(CreateIssueAction.class);
-//        } else {
-//            action = issueActionFactory.createAction(UpdateIssueAction.class);
-//        }
-//
-//        if (action != null) {
-//            futureList.add(executor.submit(action));
-//        }
-//
-//        for (Comment comment : commentManager.getComments(issue)) {
-//            CommentLink commentLink = commentLinkManager.findByJiraId(comment.getId().intValue());
-//            commentActionFactory.setEntity(comment);
-//            if (commentLink == null) {
-//                action = commentActionFactory.createAction(CreateCommentAction.class);
-//            } else {
-//                action = commentActionFactory.createAction(UpdateCommentAction.class);
-//            }
-//
-//            if (action != null) {
-//                futureList.add(executor.submit(action));
-//            }
-//        }
-//
-//        return futureList;
-//    }
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        String responseForUser = null;
+
+        PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
+
+        try {
+            if (pluginSettings.getUseResponseDomain().equals(request.getParameter("apiKey"))) {
+                throw new ConnectionException("Invalid apiKey!");
+            }
+
+            responseForUser = "kek";
+
+            //Todo receive data from ur
 
 
+        } catch (ConnectionException e) {
+            responseForUser = handleException(e);
+        }
+
+
+
+        response.getWriter().write(responseForUser);
+
+    }
+
+    private String handleException(Exception e) {
+        return gson.toJson(
+                new HashMap<String, String>() {
+                    {
+                        put("status", "error");
+                        put("message", e.getMessage());
+                    }
+                });
+    }
 }

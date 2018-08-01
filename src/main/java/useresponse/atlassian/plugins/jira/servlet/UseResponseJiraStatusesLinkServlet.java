@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.manager.impl.*;
 import com.atlassian.activeobjects.external.ActiveObjects;
+
 import javax.inject.Inject;
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
@@ -21,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -139,28 +141,33 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
 
         writer.write("<h1>UR priorities </h1>");
 
-        for(URPriority urPriority : urPriorityManager.all())
-            writer.write(urPriority.getUseResponsePrioritySlug() + "|" +urPriority.getUseResponsePriorityValue() + "<br>");
-
+        for (URPriority urPriority : urPriorityManager.all())
+            writer.write(urPriority.getUseResponsePrioritySlug() + "|" + urPriority.getUseResponsePriorityValue() + "<br>");
 
 
         writer.write("<h1>Files links </h1>");
 
-        for(IssueFileLink urPriority : fileLinkManager.all())
-            writer.write(urPriority.getJiraIssueId() + "|" +urPriority.getSentFilename() + "<br>");
+        for (IssueFileLink urPriority : fileLinkManager.all())
+            writer.write(urPriority.getJiraIssueId() + "|" + urPriority.getSentFilename() + "<br>");
+
+
+        writer.write("<br>");
+
+        Enumeration headerNames = req.getHeaderNames();
+
 
         writer.close();
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        if(userManager.getRemoteUser() == null) {
+        if (userManager.getRemoteUser() == null) {
             return;
         }
 
         Map map = request.getParameterMap();
 
-        if(map.get("use_response_id") == null){
+        if (map.get("use_response_id") == null) {
             return;
         }
 

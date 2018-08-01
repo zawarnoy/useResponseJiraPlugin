@@ -2,10 +2,16 @@ package useresponse.atlassian.plugins.jira.listener.issue;
 
 import com.atlassian.event.api.EventListener;
 import com.atlassian.event.api.EventPublisher;
+import com.atlassian.jira.ComponentManager;
+import com.atlassian.jira.event.ListenerFactory;
+import com.atlassian.jira.event.issue.EventUtils;
 import com.atlassian.jira.event.issue.IssueEvent;
+import com.atlassian.jira.event.issue.IssueEventManager;
 import com.atlassian.jira.event.type.EventType;
 import com.atlassian.jira.issue.AttachmentManager;
 import com.atlassian.jira.issue.RendererManager;
+import com.atlassian.jira.issue.fields.CustomField;
+import com.atlassian.jira.issue.fields.ImmutableCustomField;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.plugin.spring.scanner.annotation.imports.JiraImport;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
@@ -36,11 +42,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import static sun.swing.SwingUtilities2.submit;
-
 
 @Component
-public class IssueListener implements InitializingBean, DisposableBean {
+public class IssueEventListener implements InitializingBean, DisposableBean {
 
     @JiraImport
     private final EventPublisher eventPublisher;
@@ -75,7 +79,7 @@ public class IssueListener implements InitializingBean, DisposableBean {
     private PluginSettings pluginSettings;
 
     @Autowired
-    public IssueListener(EventPublisher eventPublisher, PluginSettingsFactory pluginSettingsFactory, ActiveObjects ao, AttachmentManager attachmentManager) {
+    public IssueEventListener(EventPublisher eventPublisher, PluginSettingsFactory pluginSettingsFactory, ActiveObjects ao, AttachmentManager attachmentManager) {
         this.eventPublisher = eventPublisher;
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.ao = ao;
@@ -105,6 +109,9 @@ public class IssueListener implements InitializingBean, DisposableBean {
 
     @EventListener
     public void onIssueEvent(IssueEvent issueEvent) {
+
+
+
         if (!Boolean.parseBoolean(pluginSettings.getAutosendingFlag())) {
             return;
         }
@@ -146,7 +153,6 @@ public class IssueListener implements InitializingBean, DisposableBean {
                 commentRequestBuilder);
 
 
-
         Action action;
 
         if (typeId.equals(EventType.ISSUE_CREATED_ID)) {
@@ -169,5 +175,11 @@ public class IssueListener implements InitializingBean, DisposableBean {
         if (action != null) {
             future = executor.submit(action);
         }
+
+        //Todo handle future
+    }
+
+    private void handleEvent(IssueEvent event) {
+//        if(event.getIssue().getExternalFieldValue("useresponse_id");
     }
 }

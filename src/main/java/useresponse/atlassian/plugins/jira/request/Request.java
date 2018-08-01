@@ -1,12 +1,11 @@
 package useresponse.atlassian.plugins.jira.request;
 
 import useresponse.atlassian.plugins.jira.exception.InvalidResponseException;
-import useresponse.atlassian.plugins.jira.exception.UndefinedUrl;
+import useresponse.atlassian.plugins.jira.exception.UndefinedUrlException;
 
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 import java.util.Map;
 
 public interface Request {
@@ -21,7 +20,7 @@ public interface Request {
 
     void setUrl(String url);
 
-    String sendRequest() throws UndefinedUrl, NoSuchAlgorithmException, KeyManagementException, InvalidResponseException, IOException;
+    String sendRequest() throws UndefinedUrlException, NoSuchAlgorithmException, KeyManagementException, InvalidResponseException, IOException;
 
     String sendRequest(String url) throws IOException, InvalidResponseException, NoSuchAlgorithmException, KeyManagementException;
 }
