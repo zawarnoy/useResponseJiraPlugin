@@ -14,7 +14,7 @@ public abstract class AbstractIssueAction extends AbstractListenerAction {
     protected Issue issue;
     protected RendererManager rendererManager;
     protected PriorityLinkManager priorityLinkManager;
-    protected UseResponseObjectManager useResponseObjectManager;
+
     protected AttachmentManager attachmentManager;
     protected IssueFileLinkManager issueFileLinkManager;
     protected IssueRequestBuilder builder;

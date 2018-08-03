@@ -1,5 +1,6 @@
 package useresponse.atlassian.plugins.jira.service.request;
 
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.jira.issue.comments.CommentManager;
@@ -24,10 +25,10 @@ public class RequestBuilder {
     private IssueRequestBuilder issueRequestBuilder;
     private CommentRequestBuilder commentRequestBuilder;
 
-    public RequestBuilder(IssueRequestBuilder issueRequestBuilder, CommentRequestBuilder commentRequestBuilder, CommentManager commentManager) {
+    public RequestBuilder(IssueRequestBuilder issueRequestBuilder, CommentRequestBuilder commentRequestBuilder) {
         this.issueRequestBuilder = issueRequestBuilder;
         this.commentRequestBuilder = commentRequestBuilder;
-        this.commentManager = commentManager;
+        this.commentManager = ComponentAccessor.getCommentManager();
     }
 
     /**

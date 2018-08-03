@@ -1,9 +1,8 @@
 package useresponse.atlassian.plugins.jira.servlet;
 
-import com.atlassian.jira.issue.AttachmentManager;
-import com.atlassian.jira.issue.Issue;
-import com.atlassian.jira.issue.IssueManager;
-import com.atlassian.jira.issue.RendererManager;
+import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.config.properties.APKeys;
+import com.atlassian.jira.issue.*;
 import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.security.xsrf.RequiresXsrfCheck;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
@@ -12,7 +11,6 @@ import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.user.UserManager;
 import com.google.gson.Gson;
-import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.exception.ConnectionException;
 import useresponse.atlassian.plugins.jira.exception.InvalidResponseException;
@@ -26,17 +24,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.WriteAbortedException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import useresponse.atlassian.plugins.jira.request.Request;
 import useresponse.atlassian.plugins.jira.service.SettingsService;
 import useresponse.atlassian.plugins.jira.service.handler.Handler;
-import useresponse.atlassian.plugins.jira.service.handler.servlet.binder.IssueBinderServletHandler;
+import useresponse.atlassian.plugins.jira.service.handler.servlet.binder.RequestHandler;
 import useresponse.atlassian.plugins.jira.service.request.RequestBuilder;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestBuilder;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestParametersBuilder;
@@ -120,7 +115,7 @@ public class IssueBinderServlet extends HttpServlet {
         CommentRequestBuilder commentRequestBuilder = new CommentRequestBuilder(commentRequestParametersBuilder, commentLinkManager);
         IssueRequestBuilder issueRequestBuilder = new IssueRequestBuilder(issueRequestParametersBuilder, useResponseObjectManager);
 
-        RequestBuilder requestBuilder = new RequestBuilder(issueRequestBuilder, commentRequestBuilder, commentManager);
+        RequestBuilder requestBuilder = new RequestBuilder(issueRequestBuilder, commentRequestBuilder/*, commentManager*/);
 
         String responseForUser;
 
@@ -140,16 +135,15 @@ public class IssueBinderServlet extends HttpServlet {
             request.setUrl(pluginSettings.getUseResponseDomain() + ConstStorage.API_STRING + ConstStorage.JIRA_DATA_HANDLER_ROUTE + "?apiKey=" + pluginSettings.getUseResponseApiKey());
             String response = request.sendRequest();
 
-            Handler<String, String> handler = new IssueBinderServletHandler(useResponseObjectManager, commentLinkManager);
+            Handler<String, String> handler = new RequestHandler(useResponseObjectManager, commentLinkManager);
             responseForUser = handler.handle(response);
 
         } catch (InvalidResponseException | NoSuchAlgorithmException | KeyManagementException | UndefinedUrlException | IssueNotExistException e) {
             e.printStackTrace();
             responseForUser = handleException(e);
         }
-
         if (req.getHeader("x-requested-with") == null) {
-            resp.sendRedirect("projects/" + issue.getProjectObject().getOriginalKey() + "/issues/" + issue.getKey());
+            resp.sendRedirect(ComponentAccessor.getApplicationProperties().getString(APKeys.JIRA_BASEURL) + "/browse/" + issue.getKey());
         }
 
         if (responseForUser != null) {

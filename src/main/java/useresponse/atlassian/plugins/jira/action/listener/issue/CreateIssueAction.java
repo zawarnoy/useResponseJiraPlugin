@@ -11,9 +11,11 @@ import useresponse.atlassian.plugins.jira.manager.PriorityLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
+import useresponse.atlassian.plugins.jira.service.handler.servlet.binder.RequestHandler;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.IssueRequestBuilder;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 public class CreateIssueAction extends AbstractIssueAction {
 
@@ -39,17 +41,19 @@ public class CreateIssueAction extends AbstractIssueAction {
 
     @Override
     public String createUrl() {
-        return collectUrl("objects.json");
+        return getSpecialApiPath();
     }
 
     @Override
-    public void handleResponse(String response) throws ParseException {
-        useResponseObjectManager.add(getIdFromResponse(response), issue.getId().intValue());
+    public void handleResponse(String response) {
+        (new RequestHandler(useResponseObjectManager, commentLinkManager)).handle(response);
     }
 
     @Override
     public Request addParameters(Request request) throws IOException {
-        request.addParameter(builder.build(issue));
+        request.addParameter(new HashMap<Object, Object>() {{
+            put("issue", builder.build(issue));
+        }});
         return request;
     }
 

@@ -1,6 +1,7 @@
 package useresponse.atlassian.plugins.jira.action.listener.comment;
 
 import com.atlassian.jira.issue.comments.Comment;
+import org.json.simple.parser.ParseException;
 import useresponse.atlassian.plugins.jira.action.listener.AbstractListenerAction;
 import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
@@ -16,7 +17,11 @@ import useresponse.atlassian.plugins.jira.service.request.parameters.builder.Com
 public abstract class AbstractCommentAction extends AbstractListenerAction {
 
     protected CommentRequestBuilder parametersBuilder;
-    protected CommentLinkManager commentLinkManager;
-    protected UseResponseObjectManager useResponseObjectManager;
+
     protected Comment comment;
+
+    @Override
+    protected int getIdFromResponse(String response) throws ParseException {
+        return super.getIdFromResponse(response);
+    }
 }

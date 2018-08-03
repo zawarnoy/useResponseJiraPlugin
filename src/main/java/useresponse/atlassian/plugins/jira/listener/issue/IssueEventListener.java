@@ -35,6 +35,7 @@ import useresponse.atlassian.plugins.jira.action.listener.issue.IssueActionFacto
 import useresponse.atlassian.plugins.jira.action.listener.issue.UpdateIssueAction;
 import useresponse.atlassian.plugins.jira.manager.impl.*;
 import com.atlassian.activeobjects.external.ActiveObjects;
+import useresponse.atlassian.plugins.jira.service.request.RequestBuilder;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestBuilder;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestParametersBuilder;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.IssueRequestBuilder;
@@ -114,8 +115,6 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
     @EventListener
     public void onIssueEvent(IssueEvent issueEvent) {
 
-
-
         if (!Boolean.parseBoolean(pluginSettings.getAutosendingFlag())) {
             return;
         }
@@ -130,12 +129,21 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
         Long typeId = issueEvent.getEventTypeId();
 
         IssueRequestBuilder issueRequestBuilder = new IssueRequestBuilder(
-                new IssueRequestParametersBuilder(rendererManager, priorityLinkManager, useResponseObjectManager, attachmentManager, issueFileLinkManager, pluginSettingsFactory, statusesLinkManager),
+                new IssueRequestParametersBuilder(
+                        rendererManager,
+                        priorityLinkManager,
+                        useResponseObjectManager,
+                        attachmentManager,
+                        issueFileLinkManager,
+                        pluginSettingsFactory,
+                        statusesLinkManager),
                 useResponseObjectManager
         );
 
         CommentRequestBuilder commentRequestBuilder = new CommentRequestBuilder(
-                new CommentRequestParametersBuilder(commentLinkManager, useResponseObjectManager),
+                new CommentRequestParametersBuilder(
+                        commentLinkManager,
+                        useResponseObjectManager),
                 commentLinkManager
         );
 
@@ -181,9 +189,5 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
         }
 
         //Todo handle future
-    }
-
-    private void handleEvent(IssueEvent event) {
-//        if(event.getIssue().getExternalFieldValue("useresponse_id");
     }
 }

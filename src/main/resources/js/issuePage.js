@@ -6,12 +6,7 @@ AJS.$(document).ready(function () {
         $.get(AJS.$("#useResponselinkbutton").attr('href'), {async: true}, function (receivedData) {
                 console.log(receivedData);
                 receivedData = JSON.parse(receivedData);
-
-                if(receivedData.status === "success") {
-                    swal(receivedData.message, "", "success");
-                } else {
-                    swal(receivedData.message, receivedData.slug, "error");
-                }
+                swal(receivedData.message, "", receivedData.status);
             }
         );
     });

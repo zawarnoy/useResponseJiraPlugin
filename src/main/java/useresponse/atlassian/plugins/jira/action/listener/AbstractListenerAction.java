@@ -6,6 +6,8 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import useresponse.atlassian.plugins.jira.exception.ConnectionException;
 import useresponse.atlassian.plugins.jira.exception.InvalidResponseException;
+import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
+import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.request.Request;
 import useresponse.atlassian.plugins.jira.service.SettingsService;
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
@@ -30,6 +32,8 @@ public abstract class AbstractListenerAction implements Action {
     protected Request request;
     protected PluginSettingsFactory pluginSettingsFactory;
     protected int actionType;
+    protected CommentLinkManager commentLinkManager;
+    protected UseResponseObjectManager useResponseObjectManager;
 
     /**
      * Returns error which could appear during the execution on successful completion returns action type.
@@ -65,6 +69,16 @@ public abstract class AbstractListenerAction implements Action {
     protected String collectUrl(String requestString) {
         PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
         return pluginSettings.getUseResponseDomain() + ConstStorage.API_STRING + requestString + "?apiKey=" + pluginSettings.getUseResponseApiKey();
+    }
+
+    /**
+     * For creating via jira in Useresponse system
+     *
+     * @return
+     */
+    protected String getSpecialApiPath() {
+        PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
+        return pluginSettings.getUseResponseDomain() + ConstStorage.API_STRING + ConstStorage.JIRA_DATA_HANDLER_ROUTE + "?apiKey=" + pluginSettings.getUseResponseApiKey();
     }
 
     protected int getIdFromResponse(String response) throws ParseException {
