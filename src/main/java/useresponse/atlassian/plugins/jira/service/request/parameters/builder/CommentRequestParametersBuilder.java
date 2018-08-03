@@ -21,18 +21,29 @@ public class CommentRequestParametersBuilder extends RequestParametersBuilder {
     }
 
     public CommentRequestParametersBuilder addStandardParametersForRequest(Comment comment) {
-        requestMap = addContent(requestMap, comment);
-        requestMap = addHtmlTreat(requestMap);
-
+        requestMap = addContent             (requestMap, comment);
+        requestMap = addJiraCommentIdToMap  (requestMap, comment);
+        requestMap = addJiraIssueIdToMap    (requestMap, comment);
+        requestMap = addHtmlTreat           (requestMap);
         return this;
     }
 
-    public Map<Object, Object> addContent(Map<Object, Object> map, Comment comment) {
+    private Map<Object, Object> addContent(Map<Object, Object> map, Comment comment) {
         map.put("content", comment.getBody());
         return map;
     }
 
-    public CommentRequestParametersBuilder addUseResponseIdToMap(WithId entity) {
+    private Map<Object, Object> addJiraCommentIdToMap(Map<Object, Object> map, Comment comment) {
+        map.put("jira_comment_id", comment.getId().intValue());
+        return map;
+    }
+
+    private Map<Object, Object> addJiraIssueIdToMap(Map<Object, Object> map, Comment comment) {
+        map.put("jira_issue_id", comment.getIssue().getId().intValue());
+        return map;
+    }
+
+    public CommentRequestParametersBuilder addUseResponseCommentIdToMap(WithId entity) {
         CommentLink object = commentLinkManager.findByJiraId(entity.getId().intValue());
         if (object != null) {
             requestMap.put("useresponse_comment_id", String.valueOf(object.getUseResponseCommentId()));
@@ -40,19 +51,14 @@ public class CommentRequestParametersBuilder extends RequestParametersBuilder {
         return this;
     }
 
-    public CommentRequestParametersBuilder addObjectIdToMap(Comment comment) {
+    public CommentRequestParametersBuilder addUseResponseObjectIdToMap(Comment comment) {
         UseResponseObject object = useResponseObjectManager.findByJiraId(comment.getIssue().getId().intValue());
-        requestMap.put("object_id", object.getUseResponseId());
+        requestMap.put("useresponse_object_id", object.getUseResponseId());
         return this;
     }
 
     public CommentRequestParametersBuilder addCreatedAt(Comment comment) {
         requestMap.put("created_at", (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(comment.getCreated()));
-        return this;
-    }
-
-    public CommentRequestParametersBuilder addJiraObjectIdToMap(Comment comment) {
-        requestMap.put("jira_object_id", comment.getIssue().getId().intValue());
         return this;
     }
 

@@ -43,6 +43,7 @@ public class IssueRequestBuilder {
         builder.setRequestMap(new HashMap<Object, Object>());
         builder.
                 addStandardParametersToMap(issue).
+                addUseResponseObjectId(issue).
                 addStatusToMap(issue).
                 addEditAction();
         return builder.getRequestMap();

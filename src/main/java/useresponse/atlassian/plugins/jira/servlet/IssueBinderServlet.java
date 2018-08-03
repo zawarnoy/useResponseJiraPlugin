@@ -12,9 +12,11 @@ import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.user.UserManager;
 import com.google.gson.Gson;
+import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.exception.ConnectionException;
 import useresponse.atlassian.plugins.jira.exception.InvalidResponseException;
+import useresponse.atlassian.plugins.jira.exception.IssueNotExistException;
 import useresponse.atlassian.plugins.jira.exception.UndefinedUrlException;
 import useresponse.atlassian.plugins.jira.manager.impl.*;
 
@@ -120,39 +122,39 @@ public class IssueBinderServlet extends HttpServlet {
 
         RequestBuilder requestBuilder = new RequestBuilder(issueRequestBuilder, commentRequestBuilder, commentManager);
 
-        Issue issue = issueManager.getIssueObject(Long.valueOf(req.getParameter("issue_id")));
-
-        if(issue == null) {
-            return;
-        }
-
-//        resp.getWriter().write((String) issue.getExternalFieldValue("useresponse_id"));
-
-        Request request = requestBuilder.build(issue);
-        PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
-
         String responseForUser;
 
+        int issueId = Integer.parseInt(req.getParameter("issue_id"));
+        Issue issue = issueManager.getIssueObject(Long.valueOf(issueId));
+
         try {
+
+
+            if (issue == null) {
+                throw new IssueNotExistException("Can't find issue with id");
+            }
+
+            Request request = requestBuilder.build(issue);
+            PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
+
             request.setUrl(pluginSettings.getUseResponseDomain() + ConstStorage.API_STRING + ConstStorage.JIRA_DATA_HANDLER_ROUTE + "?apiKey=" + pluginSettings.getUseResponseApiKey());
             String response = request.sendRequest();
 
             Handler<String, String> handler = new IssueBinderServletHandler(useResponseObjectManager, commentLinkManager);
             responseForUser = handler.handle(response);
 
-        } catch (InvalidResponseException | NoSuchAlgorithmException | KeyManagementException | UndefinedUrlException e) {
+        } catch (InvalidResponseException | NoSuchAlgorithmException | KeyManagementException | UndefinedUrlException | IssueNotExistException e) {
             e.printStackTrace();
             responseForUser = handleException(e);
         }
 
-        if(req.getHeader("x-requested-with") == null) {
+        if (req.getHeader("x-requested-with") == null) {
             resp.sendRedirect("projects/" + issue.getProjectObject().getOriginalKey() + "/issues/" + issue.getKey());
         }
 
         if (responseForUser != null) {
             resp.getWriter().write(responseForUser);
         }
-
     }
 
     @Override
@@ -175,7 +177,6 @@ public class IssueBinderServlet extends HttpServlet {
         } catch (ConnectionException e) {
             responseForUser = handleException(e);
         }
-
 
 
         response.getWriter().write(responseForUser);

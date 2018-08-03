@@ -19,11 +19,6 @@ public abstract class RequestParametersBuilder {
         return requestMap;
     }
 
-    public RequestParametersBuilder addJiraObjectIdToMap(WithId entity) {
-        requestMap.put("jira_id", entity.getId().intValue());
-        return this;
-    }
-
     public Map<Object, Object> addHtmlTreat(Map<Object, Object> map) {
         map.put("treat_as_html", 1);
         return map;

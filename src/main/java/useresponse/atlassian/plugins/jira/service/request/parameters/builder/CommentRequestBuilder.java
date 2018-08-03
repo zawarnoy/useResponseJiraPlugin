@@ -29,17 +29,18 @@ public class CommentRequestBuilder {
         builder.
                 addStandardParametersForRequest(comment).
                 addCreatedAt(comment).
-                addObjectIdToMap(comment).
-                addJiraObjectIdToMap(comment).
-                addAuthorToRequest(comment);
+                addAuthorToRequest(comment).
+                addAddAction();
         return builder.getRequestMap();
+
     }
 
     private Map<Object, Object> buildUpdateCommentMap(Comment comment) {
         builder.setRequestMap(new HashMap<>());
         builder.addStandardParametersForRequest(comment).
-                addJiraObjectIdToMap(comment).
-                addUseResponseIdToMap(comment);
+                addUseResponseObjectIdToMap(comment).
+                addUseResponseCommentIdToMap(comment).
+                addEditAction();
         return builder.getRequestMap();
     }
 }

@@ -52,8 +52,9 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
         return map;
     }
 
-    public IssueRequestParametersBuilder addUseResponseId(Issue issue) {
-        requestMap.put("useresponse_id", useResponseObjectManager.findByJiraId(issue.getId().intValue()));
+    public IssueRequestParametersBuilder addUseResponseObjectId(Issue issue) {
+        int useResponseObjectId = useResponseObjectManager.findByJiraId(issue.getId().intValue()).getUseResponseId();
+        requestMap.put("useresponse_object_id", useResponseObjectId);
         return this;
     }
 
@@ -62,7 +63,7 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
         return this;
     }
 
-    public Map<Object, Object> addObjectTypeToMap(Map<Object, Object> map) {
+    private Map<Object, Object> addObjectTypeToMap(Map<Object, Object> map) {
         map.put("object_type", "ticket");
         return map;
     }
@@ -86,6 +87,7 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
         requestMap = addLabelsToMap     (requestMap, issue);
         requestMap = addAttachmentsToMap(requestMap, issue);
         requestMap = addResponsibleToMap(requestMap, issue);
+        requestMap = addJiraIssueIdToMap(requestMap, issue);
         return this;
     }
 
@@ -93,6 +95,11 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
         if (issue.getLabels() != null) {
             map.put("tags", getTagsFromLabels(issue.getLabels()));
         }
+        return map;
+    }
+
+    private Map<Object, Object> addJiraIssueIdToMap(Map<Object, Object> map, Issue issue) {
+        map.put("jira_issue_id", issue.getId().intValue());
         return map;
     }
 
