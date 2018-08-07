@@ -30,7 +30,7 @@
     <div class="useresponse-domain">
         <div class="field-group">
             <label for="domain">UseResponse Domain:</label>
-            <input type="text" id="domain" name="domain" class="text" placeholder="Enter an domain here . . ."
+            <input type="text" id="domain" name="domain" class="text" placeholder="Enter a domain here . . ."
                    value="${domain}">
         </div>
         <label for="" class="help-label">Example: https://yourcompany.useresponse.com/</label>

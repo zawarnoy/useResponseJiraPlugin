@@ -25,15 +25,12 @@ public class DeleteCommentAction extends AbstractCommentAction {
 
     @Override
     protected String createUrl() {
-//        int id = commentLinkManager.findByJiraId( comment.getId().intValue()).getUseResponseCommentId();
-//        return collectUrl("comments/" + id + "/trash.json");
 //         TODO How to get deleted comment id?
         return null;
     }
 
     @Override
     protected void handleResponse(String response) {
-//        commentLinkManager.delete(commentLinkManager.findByJiraId(comment.getId().intValue()));
     }
 
     @Override

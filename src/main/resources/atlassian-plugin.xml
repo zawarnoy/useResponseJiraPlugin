@@ -19,68 +19,54 @@
   <ao key="issues-ao-module">
     <description>The module configuring links between UseResponse tickets and Jira issues.</description>
     <entity>useresponse.atlassian.plugins.jira.model.UseResponseObject</entity>
-    <component key="useResponseObjectManager" name="UseResponseObject Manager"
-               class="useresponse.atlassian.plugins.jira.manager.impl.UseResponseObjectManagerImpl">
+    <component key="useResponseObjectManager" name="UseResponseObject Manager" class="useresponse.atlassian.plugins.jira.manager.impl.UseResponseObjectManagerImpl">
       <interface>useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager</interface>
     </component>
   </ao>
   <ao key="comments-ao-module">
     <description>The module configuring links between UseResponse comments and Jira comments.</description>
     <entity>useresponse.atlassian.plugins.jira.model.CommentLink</entity>
-    <component key="commentLinkManager" name="CommentLink Manager"
-               class="useresponse.atlassian.plugins.jira.manager.impl.CommentLinkManagerImpl">
+    <component key="commentLinkManager" name="CommentLink Manager" class="useresponse.atlassian.plugins.jira.manager.impl.CommentLinkManagerImpl">
       <interface>useresponse.atlassian.plugins.jira.manager.CommentLinkManager</interface>
     </component>
   </ao>
   <ao key="priority-ao-module">
     <description>The module configuring priorities between UseResponse issues and Jira issues.</description>
     <entity>useresponse.atlassian.plugins.jira.model.PriorityLink</entity>
-    <component key="priorityLinkManager" name="PriorityLink Manager"
-               class="useresponse.atlassian.plugins.jira.manager.impl.PriorityLinkManagerImpl">
+    <component key="priorityLinkManager" name="PriorityLink Manager" class="useresponse.atlassian.plugins.jira.manager.impl.PriorityLinkManagerImpl">
       <interface>useresponse.atlassian.plugins.jira.manager.PriorityLinkManager</interface>
     </component>
   </ao>
   <ao key="ur-priority-ao-module">
     <description>The module stores UseResponse priority data.</description>
     <entity>useresponse.atlassian.plugins.jira.model.URPriority</entity>
-    <component key="useResponsePriorityLinkManager" name="URPriority Manager"
-               class="useresponse.atlassian.plugins.jira.manager.impl.URPriorityManagerImpl">
+    <component key="useResponsePriorityLinkManager" name="URPriority Manager" class="useresponse.atlassian.plugins.jira.manager.impl.URPriorityManagerImpl">
       <interface>useresponse.atlassian.plugins.jira.manager.URPriorityManager</interface>
     </component>
   </ao>
-  <servlet name="Use Response Setting Servlet" i18n-name-key="use-response-setting-servlet.name"
-           key="use-response-setting-servlet"
-           class="useresponse.atlassian.plugins.jira.servlet.UseResponseSettingServlet">
+  <servlet name="Use Response Setting Servlet" i18n-name-key="use-response-setting-servlet.name" key="use-response-setting-servlet" class="useresponse.atlassian.plugins.jira.servlet.UseResponseSettingServlet">
     <description key="use-response-setting-servlet.description">The UseResponse Settings Servlet Plugin</description>
     <url-pattern>/ursettings</url-pattern>
     <condition class="useresponse.atlassian.plugins.jira.condition.UserIsAdminCondition"/>
   </servlet>
-  <servlet name="issue-binder-servlet.name" i18n-name-key="issue-binder-servlet.name" key="issue-binder-servlet"
-           class="useresponse.atlassian.plugins.jira.servlet.IssueBinderServlet">
+  <servlet name="issue-binder-servlet.name" i18n-name-key="issue-binder-servlet.name" key="issue-binder-servlet" class="useresponse.atlassian.plugins.jira.servlet.IssueBinderServlet">
     <description key="issue-binder-servlet.description">The Issue Binder Servlet Plugin</description>
     <url-pattern>/urbinder</url-pattern>
   </servlet>
-  <servlet name="Use Response Jira Statuses Link Servlet" i18n-name-key="use-response-jira-statuses-link-servlet.name"
-           key="use-response-jira-statuses-link-servlet"
-           class="useresponse.atlassian.plugins.jira.servlet.UseResponseJiraStatusesLinkServlet">
-    <description key="use-response-jira-statuses-link-servlet.description">The Use Response Jira Statuses Link Servlet
-      Plugin
-    </description>
+  <servlet name="Use Response Jira Statuses Link Servlet" i18n-name-key="use-response-jira-statuses-link-servlet.name" key="use-response-jira-statuses-link-servlet" class="useresponse.atlassian.plugins.jira.servlet.UseResponseJiraStatusesLinkServlet">
+    <description key="use-response-jira-statuses-link-servlet.description">The Use Response Jira Statuses Link Servlet Plugin</description>
     <url-pattern>/statuseslinkservlet</url-pattern>
   </servlet>
-  <web-item name="use-response-plugin-settings.label" i18n-name-key="use-response-plugin-settings.name"
-            key="use-response-plugin-settings" section="system.admin/globalsettings" weight="1000">
+  <web-item name="use-response-plugin-settings.label" i18n-name-key="use-response-plugin-settings.name" key="use-response-plugin-settings" section="system.admin/globalsettings" weight="1000">
     <description key="use-response-plugin-settings.description">The UseResponse Plugin Settings</description>
     <label key="use-response-plugin-settings.label"/>
     <link linkId="use-response-plugin-settings-link">/plugins/servlet/ursettings</link>
     <condition class="useresponse.atlassian.plugins.jira.condition.UserIsAdminCondition"/>
   </web-item>
-  <web-item name="UseResponse link button" i18n-name-key="useResponselinkbutton.name"
-            key="useResponselinkbutton" section="transitions-all" weight="1000">
+  <web-item name="UseResponse link button" i18n-name-key="useResponselinkbutton.name" key="useResponselinkbutton" section="transitions-all" weight="1000">
     <description key="useResponselinkbutton.description">The UseResponse link button Plugin</description>
     <label key="Move to UseResponse"/>
-    <link linkId="useResponselinkbutton">/plugins/servlet/urbinder?issue_id=$issue.id&amp;atl_token=${atl_token}
-    </link>
+    <link linkId="useResponselinkbutton">/plugins/servlet/urbinder?issue_id=$issue.id&amp;atl_token=${atl_token}</link>
     <context-provider class="useresponse.atlassian.plugins.jira.provider.UseResponseLinkButtonProvider"/>
     <component-import key="resources"/>
   </web-item>
@@ -93,4 +79,7 @@
     <context>jira.navigator.simple</context>
     <context>jira.navigator.advanced</context>
   </web-resource>
+  <rest name="Comments Rest Resource" i18n-name-key="comments-rest-resource.name" key="comments-rest-resource" path="/commentsrestresource" version="1.0">
+    <description key="comments-rest-resource.description">The Comments Rest Resource Plugin</description>
+  </rest>
 </atlassian-plugin>

@@ -188,6 +188,6 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
             future = executor.submit(action);
         }
 
-        //Todo handle future
+        //Todo handle future (not required)
     }
 }

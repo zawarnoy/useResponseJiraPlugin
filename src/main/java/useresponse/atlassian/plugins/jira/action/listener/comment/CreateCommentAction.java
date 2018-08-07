@@ -41,7 +41,6 @@ public class CreateCommentAction extends AbstractCommentAction {
 
     @Override
     public Request addParameters(Request request) {
-
         Map<Object, Object> commentData = parametersBuilder.build(comment);
         List<Map> commentsData = new ArrayList<>();
         commentsData.add(commentData);
