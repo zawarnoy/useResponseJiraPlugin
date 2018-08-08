@@ -21,7 +21,6 @@ public class StatusesService {
         this.linkManager = linkManager;
     }
 
-
     public List<String> getStatusesNames() {
         Collection<Status> statuses = statusManager.getStatuses();
         List<String> statusList = new ArrayList<String>();

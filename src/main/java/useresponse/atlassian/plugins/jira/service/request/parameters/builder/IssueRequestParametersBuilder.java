@@ -68,7 +68,7 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
     }
 
     public IssueRequestParametersBuilder addStatusToMap(Issue issue) {
-        StatusesLink statusesLink = statusesLinkManager.findByJiraStatusName((issue.getStatus().getName()));
+        StatusesLink statusesLink = statusesLinkManager.findByJiraStatusName((issue.getStatus().getSimpleStatus().getName()));
         if (statusesLink != null) {
             requestMap.put("status", statusesLink.getUseResponseStatusSlug());
         }

@@ -70,6 +70,14 @@
     <condition class="useresponse.atlassian.plugins.jira.condition.MoveButtonCondition"/>
     <component-import key="resources"/>
   </web-item>
+  <web-item name="UseResponseLink" i18n-name-key="use-response-link.name" key="use-response-link" section="transitions-all" weight="1000">
+    <description key="use-response-link.description">UseResponse Item link</description>
+    <label>$label</label>
+    <link linkId="use-response-link-link" linkTarget="_blank">$link</link>
+    <param name="issueId">$issue.id</param>
+    <context-provider class="useresponse.atlassian.plugins.jira.provider.UseResponseLinkButtonProvider"/>
+    <condition class="useresponse.atlassian.plugins.jira.condition.UseresponseLinkButtonCondition"/>
+  </web-item>
   <web-resource name="Issue Page Resources" i18n-name-key="issue-page-resources.name" key="issue-page-resources">
     <description key="issue-page-resources.description">The Issue Page Resources Plugin</description>
     <resource type="download" name="issuePage.js" location="/js/issuePage.js"/>
