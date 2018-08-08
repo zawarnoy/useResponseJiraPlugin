@@ -67,7 +67,7 @@
     <description key="useResponselinkbutton.description">The UseResponse link button Plugin</description>
     <label key="Move to UseResponse"/>
     <link linkId="useResponselinkbutton">/plugins/servlet/urbinder?issue_id=$issue.id&amp;atl_token=${atl_token}</link>
-    <context-provider class="useresponse.atlassian.plugins.jira.provider.UseResponseLinkButtonProvider"/>
+    <condition class="useresponse.atlassian.plugins.jira.condition.MoveButtonCondition"/>
     <component-import key="resources"/>
   </web-item>
   <web-resource name="Issue Page Resources" i18n-name-key="issue-page-resources.name" key="issue-page-resources">

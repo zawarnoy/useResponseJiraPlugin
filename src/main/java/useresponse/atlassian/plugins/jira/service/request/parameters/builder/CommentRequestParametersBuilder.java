@@ -1,7 +1,11 @@
 package useresponse.atlassian.plugins.jira.service.request.parameters.builder;
 
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.entity.WithId;
+import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.jira.issue.comments.Comment;
+import com.atlassian.jira.issue.fields.renderer.IssueRenderContext;
+import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
 import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.model.CommentLink;
@@ -29,7 +33,10 @@ public class CommentRequestParametersBuilder extends RequestParametersBuilder {
     }
 
     private Map<Object, Object> addContent(Map<Object, Object> map, Comment comment) {
-        map.put("content", comment.getBody());
+        IssueRenderContext renderContext = new IssueRenderContext(comment.getIssue());
+        RendererManager commentFieldRenderer = ComponentAccessor.getRendererManager();
+        JiraRendererPlugin renderer = ComponentAccessor.getRendererManager().getRendererForType("atlassian-wiki-rendererr");
+        map.put("content", renderer.render(comment.getBody(), renderContext));
         return map;
     }
 

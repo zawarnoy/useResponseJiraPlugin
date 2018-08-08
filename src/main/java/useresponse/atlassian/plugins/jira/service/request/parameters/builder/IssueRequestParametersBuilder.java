@@ -1,5 +1,6 @@
 package useresponse.atlassian.plugins.jira.service.request.parameters.builder;
 
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.entity.WithId;
 import com.atlassian.jira.issue.AttachmentManager;
 import com.atlassian.jira.issue.Issue;
@@ -22,7 +23,6 @@ import java.util.*;
 
 public class IssueRequestParametersBuilder extends RequestParametersBuilder {
 
-    protected RendererManager rendererManager;
     protected PriorityLinkManager priorityLinkManager;
 
     protected AttachmentManager attachmentManager;
@@ -38,7 +38,6 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
                                          PluginSettingsFactory pluginSettingsFactory,
                                          StatusesLinkManager statusesLinkManager
     ) {
-        this.rendererManager = rendererManager;
         this.priorityLinkManager = priorityLinkManager;
         this.useResponseObjectManager = useResponseObjectManager;
         this.attachmentManager = attachmentManager;
@@ -110,7 +109,7 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
 
     private Map<Object, Object> addContentToRequest(Map<Object, Object> map, Issue issue) {
         IssueRenderContext renderContext = new IssueRenderContext(issue);
-        JiraRendererPlugin renderer = rendererManager.getRendererForType("atlassian-wiki-renderer");
+        JiraRendererPlugin renderer = ComponentAccessor.getRendererManager().getRendererForType("atlassian-wiki-renderer");
         String html = renderer.render(issue.getDescription(), renderContext);
         map.put("content", html);
         return map;

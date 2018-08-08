@@ -1,11 +1,13 @@
 package useresponse.atlassian.plugins.jira.provider;
 
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.plugin.webfragment.DefaultWebFragmentContext;
 import com.atlassian.jira.plugin.webfragment.contextproviders.AbstractJiraContextProvider;
 import com.atlassian.jira.plugin.webfragment.model.JiraHelper;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 
@@ -22,41 +24,27 @@ public class UseResponseLinkButtonProvider extends AbstractJiraContextProvider {
     private Map params;
     private PluginSettingsFactory pluginSettingsFactory;
 
-    private final PluginSettings pluginSettings;
+    private PluginSettings pluginSettings;
 
 
     @Inject
     public UseResponseLinkButtonProvider(@ComponentImport PluginSettingsFactory pluginSettingsFactory) {
         this.pluginSettingsFactory = pluginSettingsFactory;
-        this.pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
     }
 
     @Override
     public Map getContextMap(ApplicationUser applicationUser, JiraHelper jiraHelper) {
-        Map<String, Object> contextParams = jiraHelper.getContextParams();
-        Map<String, Object> result = new HashMap<>();
 
-        Properties properties = new Properties();
-        String testProp;
+        pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
 
-        try {
-            properties.load(getClass().getResourceAsStream("/jira-plugin.properties"));
-            testProp = (String) properties.get("useResponselinkbutton.label");
-        } catch (Exception e) {
-            testProp = "Can't load!";
-            e.printStackTrace();
+        boolean needToShow = Boolean.parseBoolean(pluginSettings.getAutosendingFlag());
+
+        if(needToShow) {
+            //show
+        } else {
+            // don't show
         }
 
-        String labelValue = null;
-        try {
-            if (testURConnection(pluginSettings.getUseResponseDomain(), pluginSettings.getUseResponseApiKey())) {
-                labelValue = "Move to UseResponse";
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        result.put("test", testProp);
-
-        return result;
+        return new HashMap();
     }
 }
