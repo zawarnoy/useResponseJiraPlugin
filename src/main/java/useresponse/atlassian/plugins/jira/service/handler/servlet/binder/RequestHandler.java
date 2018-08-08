@@ -55,7 +55,7 @@ public class RequestHandler implements Handler<String, String> {
             e.printStackTrace();
         }
 
-        return response;//responseForUser;
+        return /*response;*/responseForUser;
     }
 
     private void handleIssueData(JSONObject issueData) {
@@ -77,16 +77,16 @@ public class RequestHandler implements Handler<String, String> {
     }
 
     private String generateResponseForUser() {
-        return (new Gson()).toJson(new HashMap<String, String>() {{
-            put("status", "success");
-            put("message", "Successfully synchronized with UseResponse");
-        }});
+        HashMap<String, String> responseMap = new HashMap<>();
+        responseMap.put("status", "success");
+        responseMap.put("message", "Successfully synchronized with UseResponse");
+        return (new Gson()).toJson(responseMap);
     }
 
     private String generateExceptionResponse() {
-        return (new Gson()).toJson(new HashMap<String, String>() {{
-            put("status", "error");
-            put("message", "Bad response from UseResponse server");
-        }});
+        HashMap<String, String> responseMap = new HashMap<>();
+        responseMap.put("status", "error");
+        responseMap.put("message", "Bad response from UseResponse server");
+        return (new Gson()).toJson(responseMap);
     }
 }
