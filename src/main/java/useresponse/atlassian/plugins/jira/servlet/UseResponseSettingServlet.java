@@ -1,10 +1,6 @@
 package useresponse.atlassian.plugins.jira.servlet;
 
 import com.atlassian.jira.component.ComponentAccessor;
-import com.atlassian.jira.util.BuildUtils;
-import com.atlassian.jira.util.JiraVelocityHelper;
-import com.atlassian.jira.util.JiraVelocityUtils;
-import com.atlassian.jira.util.velocity.VelocityRequestContext;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.sal.api.UrlMode;

@@ -2,7 +2,7 @@ package useresponse.atlassian.plugins.jira.action.listener.issue;
 
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-import useresponse.atlassian.plugins.jira.action.listener.type.ActionType;
+import useresponse.atlassian.plugins.jira.action.ActionType;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.request.DeleteRequest;
 import useresponse.atlassian.plugins.jira.request.Request;

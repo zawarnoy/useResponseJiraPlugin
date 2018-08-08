@@ -8,6 +8,7 @@ import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.manager.impl.UseResponseObjectManagerImpl;
+import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import com.atlassian.plugin.PluginParseException;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
@@ -51,11 +52,19 @@ public class UseResponseLinkButtonProvider extends AbstractJiraContextProvider {
 
     private String createUseresponseObjectLink(int issueId) {
         PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
-        return pluginSettings.getUseResponseDomain() + "agent/object/" + useResponseObjectManager.findByJiraId(issueId).getUseResponseId();
+        UseResponseObject object = useResponseObjectManager.findByJiraId(issueId);
+        if(object == null) {
+            return null;
+        }
+        return pluginSettings.getUseResponseDomain() + "agent/object/" + object.getUseResponseId();
     }
 
     private String createLabelForButton(int issueId) {
-        return "UseResponse - " + useResponseObjectManager.findByJiraId(issueId).getUseResponseId();
+        UseResponseObject object = useResponseObjectManager.findByJiraId(issueId);
+        if(object == null) {
+            return null;
+        }
+        return "UseResponse - " + object.getUseResponseId();
     }
 
 }

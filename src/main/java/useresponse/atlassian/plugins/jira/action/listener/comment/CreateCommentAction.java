@@ -2,8 +2,7 @@ package useresponse.atlassian.plugins.jira.action.listener.comment;
 
 import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-import org.json.simple.parser.ParseException;
-import useresponse.atlassian.plugins.jira.action.listener.type.ActionType;
+import useresponse.atlassian.plugins.jira.action.ActionType;
 import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
@@ -11,7 +10,6 @@ import useresponse.atlassian.plugins.jira.request.Request;
 import useresponse.atlassian.plugins.jira.service.handler.servlet.binder.RequestHandler;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestBuilder;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

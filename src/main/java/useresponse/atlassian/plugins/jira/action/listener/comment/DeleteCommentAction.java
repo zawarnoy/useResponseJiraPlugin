@@ -2,7 +2,7 @@ package useresponse.atlassian.plugins.jira.action.listener.comment;
 
 import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-import useresponse.atlassian.plugins.jira.action.listener.type.ActionType;
+import useresponse.atlassian.plugins.jira.action.ActionType;
 import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.request.DeleteRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
