@@ -87,12 +87,20 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
         requestMap = addAttachmentsToMap(requestMap, issue);
         requestMap = addResponsibleToMap(requestMap, issue);
         requestMap = addJiraIssueIdToMap(requestMap, issue);
+        requestMap = addDueOnToMap      (requestMap, issue);
         return this;
     }
 
     private Map<Object, Object> addLabelsToMap(Map<Object, Object> map, Issue issue) {
         if (issue.getLabels() != null) {
             map.put("tags", getTagsFromLabels(issue.getLabels()));
+        }
+        return map;
+    }
+
+    private Map<Object, Object> addDueOnToMap(Map<Object, Object> map, Issue issue) {
+        if (issue.getDueDate() != null) {
+            map.put("due_on", (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(issue.getDueDate()));
         }
         return map;
     }

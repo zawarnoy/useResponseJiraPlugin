@@ -34,8 +34,7 @@ public class CommentRequestParametersBuilder extends RequestParametersBuilder {
 
     private Map<Object, Object> addContent(Map<Object, Object> map, Comment comment) {
         IssueRenderContext renderContext = new IssueRenderContext(comment.getIssue());
-        RendererManager commentFieldRenderer = ComponentAccessor.getRendererManager();
-        JiraRendererPlugin renderer = ComponentAccessor.getRendererManager().getRendererForType("atlassian-wiki-rendererr");
+        JiraRendererPlugin renderer = ComponentAccessor.getRendererManager().getRendererForType("atlassian-wiki-renderer");
         map.put("content", renderer.render(comment.getBody(), renderContext));
         return map;
     }
