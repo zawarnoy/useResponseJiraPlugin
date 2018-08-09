@@ -1,4 +1,4 @@
-package useresponse.atlassian.plugins.jira.rest;
+package useresponse.atlassian.plugins.jira.rest.comment;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.Issue;
@@ -13,14 +13,12 @@ import com.atlassian.jira.issue.comments.CommentManager;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.xml.ws.RequestWrapper;
 
 /**
  * A resource of message.
  */
 @Path("/")
-public class CommentsRestResource {
-
+public class CommentRestResource {
 
     protected CommentManager commentManager;
 
@@ -29,7 +27,7 @@ public class CommentsRestResource {
     protected UserManager userManager;
 
 
-    public CommentsRestResource() {
+    public CommentRestResource() {
 
     }
 
@@ -39,6 +37,7 @@ public class CommentsRestResource {
     }
 
     @POST
+    @Path("/")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response createComment(
             @FormParam("author_email") String authorEmail,
@@ -52,17 +51,17 @@ public class CommentsRestResource {
 
         ApplicationUser user = UserUtils.getUserByEmail(authorEmail);
         try {
-            throw new Exception( "email:" + authorEmail);
+            throw new Exception("email: " + authorEmail);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        if(user == null) {
-//          return error
+        if (user == null) {
+            // TODO GET FROM REQUEST ADDING/EDIT COMMENTS AND ISSUES FROM REST API RESPONSE
         }
 
         Issue issue = issueManager.getIssueObject(Long.valueOf(issueId));
-        if(issue == null) {
+        if (issue == null) {
 //            return error
         }
 
@@ -72,7 +71,7 @@ public class CommentsRestResource {
     }
 
     @PUT
-    @Path("{id}")
+    @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response updateComment(@PathParam("id") String id) {
 

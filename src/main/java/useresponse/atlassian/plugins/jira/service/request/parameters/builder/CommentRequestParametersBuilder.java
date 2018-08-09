@@ -10,6 +10,7 @@ import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.model.CommentLink;
 import useresponse.atlassian.plugins.jira.model.UseResponseObject;
+import useresponse.atlassian.plugins.jira.service.converter.content.ContentForSendingConverter;
 
 import java.text.SimpleDateFormat;
 import java.util.Map;
@@ -33,9 +34,7 @@ public class CommentRequestParametersBuilder extends RequestParametersBuilder {
     }
 
     private Map<Object, Object> addContent(Map<Object, Object> map, Comment comment) {
-        IssueRenderContext renderContext = new IssueRenderContext(comment.getIssue());
-        JiraRendererPlugin renderer = ComponentAccessor.getRendererManager().getRendererForType("atlassian-wiki-renderer");
-        map.put("content", renderer.render(comment.getBody(), renderContext));
+        map.put("content", ContentForSendingConverter.convert(comment));
         return map;
     }
 

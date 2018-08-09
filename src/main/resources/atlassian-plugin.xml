@@ -87,7 +87,10 @@
     <context>jira.navigator.simple</context>
     <context>jira.navigator.advanced</context>
   </web-resource>
-  <rest name="Comments Rest Resource" i18n-name-key="comments-rest-resource.name" key="comments-rest-resource" path="/commentsrestresource" version="1.0">
+  <rest name="Comments Rest Resource" i18n-name-key="comments-rest-resource.name" key="comments-rest-resource" path="/comment" version="1.0">
     <description key="comments-rest-resource.description">The Comments Rest Resource Plugin</description>
+  </rest>
+  <rest name="Issue Rest Resource" i18n-name-key="issue-rest-resource.name" key="issue-rest-resource" path="/issue" version="1.0">
+    <description key="issue-rest-resource.description">The Issue Rest Resource Plugin</description>
   </rest>
 </atlassian-plugin>

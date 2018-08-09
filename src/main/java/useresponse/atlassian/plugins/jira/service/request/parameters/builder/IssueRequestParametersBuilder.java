@@ -16,6 +16,7 @@ import useresponse.atlassian.plugins.jira.manager.PriorityLinkManager;
 import useresponse.atlassian.plugins.jira.manager.StatusesLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.model.StatusesLink;
+import useresponse.atlassian.plugins.jira.service.converter.content.ContentForSendingConverter;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -100,7 +101,7 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
 
     private Map<Object, Object> addDueOnToMap(Map<Object, Object> map, Issue issue) {
         if (issue.getDueDate() != null) {
-            map.put("due_on", (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(issue.getDueDate()));
+            map.put("due_on", (new SimpleDateFormat("yyyy-MM-dd")).format(issue.getDueDate()));
         }
         return map;
     }
@@ -116,10 +117,7 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
     }
 
     private Map<Object, Object> addContentToRequest(Map<Object, Object> map, Issue issue) {
-        IssueRenderContext renderContext = new IssueRenderContext(issue);
-        JiraRendererPlugin renderer = ComponentAccessor.getRendererManager().getRendererForType("atlassian-wiki-renderer");
-        String html = renderer.render(issue.getDescription(), renderContext);
-        map.put("content", html);
+        map.put("content", ContentForSendingConverter.convert(issue));
         return map;
     }
 
