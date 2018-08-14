@@ -1,5 +1,6 @@
 package useresponse.atlassian.plugins.jira.service.handler.servlet.binder;
 
+import com.atlassian.jira.component.ComponentAccessor;
 import com.google.gson.Gson;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -60,8 +61,8 @@ public class RequestHandler implements Handler<String, String> {
 
     private void handleIssueData(JSONObject issueData) {
         int use_response_id = Integer.valueOf((String.valueOf(issueData.get("use_response_id"))));
-        int jira_id = Integer.valueOf((String.valueOf(issueData.get("jira_id"))));
-        useResponseObjectManager.findOrAdd(use_response_id, jira_id);
+        String jiraKey = String.valueOf(issueData.get("jira_id"));
+        useResponseObjectManager.findOrAdd(use_response_id, ComponentAccessor.getIssueManager().getIssueObject(jiraKey).getId().intValue());
     }
 
     private void handleCommentsData(JSONArray commentsData) {

@@ -71,4 +71,14 @@ public class UseResponseObjectManagerImpl implements UseResponseObjectManager {
         }
         return null;
     }
+
+    @Override
+    public void delete(UseResponseObject object) {
+        ao.delete(object);
+    }
+
+    @Override
+    public void delete(int jiraId, int useResponseId) {
+        ao.delete(findByJiraId(jiraId));
+    }
 }

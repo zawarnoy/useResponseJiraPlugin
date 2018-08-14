@@ -107,7 +107,7 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
     }
 
     private Map<Object, Object> addJiraIssueIdToMap(Map<Object, Object> map, Issue issue) {
-        map.put("jira_issue_id", issue.getId().intValue());
+        map.put("jira_issue_id", issue.getKey());
         return map;
     }
 

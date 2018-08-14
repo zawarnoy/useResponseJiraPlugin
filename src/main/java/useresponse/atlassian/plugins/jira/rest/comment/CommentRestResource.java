@@ -21,9 +21,7 @@ import javax.ws.rs.core.Response;
 public class CommentRestResource {
 
     protected CommentManager commentManager;
-
     protected IssueManager issueManager;
-
     protected UserManager userManager;
 
 
@@ -37,7 +35,6 @@ public class CommentRestResource {
     }
 
     @POST
-    @Path("/")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response createComment(
             @FormParam("author_email") String authorEmail,
@@ -71,7 +68,7 @@ public class CommentRestResource {
     }
 
     @PUT
-    @Path("/{id}")
+    @Path("{id}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response updateComment(@PathParam("id") String id) {
 

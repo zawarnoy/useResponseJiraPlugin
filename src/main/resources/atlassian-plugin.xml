@@ -93,4 +93,12 @@
   <rest name="Issue Rest Resource" i18n-name-key="issue-rest-resource.name" key="issue-rest-resource" path="/issue" version="1.0">
     <description key="issue-rest-resource.description">The Issue Rest Resource Plugin</description>
   </rest>
+  <servlet name="Issue Servlet" i18n-name-key="issue-servlet.name" key="issue-servlet" class="useresponse.atlassian.plugins.jira.servlet.IssueServlet">
+    <description key="issue-servlet.description">The Issue Servlet Plugin</description>
+    <url-pattern>/issue</url-pattern>
+  </servlet>
+  <servlet name="Comment Servlet" i18n-name-key="comment-servlet.name" key="comment-servlet" class="useresponse.atlassian.plugins.jira.servlet.CommentServlet">
+    <description key="comment-servlet.description">The Comment Servlet Plugin</description>
+    <url-pattern>/comment</url-pattern>
+  </servlet>
 </atlassian-plugin>

@@ -10,6 +10,7 @@ import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.event.issue.IssueEventManager;
 import com.atlassian.jira.event.type.EventType;
 import com.atlassian.jira.issue.AttachmentManager;
+import com.atlassian.jira.issue.CustomFieldManager;
 import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.issue.fields.ImmutableCustomField;
