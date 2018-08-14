@@ -11,6 +11,7 @@ import com.atlassian.jira.event.issue.IssueEventManager;
 import com.atlassian.jira.event.type.EventType;
 import com.atlassian.jira.issue.AttachmentManager;
 import com.atlassian.jira.issue.CustomFieldManager;
+import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.issue.fields.ImmutableCustomField;
@@ -19,6 +20,8 @@ import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.plugin.spring.scanner.annotation.imports.JiraImport;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.webresource.api.assembler.WebResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +54,8 @@ import java.util.concurrent.Future;
 
 @Component
 public class IssueEventListener implements InitializingBean, DisposableBean {
+
+    private static final Logger log = LoggerFactory.getLogger(IssueEvent.class);
 
     @JiraImport
     private final EventPublisher eventPublisher;

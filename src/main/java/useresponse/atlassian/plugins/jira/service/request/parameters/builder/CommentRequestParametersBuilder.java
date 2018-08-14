@@ -44,7 +44,7 @@ public class CommentRequestParametersBuilder extends RequestParametersBuilder {
     }
 
     private Map<Object, Object> addJiraIssueIdToMap(Map<Object, Object> map, Comment comment) {
-        map.put("jira_issue_id", comment.getIssue().getId().intValue());
+        map.put("jira_issue_id", comment.getIssue().getKey());
         return map;
     }
 
