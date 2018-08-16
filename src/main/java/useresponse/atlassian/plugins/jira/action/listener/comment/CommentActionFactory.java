@@ -3,7 +3,7 @@ package useresponse.atlassian.plugins.jira.action.listener.comment;
 import com.atlassian.jira.entity.WithId;
 import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-import useresponse.atlassian.plugins.jira.action.listener.Action;
+import useresponse.atlassian.plugins.jira.action.Action;
 import useresponse.atlassian.plugins.jira.action.listener.AbsctractListenerActionFactory;
 import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;

@@ -11,6 +11,8 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
+import useresponse.atlassian.plugins.jira.action.Action;
+import useresponse.atlassian.plugins.jira.action.servlet.SettingsSendAction;
 import useresponse.atlassian.plugins.jira.exception.ConnectionException;
 import useresponse.atlassian.plugins.jira.manager.impl.PriorityLinkManagerImpl;
 import useresponse.atlassian.plugins.jira.manager.impl.StatusesLinkManagerImpl;
@@ -30,8 +32,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import com.atlassian.jira.config.DefaultStatusManager;
 import com.atlassian.jira.config.DefaultPriorityManager;
@@ -45,7 +49,7 @@ public class UseResponseSettingServlet extends HttpServlet {
     private static final String SETTINGS_TEMPLATE = "/templates/ur_connection_settings_template.vm";
     private static final String LINK_TEMPLATE = "/templates/ur_link_settings_template.vm";
 
-    private static final String SUCCESSFULL_CONNECTION_STRING = "Your connection is successfull!";
+    private static final String SUCCESSFUL_CONNECTION_STRING = "Your connection is successful!";
     private static final String SETTINGS_ARE_CHANCHED_STRING = "Settings are changed!";
 
     private final UserManager userManager;
@@ -130,7 +134,10 @@ public class UseResponseSettingServlet extends HttpServlet {
         HashMap<String, Object> context = new HashMap<>();
 
         try {
-            setParameters(request, settingsService);
+            Map respParams = setParameters(request, settingsService);
+            //if(SettingsService.testURConnection(pluginSettingsFactory) && (respParams != null)) {
+                //sendSettings(respParams);
+            //}
 
             context.put("statusSlugLinks", statusesService.getStatusSlugLinks());
             context.put("prioritySlugLinks", prioritiesService.getPrioritySlugLinks());
@@ -145,10 +152,8 @@ public class UseResponseSettingServlet extends HttpServlet {
 
             map.put("linkTemplate", writer.toString());
             map.put("status", "success");
-            map.put("message", checkOnAutosendingParamExisting(request) ? SETTINGS_ARE_CHANCHED_STRING : SUCCESSFULL_CONNECTION_STRING);
-        } catch (
-                Exception e)
-
+            map.put("message", checkOnAutosendingParamExisting(request) ? SETTINGS_ARE_CHANCHED_STRING : SUCCESSFUL_CONNECTION_STRING);
+        } catch (Exception e)
         {
             map.put("status", "error");
             map.put("message", e.getMessage());
@@ -177,32 +182,46 @@ public class UseResponseSettingServlet extends HttpServlet {
         }
     }
 
-    private void setParameters(HttpServletRequest request, SettingsService settingsService) throws ConnectionException {
+    private Map setParameters(HttpServletRequest request, SettingsService settingsService) throws ConnectionException {
         setConnectionParameters(request, settingsService);
-        setStatuses(request);
-        setPriorities(request);
+        List statuses = setStatuses(request);
+        List priorities = setPriorities(request);
         String autosending = request.getParameter("autosending");
+
+        Map response = new HashMap();
+
+        response.put("statuses", statuses);
+        response.put("priorities", priorities);
+
         if (autosending != null) {
             (new PluginSettingsImpl(pluginSettingsFactory)).setAutosendingFlag(autosending);
         }
+        return response;
     }
 
-    private void setStatuses(HttpServletRequest request) {
+    private List setStatuses(HttpServletRequest request) {
         StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
 
+        List<Map.Entry<String, String>> response = new ArrayList<>();
         for (String statusName : statusesService.getStatusesNames()) {
             linkManager.editOrAdd(statusName, request.getParameter(statusName + "Status"));
+            response.add(new AbstractMap.SimpleEntry<>(request.getParameter(statusName + "Status"), statusName));
         }
+        return response;
     }
 
-    private void setPriorities(HttpServletRequest request) {
+    private List setPriorities(HttpServletRequest request) {
         PrioritiesService prioritiesService = new PrioritiesService(ComponentAccessor.getComponent(DefaultPriorityManager.class), priorityLinkManager, urPriorityManager);
 
+        List<Map.Entry<String, String>> response = new ArrayList<>();
         for (String priorityName : prioritiesService.getPrioritiesNames()) {
             URPriority priority = urPriorityManager.findBySlug(request.getParameter(priorityName + "Priority"));
-            if (priority != null)
+            if (priority != null) {
                 priorityLinkManager.editUseResponsePriority(priorityName, priority);
+            }
+            response.add(new AbstractMap.SimpleEntry<>(priority.getUseResponsePrioritySlug(), priorityName));
         }
+        return response;
     }
 
     private void setConnectionParameters(HttpServletRequest request, SettingsService settingsService) throws ConnectionException {
@@ -216,6 +235,17 @@ public class UseResponseSettingServlet extends HttpServlet {
 
     private boolean checkOnAutosendingParamExisting(HttpServletRequest request) {
         return request.getParameter("autosending") != null;
+    }
+
+    private void sendSettings(Map settings) {
+        try {
+            Action action = new SettingsSendAction(settings, new PluginSettingsImpl(pluginSettingsFactory));
+
+            ExecutorService executor = Executors.newCachedThreadPool();
+            Future<String> result = executor.submit(action);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

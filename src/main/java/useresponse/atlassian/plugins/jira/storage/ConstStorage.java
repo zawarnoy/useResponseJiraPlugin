@@ -7,6 +7,7 @@ public class ConstStorage {
 
     public static final String API_STRING = "api/4.0/";
     public static final String JIRA_DATA_HANDLER_ROUTE = "jira-tickets/entry/add.json";
+    public static final String JIRA_SETTINGS_ROUTE = "jira-settings.json";
 
     public static final Map<String, String> UR_PRIORITIES = new HashMap<String, String>() {
         {

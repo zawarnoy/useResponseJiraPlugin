@@ -61,7 +61,7 @@ public class RequestHandler implements Handler<String, String> {
             e.printStackTrace();
         }
 
-        return /*response;*/responseForUser;
+        return responseForUser;
     }
 
     private void handleIssueData(JSONObject issueData) {
