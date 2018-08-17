@@ -73,8 +73,13 @@ public class RequestHandler implements Handler<String, String> {
         Issue issue = ComponentAccessor.getIssueManager().getIssueByCurrentKey(issueKey);
         ApplicationUser creator = handleCreatorName(commentData.get("username"));
 
-        Comment comment = commentManager.create(issue, creator, commentData.get("content"), false);
-        processCreatedComment(comment, commentData);
+        Comment comment = null;
+        try {
+            comment = commentManager.create(issue, creator, commentData.get("content"),null, null, (new SimpleDateFormat("yyyy-MM-dd HH:mm:SS").parse(commentData.get("created_at"))), false);
+        } catch (java.text.ParseException e) {
+            e.printStackTrace();
+        }
+        //processCreatedComment(comment, commentData);
         return comment;
     }
 
@@ -99,7 +104,7 @@ public class RequestHandler implements Handler<String, String> {
         CommentManager commentManager = ComponentAccessor.getCommentManager();
         MutableComment mutableComment = commentManager.getMutableComment(comment.getId());
         try {
-            mutableComment.setCreated((new SimpleDateFormat("yyyy-MM-dd HH:mm:SS").parse((String) commentData.get("created_at"))));
+            mutableComment.setCreated((new SimpleDateFormat("yyyy-MM-dd HH:mm:SS").parse(commentData.get("created_at"))));
         } catch (java.text.ParseException e) {
             e.printStackTrace();
         }
