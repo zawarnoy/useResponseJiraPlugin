@@ -46,8 +46,7 @@ public class RequestHandler implements Handler<String, String> {
         for (int i = 0; i < commentsData.size(); i++) {
             result.add(handleOneComment(commentsData.get(i)));
         }
-        String jsonResult = (new Gson()).toJson(result);
-        return jsonResult;
+        return (new Gson()).toJson(result);
     }
 
     private Map<String, String> handleOneComment(Map<String, String> commentData) {
@@ -79,7 +78,6 @@ public class RequestHandler implements Handler<String, String> {
         } catch (java.text.ParseException e) {
             e.printStackTrace();
         }
-        //processCreatedComment(comment, commentData);
         return comment;
     }
 
@@ -99,16 +97,4 @@ public class RequestHandler implements Handler<String, String> {
         }
         return userManager.getUserByName(username);
     }
-
-    private void processCreatedComment(Comment comment, Map<String, String> commentData) {
-        CommentManager commentManager = ComponentAccessor.getCommentManager();
-        MutableComment mutableComment = commentManager.getMutableComment(comment.getId());
-        try {
-            mutableComment.setCreated((new SimpleDateFormat("yyyy-MM-dd HH:mm:SS").parse(commentData.get("created_at"))));
-        } catch (java.text.ParseException e) {
-            e.printStackTrace();
-        }
-        commentManager.update(comment, false);
-    }
-
 }

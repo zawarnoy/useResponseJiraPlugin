@@ -5,7 +5,6 @@ import net.java.ao.Entity;
 public interface CommentLink extends Entity{
     int getJiraCommentId();
     void setJiraCommentId(int jiraCommentId);
-
     int getUseResponseCommentId();
     void setUseResponseCommentId(int useResponseCommentId);
 }
