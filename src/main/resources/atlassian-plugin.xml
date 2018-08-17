@@ -99,7 +99,7 @@
   </servlet>
   <servlet name="Comment Servlet" i18n-name-key="comment-servlet.name" key="comment-servlet" class="useresponse.atlassian.plugins.jira.servlet.CommentServlet">
     <description key="comment-servlet.description">The Comment Servlet Plugin</description>
-    <url-pattern>/comment</url-pattern>
+    <url-pattern>/comments</url-pattern>
   </servlet>
   <servlet name="Issue Link Servlet" i18n-name-key="issue-link-servlet.name" key="issue-link-servlet" class="useresponse.atlassian.plugins.jira.servlet.IssueLinkServlet">
     <description key="issue-link-servlet.description">The Issue Link Servlet Plugin</description>

@@ -11,6 +11,7 @@ import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.user.UserManager;
 import com.google.gson.Gson;
+import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.exception.ConnectionException;
 import useresponse.atlassian.plugins.jira.exception.InvalidResponseException;
@@ -138,7 +139,7 @@ public class IssueBinderServlet extends HttpServlet {
             Handler<String, String> handler = new RequestHandler(useResponseObjectManager, commentLinkManager);
             responseForUser = handler.handle(response);
 
-        } catch (InvalidResponseException | NoSuchAlgorithmException | KeyManagementException | UndefinedUrlException | IssueNotExistException e) {
+        } catch (InvalidResponseException | NoSuchAlgorithmException | KeyManagementException | UndefinedUrlException | IssueNotExistException | ParseException e) {
             e.printStackTrace();
             responseForUser = handleException(e);
         }

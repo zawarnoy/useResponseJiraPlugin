@@ -36,7 +36,8 @@ public class CommentLinkManagerImpl implements CommentLinkManager {
 
     @Override
     public CommentLink findByUseResponseId(int useResponseCommentId) {
-        return null;
+        CommentLink[] objects = ao.find(CommentLink.class, Query.select().where("use_response_comment_id = ?", String.valueOf(useResponseCommentId)));
+        return objects.length > 0 ? objects[0] : null;
     }
 
     @Override

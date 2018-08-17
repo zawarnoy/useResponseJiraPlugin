@@ -32,7 +32,6 @@ public class RequestHandler implements Handler<String, String> {
 
         String responseForUser;
 
-
         try {
 
             JSONParser parser = new JSONParser();

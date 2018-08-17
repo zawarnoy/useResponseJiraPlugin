@@ -8,6 +8,13 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.google.gson.Gson;
+import org.json.simple.JSONArray;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Autowired;
+import useresponse.atlassian.plugins.jira.manager.impl.CommentLinkManagerImpl;
+import useresponse.atlassian.plugins.jira.service.handler.Handler;
+import useresponse.atlassian.plugins.jira.service.handler.servlet.comment.RequestHandler;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
@@ -16,8 +23,13 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
 
-public class CommentServlet extends HttpServlet{
+public class CommentServlet extends HttpServlet {
+
+    @Autowired
+    private CommentLinkManagerImpl commentLinkManager;
 
     private final UserManager userManager;
 
@@ -34,70 +46,38 @@ public class CommentServlet extends HttpServlet{
             return;
         }
 
-        Issue issue = null;
-        String issueKey = req.getParameter("issue_key");
+        String jsonData = this.getJsonFromRequest(req);
 
-        if(issueKey != null) {
-            issue = ComponentAccessor.getIssueManager().getIssueByCurrentKey(issueKey);
+        Handler<String, String> handler = new RequestHandler(loggedUser, commentLinkManager);
+
+        String response;
+
+        try {
+            response = handler.handle(jsonData);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, String> respMap = new HashMap<>();
+            respMap.put("status", "error");
+            respMap.put("message", e.getMessage());
+            response = (new Gson()).toJson(respMap);
         }
-
-        ApplicationUser user = null;
-        String username = req.getParameter("username");
-
-        if(username != null) {
-            user = ComponentAccessor.getUserManager().getUserByName(username);
-        }
-
-        if(user == null) {
-            user = loggedUser;
-        }
-
-        String content = req.getParameter("content");
-
-        ComponentAccessor.getCommentManager().create(issue, user, content, false);
-
-
+        resp.getWriter().write(response);
     }
 
-    @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
-        ApplicationUser loggedUser = ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser();
-        if (loggedUser == null && userManager.isSystemAdmin(userManager.getRemoteUserKey())) {
-            return;
-        }
-
-
-        InputStreamReader reader = new InputStreamReader(req.getInputStream());
+    private String getJsonFromRequest(HttpServletRequest request) throws IOException {
+        InputStreamReader reader = new InputStreamReader(request.getInputStream());
 
         BufferedReader br = new BufferedReader(reader);
 
         String bufer;
         String data = "";
 
-        while( (bufer = br.readLine()) != null ) {
+        while ((bufer = br.readLine()) != null) {
             data = data + bufer;
         }
 
-
-
-        resp.getWriter().write(data);
-
-//        String commentId = req.getParameter("comment_id");
-//        String commentBody = req.getParameter("comment_body");
-//
-//        if(commentId == null || commentBody == null) {
-//            return;
-//        }
-//
-//        CommentManager commentManager = ComponentAccessor.getCommentManager();
-//
-//        MutableComment comment = commentManager.getMutableComment(Long.valueOf(commentId));
-//
-//        comment.setBody(commentBody);
-//
-//        commentManager.update(comment, false);
-//
-//        resp.getWriter().write("{ \"status\" : \"success\" }");
+        return data;
     }
+
+
 }
