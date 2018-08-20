@@ -64,7 +64,7 @@
     <condition class="useresponse.atlassian.plugins.jira.condition.UserIsAdminCondition"/>
   </web-item>
   <web-item name="useResponselinkbutton.label" i18n-name-key="useResponselinkbutton.name" key="useResponselinkbutton" section="transitions-all" weight="1000">
-    <description key="useResponselinkbutton.description">The UseResponse link button Plugin</description>
+    <description key="useResponselinkbutton.description">The UseResponse link button</description>
     <label key="useResponselinkbutton.label"/>
     <link linkId="useResponselinkbutton">/plugins/servlet/urbinder?issue_id=$issue.id&amp;atl_token=${atl_token}</link>
     <condition class="useresponse.atlassian.plugins.jira.condition.MoveButtonCondition"/>
@@ -73,7 +73,7 @@
   <web-item name="UseResponseLink" i18n-name-key="use-response-link.name" key="use-response-link" section="transitions-all" weight="1000">
     <description key="use-response-link.description">UseResponse Item link</description>
     <label>$label</label>
-    <link linkId="use-response-link-link">$link</link>
+    <link linkId="use-response-link-link" target="_blank">$link</link>
     <param name="issueId">$issue.id</param>
     <context-provider class="useresponse.atlassian.plugins.jira.provider.UseResponseLinkButtonProvider"/>
     <condition class="useresponse.atlassian.plugins.jira.condition.UseresponseLinkButtonCondition"/>
