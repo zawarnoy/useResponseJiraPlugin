@@ -101,8 +101,7 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
 
     private Map<Object, Object> addDueOnToMap(Map<Object, Object> map, Issue issue) {
         if (issue.getDueDate() != null) {
-            //&& issue.getDueDate().getTime()
-            map.put("due_on", issue.getDueDate().getTime());//(new SimpleDateFormat("yyyy-MM-dd")).format(issue.getDueDate()));
+            map.put("due_on", issue.getDueDate().getTime());
         }
         return map;
     }
