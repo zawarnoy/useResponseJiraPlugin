@@ -33,6 +33,8 @@ public class IssueRequestBuilder {
         builder.setRequestMap(new HashMap<Object, Object>());
         builder.
                 addStandardParametersToMap(issue).
+                addOwnershipToMap().
+                addObjectTypeToMap().
                 addCreatedAt(issue).
                 addAuthorToRequest(issue).
                 addAddAction();

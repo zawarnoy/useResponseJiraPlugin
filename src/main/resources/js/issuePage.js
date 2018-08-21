@@ -16,20 +16,9 @@ AJS.$(document).ready(function () {
 
     if(syncStatus !== null) {
         if(syncStatus === '1') {
-            JIRA.Messages.showSuccessMsg('Issue was successfully sync!');
+            JIRA.Messages.showSuccessMsg('Object was successfully synchronized!');
         } else {
             JIRA.Messages.showErrorMsg('An error was occurred while sync!');
         }
     }
-
-    // AJS.$("#useResponselinkbutton").on('click', function (event) {
-    //     event.preventDefault();
-    //
-    //     $.get(AJS.$("#useResponselinkbutton").attr('href'), {async: true}, function (receivedData) {
-    //             console.log(receivedData);
-    //             receivedData = JSON.parse(receivedData);
-    //             swal(receivedData.message, "", receivedData.status);
-    //         }
-    //     );
-    // });
 });

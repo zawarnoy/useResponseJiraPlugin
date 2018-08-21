@@ -118,7 +118,7 @@ public class IssueBinderServlet extends HttpServlet {
         CommentRequestBuilder commentRequestBuilder = new CommentRequestBuilder(commentRequestParametersBuilder, commentLinkManager);
         IssueRequestBuilder issueRequestBuilder = new IssueRequestBuilder(issueRequestParametersBuilder, useResponseObjectManager);
 
-        RequestBuilder requestBuilder = new RequestBuilder(issueRequestBuilder, commentRequestBuilder/*, commentManager*/);
+        RequestBuilder requestBuilder = new RequestBuilder(issueRequestBuilder, commentRequestBuilder);
 
         String responseForUser;
 

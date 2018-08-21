@@ -47,9 +47,9 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
         this.statusesLinkManager = statusesLinkManager;
     }
 
-    private Map<Object, Object> addOwnershipToMap(Map<Object, Object> map) {
-        map.put("ownership", "helpdesk");
-        return map;
+    public IssueRequestParametersBuilder addOwnershipToMap() {
+        requestMap.put("ownership", "helpdesk");
+        return this;
     }
 
     public IssueRequestParametersBuilder addUseResponseObjectId(Issue issue) {
@@ -63,9 +63,9 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
         return this;
     }
 
-    private Map<Object, Object> addObjectTypeToMap(Map<Object, Object> map) {
-        map.put("object_type", "ticket");
-        return map;
+    public IssueRequestParametersBuilder addObjectTypeToMap() {
+        requestMap.put("object_type", "ticket");
+        return this;
     }
 
     public IssueRequestParametersBuilder addStatusToMap(Issue issue) {
@@ -77,9 +77,7 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
     }
 
     public IssueRequestParametersBuilder addStandardParametersToMap(Issue issue) throws IOException {
-        requestMap = addOwnershipToMap  (requestMap);
         requestMap = addHtmlTreat       (requestMap);
-        requestMap = addObjectTypeToMap (requestMap);
         requestMap = addContentToRequest(requestMap, issue);
         requestMap = addTitleToRequest  (requestMap, issue);
         requestMap = addReporterToMap   (requestMap, issue);

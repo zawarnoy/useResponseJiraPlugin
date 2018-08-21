@@ -18,4 +18,12 @@ public class ConstStorage {
         }
     };
 
+    public static final String[] OBJECT_TYPES =
+            {
+                    "ticket",
+                    "idea",
+                    "question",
+                    "topic"
+            };
+
 }
