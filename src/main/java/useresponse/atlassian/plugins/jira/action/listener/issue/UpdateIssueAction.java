@@ -14,6 +14,8 @@ import useresponse.atlassian.plugins.jira.request.Request;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.IssueRequestBuilder;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class UpdateIssueAction extends AbstractIssueAction {
 
@@ -43,8 +45,7 @@ public class UpdateIssueAction extends AbstractIssueAction {
 
     @Override
     public String createUrl() {
-        int useResponseId = useResponseObjectManager.findByJiraId(issue.getId().intValue()).getUseResponseId();
-        return collectUrl("objects/" + useResponseId + ".json");
+        return getSpecialApiPath();
     }
 
     @Override
@@ -54,11 +55,9 @@ public class UpdateIssueAction extends AbstractIssueAction {
 
     @Override
     public Request addParameters(Request request) throws IOException {
-        request.addParameter(builder.build(issue));
+        HashMap<String, Map> params = new HashMap<>();
+        params.put("issue", builder.build(issue));
+        request.addParameter(params);
         return request;
-    }
-
-    private String findUseResponseStatusFromJiraStatus(String jiraStatus) {
-        return statusesLinkManager.findByJiraStatusName(jiraStatus).getUseResponseStatusSlug();
     }
 }

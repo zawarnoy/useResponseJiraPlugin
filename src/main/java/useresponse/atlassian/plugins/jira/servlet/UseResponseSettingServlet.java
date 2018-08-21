@@ -218,4 +218,8 @@ public class UseResponseSettingServlet extends HttpServlet {
         return request.getParameter("autosending") != null;
     }
 
+    private void sendSettings() {
+
+    }
+
 }

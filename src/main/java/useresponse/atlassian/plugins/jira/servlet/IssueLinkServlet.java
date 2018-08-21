@@ -24,9 +24,6 @@ public class IssueLinkServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        StringBuilder buffer = new StringBuilder();
-        BufferedReader reader = req.getReader();
-
         String useresponseId = req.getParameter("useresponse_id");
         String jiraKey = req.getParameter("jira_key");
 

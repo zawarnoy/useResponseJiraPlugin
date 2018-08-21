@@ -25,6 +25,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.ConnectException;
+import java.net.UnknownHostException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -123,11 +125,13 @@ public class IssueBinderServlet extends HttpServlet {
         int issueId = Integer.parseInt(req.getParameter("issue_id"));
         Issue issue = issueManager.getIssueObject(Long.valueOf(issueId));
 
+        String syncStatus;
+
         try {
 
 
             if (issue == null) {
-                throw new IssueNotExistException("Can't find issue with id");
+                throw new IssueNotExistException("Can't find issue with id " + issueId);
             }
 
             Request request = requestBuilder.build(issue);
@@ -138,13 +142,24 @@ public class IssueBinderServlet extends HttpServlet {
 
             Handler<String, String> handler = new RequestHandler(useResponseObjectManager, commentLinkManager);
             responseForUser = handler.handle(response);
+            syncStatus = "1";
 
-        } catch (InvalidResponseException | NoSuchAlgorithmException | KeyManagementException | UndefinedUrlException | IssueNotExistException | ParseException e) {
+        } catch (
+                InvalidResponseException |
+                        NoSuchAlgorithmException |
+                        KeyManagementException |
+                        UndefinedUrlException |
+                        IssueNotExistException |
+                        ParseException |
+                        UnknownHostException |
+                        ConnectException e) {
             e.printStackTrace();
             responseForUser = handleException(e);
+            syncStatus = "0";
         }
+
         if (req.getHeader("x-requested-with") == null) {
-            resp.sendRedirect(ComponentAccessor.getApplicationProperties().getString(APKeys.JIRA_BASEURL) + "/browse/" + issue.getKey());
+            resp.sendRedirect(ComponentAccessor.getApplicationProperties().getString(APKeys.JIRA_BASEURL) + "/browse/" + issue.getKey() + "?sync_status=" + syncStatus);
         }
 
         if (responseForUser != null) {

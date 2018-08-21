@@ -47,6 +47,7 @@ public abstract class AbstractListenerAction implements Action {
             execute();
             return String.valueOf(actionType);
         } catch (IOException | NoSuchAlgorithmException | InvalidResponseException | ParseException | KeyManagementException | ConnectionException e) {
+            e.printStackTrace();
             return e.getMessage();
         }
     }
