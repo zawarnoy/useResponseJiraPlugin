@@ -199,7 +199,7 @@ public class UseResponseSettingServlet extends HttpServlet {
         String autosending = request.getParameter("autosending");
         if (autosending != null) {
             (new PluginSettingsImpl(pluginSettingsFactory)).setAutosendingFlag(autosending);
-            result.put("autosending", autosending);
+            result.put("autosending", Boolean.parseBoolean(autosending));
         }
 
         result.put("statuses", statuses);

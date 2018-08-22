@@ -9,12 +9,10 @@
 //import org.springframework.beans.factory.InitializingBean;
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.stereotype.Component;
-////import com.atlassian.plugin.event.events.PluginEnabledEvent;
+//import com.atlassian.plugin.event.events.PluginEnabledEvent;
 //
 //@Component
 //public class PluginEnabledListener implements InitializingBean, DisposableBean {
-//
-//    private static final Logger log = LoggerFactory.getLogger(PluginEnabledListener.class);
 //
 //    @JiraImport
 //    private final EventPublisher eventPublisher;
@@ -36,6 +34,5 @@
 //
 //    @EventListener
 //    public void onPluginEnable(PluginEnabledEvent pluginEnabledEvent) {
-//        log.error(pluginEnabledEvent.getPlugin().getKey());
 //    }
 //}
