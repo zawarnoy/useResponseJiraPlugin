@@ -8,16 +8,12 @@ import com.atlassian.jira.issue.comments.MutableComment;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.util.UserManager;
 import com.google.gson.Gson;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.model.CommentLink;
 import useresponse.atlassian.plugins.jira.service.handler.Handler;
-
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -40,7 +36,6 @@ public class RequestHandler implements Handler<String, String> {
 
     @Override
     public String handle(String jsonData) throws IOException, ParseException {
-
         List<Map<String, String>> commentsData = (new Gson()).fromJson(jsonData, List.class);
         List<Map> result = new ArrayList<>();
         for (int i = 0; i < commentsData.size(); i++) {
@@ -52,6 +47,9 @@ public class RequestHandler implements Handler<String, String> {
     private Map<String, String> handleOneComment(Map<String, String> commentData) {
         Comment comment;
         CommentLink link = commentLinkManager.findByUseResponseId(Integer.parseInt(commentData.get("useresponse_comment_id")));
+//        if() {
+//          TODO DELETE
+//        }
         if (link == null) {
             comment = createComment(commentData);
         } else {

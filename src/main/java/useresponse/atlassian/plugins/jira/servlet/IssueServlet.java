@@ -1,10 +1,14 @@
 package useresponse.atlassian.plugins.jira.servlet;
 
+import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.DefaultStatusManager;
 import com.atlassian.jira.event.type.EventDispatchOption;
+import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.issue.IssueInputParameters;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.status.Status;
+import com.atlassian.jira.user.ApplicationUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,8 +32,6 @@ public class IssueServlet extends HttpServlet {
         String statusName = req.getParameter("status_name");
         String issueKey = req.getParameter("issue_key");
 
-        log.error(statusName);
-        log.error(issueKey);
 
         DefaultStatusManager statusManager = ComponentAccessor.getComponent(DefaultStatusManager.class);
 
@@ -37,13 +39,19 @@ public class IssueServlet extends HttpServlet {
         for (Status status : statusManager.getStatuses()) {
             if (status.getName().equals(statusName)) {
                 MutableIssue issue = ComponentAccessor.getIssueManager().getIssueByCurrentKey(issueKey);
-                issue.setStatus(status);
-                ComponentAccessor.getIssueManager().updateIssue(
-                        ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser(),
-                        issue,
-                        EventDispatchOption.DO_NOT_DISPATCH,
-                        false
-                );
+
+                IssueService issueService = ComponentAccessor.getIssueService();
+
+                IssueInputParameters parameters = issueService.newIssueInputParameters();
+                parameters.setStatusId(status.getId());
+
+                ApplicationUser user = ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser();
+
+                IssueService.UpdateValidationResult result = issueService.validateUpdate(user, issue.getId(), parameters);
+
+                if(result.isValid()) {
+                    IssueService.IssueResult issueResult = issueService.update(user, result);
+                }
                 return;
             }
         }
