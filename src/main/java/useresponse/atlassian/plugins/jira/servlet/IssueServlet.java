@@ -32,26 +32,17 @@ public class IssueServlet extends HttpServlet {
         String statusName = req.getParameter("status_name");
         String issueKey = req.getParameter("issue_key");
 
-
         DefaultStatusManager statusManager = ComponentAccessor.getComponent(DefaultStatusManager.class);
 
+        if(issueKey == null) {
+            return;
+        }
 
         for (Status status : statusManager.getStatuses()) {
             if (status.getName().equals(statusName)) {
                 MutableIssue issue = ComponentAccessor.getIssueManager().getIssueByCurrentKey(issueKey);
-
-                IssueService issueService = ComponentAccessor.getIssueService();
-
-                IssueInputParameters parameters = issueService.newIssueInputParameters();
-                parameters.setStatusId(status.getId());
-
-                ApplicationUser user = ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser();
-
-                IssueService.UpdateValidationResult result = issueService.validateUpdate(user, issue.getId(), parameters);
-
-                if(result.isValid()) {
-                    IssueService.IssueResult issueResult = issueService.update(user, result);
-                }
+                issue.setStatus(status);
+                issue.store();
                 return;
             }
         }
