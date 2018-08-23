@@ -23,9 +23,6 @@ import java.util.Map;
 
 public class RequestHandler implements Handler<String, String> {
 
-    private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
-
-
     private ApplicationUser loggedUser;
     private CommentLinkManager commentLinkManager;
 

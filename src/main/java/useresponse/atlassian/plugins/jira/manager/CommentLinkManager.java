@@ -20,4 +20,6 @@ public interface CommentLinkManager {
     List<CommentLink> all();
 
     List<CommentLink> findByIssueId(int issueId);
+
+    void deleteByUseResponseId(int useResponseId);
 }

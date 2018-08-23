@@ -17,8 +17,6 @@ import java.util.HashMap;
 
 public class RequestHandler implements Handler<String, String> {
 
-    private static final Logger log = LoggerFactory.getLogger(IssueEvent.class);
-
     private final UseResponseObjectManager useResponseObjectManager;
     private final CommentLinkManager commentLinkManager;
 

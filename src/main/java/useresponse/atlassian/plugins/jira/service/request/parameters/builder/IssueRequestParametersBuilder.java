@@ -87,12 +87,20 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
         requestMap = addResponsibleToMap(requestMap, issue);
         requestMap = addJiraIssueIdToMap(requestMap, issue);
         requestMap = addDueOnToMap      (requestMap, issue);
+        requestMap = addProjectKeyToMap (requestMap, issue);
         return this;
     }
 
     private Map<Object, Object> addLabelsToMap(Map<Object, Object> map, Issue issue) {
         if (issue.getLabels() != null) {
             map.put("tags", getTagsFromLabels(issue.getLabels()));
+        }
+        return map;
+    }
+
+    private Map<Object, Object> addProjectKeyToMap(Map<Object, Object> map, Issue issue) {
+        if(issue.getProjectObject() != null) {
+            map.put("project_key", issue.getProjectObject().getKey());
         }
         return map;
     }

@@ -3,6 +3,7 @@ package useresponse.atlassian.plugins.jira.action.listener.comment;
 import com.atlassian.jira.entity.WithId;
 import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.action.ActionType;
@@ -10,6 +11,9 @@ import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.request.DeleteRequest;
 import useresponse.atlassian.plugins.jira.request.GetRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
+
+import java.util.HashMap;
+import java.util.List;
 
 public class DeleteCommentAction extends AbstractCommentAction {
 
@@ -36,5 +40,15 @@ public class DeleteCommentAction extends AbstractCommentAction {
 
     @Override
     protected void handleResponse(String response) {
+        try{
+
+            HashMap data = (new Gson()).fromJson(response, HashMap.class);
+            HashMap result = (HashMap) data.get("success");
+            if (result != null) {
+                commentLinkManager.deleteByUseResponseId((int) result.get("id"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

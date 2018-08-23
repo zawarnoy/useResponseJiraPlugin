@@ -72,4 +72,12 @@ public class CommentLinkManagerImpl implements CommentLinkManager {
     public List<CommentLink> findByIssueId(int issueId) {
         return Arrays.asList(ao.find(CommentLink.class, Query.select().where("issue_id = ?", String.valueOf(issueId))));
     }
+
+    @Override
+    public void deleteByUseResponseId(int useResponseId) {
+        CommentLink item = findByUseResponseId(useResponseId);
+        if(item != null) {
+            delete(item);
+        }
+    }
 }
