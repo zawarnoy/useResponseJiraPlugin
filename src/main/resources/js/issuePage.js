@@ -10,7 +10,7 @@ urlParam = function(name){
 
 AJS.$(document).ready(function () {
 
-    AJS.$('#useResponselinkbutton').attr('target', '_blank');
+    // AJS.$('#use-response-link-link').attr('target', '_blank');
 
     var syncStatus = urlParam('sync_status');
 

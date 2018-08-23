@@ -39,7 +39,7 @@ public class CreateCommentAction extends AbstractCommentAction {
 
     @Override
     public Request addParameters(Request request) {
-        Map<Object, Object> commentData = parametersBuilder.build(comment);
+        Map<Object, Object> commentData = parametersBuilder.build((Comment) comment);
         List<Map> commentsData = new ArrayList<>();
         commentsData.add(commentData);
         Map<Object, Object> dataForSending = new HashMap<>();

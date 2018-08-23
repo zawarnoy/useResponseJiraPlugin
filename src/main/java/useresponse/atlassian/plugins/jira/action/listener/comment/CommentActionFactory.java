@@ -26,7 +26,7 @@ public class CommentActionFactory extends AbsctractListenerActionFactory {
         } else if (actionClass.getCanonicalName().equals(UpdateCommentAction.class.getCanonicalName())) {
             return new UpdateCommentAction((Comment) entity, commentLinkManager, useResponseObjectManager, pluginSettingsFactory, commentRequestBuilder);
         } else if (actionClass.getCanonicalName().equals(DeleteCommentAction.class.getCanonicalName())) {
-            return new DeleteCommentAction((Comment) entity, commentLinkManager, pluginSettingsFactory);
+            return new DeleteCommentAction(entity, commentLinkManager, pluginSettingsFactory);
         } else {
             return null;
         }

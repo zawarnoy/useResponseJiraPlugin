@@ -23,7 +23,7 @@ public class UpdateCommentAction extends AbstractCommentAction {
 
     @Override
     protected Request addParameters(Request request) {
-        request.addParameter(parametersBuilder.build(comment));
+        request.addParameter(parametersBuilder.build((Comment) comment));
         return request;
     }
 

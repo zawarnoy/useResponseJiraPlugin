@@ -81,7 +81,7 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
         try {
             writer.write("<h1>Comments</h1>");
             for (CommentLink object : commentLinkManager.all()) {
-                writer.print("ur id: " + object.getUseResponseCommentId() + " jira id:" + object.getJiraCommentId() + "<br>");
+                writer.print("ur id: " + object.getUseResponseCommentId() + " jira id:" + object.getJiraCommentId() + " issue id:" + object.getIssueId() + "<br>");
             }
         } catch (Exception e) {
             e.printStackTrace();

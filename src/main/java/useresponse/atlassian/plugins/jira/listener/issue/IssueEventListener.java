@@ -3,10 +3,10 @@ package useresponse.atlassian.plugins.jira.listener.issue;
 import com.atlassian.event.api.EventListener;
 import com.atlassian.event.api.EventPublisher;
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.entity.WithId;
 import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.event.type.EventType;
 import com.atlassian.jira.issue.AttachmentManager;
-import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
@@ -28,9 +28,11 @@ import useresponse.atlassian.plugins.jira.action.listener.issue.CreateIssueActio
 import useresponse.atlassian.plugins.jira.action.listener.issue.DeleteIssueAction;
 import useresponse.atlassian.plugins.jira.action.listener.issue.IssueActionFactory;
 import useresponse.atlassian.plugins.jira.action.listener.issue.UpdateIssueAction;
+import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.manager.impl.*;
 import com.atlassian.activeobjects.external.ActiveObjects;
 import useresponse.atlassian.plugins.jira.model.CommentLink;
+import useresponse.atlassian.plugins.jira.service.CommentsService;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestBuilder;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestParametersBuilder;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.IssueRequestBuilder;
@@ -174,11 +176,9 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
         } else if (typeId.equals(EventType.ISSUE_DELETED_ID)) {
             action = commentActionFactory.createAction(DeleteIssueAction.class);
         } else if (typeId.equals(EventType.ISSUE_COMMENT_DELETED_ID)) {
-            Comment deletedComment = getDeletedComment(issueEvent.getIssue());
-            if(deletedComment != null ){
-                commentActionFactory.setEntity(deletedComment);
-                action = commentActionFactory.createAction(DeleteCommentAction.class);
-            }
+            Integer deletedCommentId = CommentsService.getDeletedCommentId(issueEvent.getIssue(), commentLinkManager);
+            commentActionFactory.setEntity(() -> (long) deletedCommentId);
+            action = commentActionFactory.createAction(DeleteCommentAction.class);
         } else {
             action = issueActionFactory.createAction(UpdateIssueAction.class);
         }
@@ -189,29 +189,5 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
         if (action != null) {
             future = executor.submit(action);
         }
-
-        //Todo handle future (not required)
     }
-
-    private Comment getDeletedComment(Issue issue) {
-        List<CommentLink> comments = commentLinkManager.findByIssueId(issue.getId().intValue());
-        List<Comment> remainingComments = ComponentAccessor.getCommentManager().getComments(issue);
-
-        for (CommentLink link : comments) {
-            if(isInCommentsList(remainingComments, link.getJiraCommentId())) {
-                return ComponentAccessor.getCommentManager().getCommentById((long) link.getJiraCommentId());
-            }
-        }
-        return null;
-    }
-
-    private boolean isInCommentsList(List<Comment> comments, int wantedCommentId) {
-        for (Comment comment : comments) {
-            if (comment.getId().intValue() == wantedCommentId) {
-                return true;
-            }
-        }
-        return false;
-    }
-
 }
