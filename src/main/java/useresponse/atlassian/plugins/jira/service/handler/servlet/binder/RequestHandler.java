@@ -78,7 +78,8 @@ public class RequestHandler implements Handler<String, String> {
     private void handleOneCommentData(JSONObject commentData) {
         int use_response_comment_id = Integer.valueOf((String.valueOf(commentData.get("use_response_comment_id"))));
         int jira_comment_id = Integer.valueOf((String.valueOf(commentData.get("jira_comment_id"))));
-        commentLinkManager.findOrAdd(use_response_comment_id, jira_comment_id);
+        int issueId = ComponentAccessor.getCommentManager().getCommentById(Long.parseLong(String.valueOf(jira_comment_id))).getIssue().getId().intValue();
+        commentLinkManager.findOrAdd(use_response_comment_id, jira_comment_id, issueId);
     }
 
     private String generateResponseForUser() {

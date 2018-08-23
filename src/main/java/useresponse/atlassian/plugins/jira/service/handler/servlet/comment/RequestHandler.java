@@ -55,7 +55,7 @@ public class RequestHandler implements Handler<String, String> {
         } else {
             comment = updateComment(commentData, link);
         }
-        commentLinkManager.findOrAdd(Integer.valueOf(commentData.get("useresponse_comment_id")), comment.getId().intValue());
+        commentLinkManager.findOrAdd(Integer.valueOf(commentData.get("useresponse_comment_id")), comment.getId().intValue(), comment.getIssue().getId().intValue());
         Map<String, String> response = new HashMap<>();
         response.put("useresponse_comment_id", commentData.get("useresponse_comment_id"));
         response.put("jira_comment_id", String.valueOf(comment.getId()));

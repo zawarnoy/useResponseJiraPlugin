@@ -2,10 +2,13 @@ package useresponse.atlassian.plugins.jira.listener.issue;
 
 import com.atlassian.event.api.EventListener;
 import com.atlassian.event.api.EventPublisher;
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.event.type.EventType;
 import com.atlassian.jira.issue.AttachmentManager;
+import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.RendererManager;
+import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.plugin.spring.scanner.annotation.imports.JiraImport;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
@@ -27,6 +30,7 @@ import useresponse.atlassian.plugins.jira.action.listener.issue.IssueActionFacto
 import useresponse.atlassian.plugins.jira.action.listener.issue.UpdateIssueAction;
 import useresponse.atlassian.plugins.jira.manager.impl.*;
 import com.atlassian.activeobjects.external.ActiveObjects;
+import useresponse.atlassian.plugins.jira.model.CommentLink;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestBuilder;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestParametersBuilder;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.IssueRequestBuilder;
@@ -34,6 +38,7 @@ import useresponse.atlassian.plugins.jira.service.request.parameters.builder.Iss
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -158,7 +163,7 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
                 commentRequestBuilder);
 
 
-        Action action;
+        Action action = null;
 
         if (typeId.equals(EventType.ISSUE_CREATED_ID)) {
             action = issueActionFactory.createAction(CreateIssueAction.class);
@@ -169,7 +174,11 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
         } else if (typeId.equals(EventType.ISSUE_DELETED_ID)) {
             action = commentActionFactory.createAction(DeleteIssueAction.class);
         } else if (typeId.equals(EventType.ISSUE_COMMENT_DELETED_ID)) {
-            action = commentActionFactory.createAction(DeleteCommentAction.class);
+            Comment deletedComment = getDeletedComment(issueEvent.getIssue());
+            if(deletedComment != null ){
+                commentActionFactory.setEntity(deletedComment);
+                action = commentActionFactory.createAction(DeleteCommentAction.class);
+            }
         } else {
             action = issueActionFactory.createAction(UpdateIssueAction.class);
         }
@@ -183,4 +192,26 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 
         //Todo handle future (not required)
     }
+
+    private Comment getDeletedComment(Issue issue) {
+        List<CommentLink> comments = commentLinkManager.findByIssueId(issue.getId().intValue());
+        List<Comment> remainingComments = ComponentAccessor.getCommentManager().getComments(issue);
+
+        for (CommentLink link : comments) {
+            if(isInCommentsList(remainingComments, link.getJiraCommentId())) {
+                return ComponentAccessor.getCommentManager().getCommentById((long) link.getJiraCommentId());
+            }
+        }
+        return null;
+    }
+
+    private boolean isInCommentsList(List<Comment> comments, int wantedCommentId) {
+        for (Comment comment : comments) {
+            if (comment.getId().intValue() == wantedCommentId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
