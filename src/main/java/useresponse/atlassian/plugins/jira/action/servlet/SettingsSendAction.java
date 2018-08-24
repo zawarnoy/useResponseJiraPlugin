@@ -21,7 +21,6 @@ public class SettingsSendAction implements Action {
     @Override
     public String call() throws Exception {
         Request request = new PostRequest();
-
         request.addParameter(params);
         String url = createUrl();
         return request.sendRequest(url);

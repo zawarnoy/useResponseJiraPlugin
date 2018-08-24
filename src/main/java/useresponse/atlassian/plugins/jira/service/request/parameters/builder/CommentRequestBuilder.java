@@ -2,6 +2,7 @@ package useresponse.atlassian.plugins.jira.service.request.parameters.builder;
 
 import com.atlassian.jira.issue.comments.Comment;
 import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
+import useresponse.atlassian.plugins.jira.service.CommentsService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +18,9 @@ public class CommentRequestBuilder {
     }
 
     public Map<Object, Object> build(Comment comment) {
+//        if(CommentsService.getDeletedCommentId(comment.getIssue(), commentManager)) {
+//
+//        }
         if (commentManager.findByJiraId(comment.getId().intValue()) == null) {
             return buildNewCommentMap(comment);
         } else {
@@ -41,6 +45,11 @@ public class CommentRequestBuilder {
                 addUseResponseObjectIdToMap(comment).
                 addUseResponseCommentIdToMap(comment).
                 addEditAction();
+        return builder.getRequestMap();
+    }
+
+    private Map<Object, Object> buildDeleteCommentMap(int useResponseCommentId) {
+        builder.setRequestMap(new HashMap<>());
         return builder.getRequestMap();
     }
 }

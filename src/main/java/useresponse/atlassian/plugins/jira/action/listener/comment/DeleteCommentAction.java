@@ -41,7 +41,6 @@ public class DeleteCommentAction extends AbstractCommentAction {
     @Override
     protected void handleResponse(String response) {
         try{
-
             HashMap data = (new Gson()).fromJson(response, HashMap.class);
             HashMap result = (HashMap) data.get("success");
             if (result != null) {

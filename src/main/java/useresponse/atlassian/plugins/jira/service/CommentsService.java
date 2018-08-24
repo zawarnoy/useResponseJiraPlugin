@@ -9,6 +9,7 @@ import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.model.CommentLink;
 import useresponse.atlassian.plugins.jira.set.linked.LinkedSet;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -20,7 +21,7 @@ public class CommentsService {
         List<CommentLink> comments = commentLinkManager.findByIssueId(issue.getId().intValue());
         List<Comment> remainingComments = ComponentAccessor.getCommentManager().getComments(issue);
 
-        LinkedSet<CommentLink> commentLinksSet = new LinkedSet<CommentLink>(comments);
+        LinkedSet<CommentLink> commentLinksSet = new LinkedSet<>(comments);
 
         for (CommentLink link : commentLinksSet) {
             if (isInCommentsList(remainingComments, link.getJiraCommentId())) {
@@ -30,8 +31,7 @@ public class CommentsService {
 
         Iterator<CommentLink> iterator = commentLinksSet.iterator();
         if (iterator.hasNext()) {
-            int s = iterator.next().getUseResponseCommentId();
-            return s;
+            return iterator.next().getUseResponseCommentId();
         }
         return null;
     }
@@ -45,4 +45,8 @@ public class CommentsService {
         return false;
     }
 
+    private static List<Integer> getDeletedCommentsId() {
+        ArrayList result = new ArrayList();
+        return result;
+    }
 }
