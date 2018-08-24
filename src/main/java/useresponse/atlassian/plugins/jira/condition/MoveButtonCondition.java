@@ -32,8 +32,8 @@ public class MoveButtonCondition extends AbstractWebCondition {
         Issue currentIssue = (Issue) jiraHelper.getContextParams().get("issue");
         return
                 SettingsService.testURConnection(pluginSettingsFactory) &&
-                objectManager.findByJiraId(currentIssue.getId().intValue()).getObjectType().equals("ticket") &&
-                (!isLinkExists(currentIssue) || !Boolean.parseBoolean(pluginSettings.getAutosendingFlag()));
+                        (!isLinkExists(currentIssue) || objectManager.findByJiraId(currentIssue.getId().intValue()).getObjectType().equals("ticket")) &&
+                        (!isLinkExists(currentIssue) || !Boolean.parseBoolean(pluginSettings.getAutosendingFlag()));
     }
 
     private boolean isLinkExists(Issue issue) {
