@@ -10,32 +10,29 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Enumeration;
 
 public class IssueLinkServlet extends HttpServlet {
     private static final Logger log = LoggerFactory.getLogger(IssueLinkServlet.class);
 
     @Autowired
-    protected UseResponseObjectManagerImpl useResponseObjectManager;
+    private UseResponseObjectManagerImpl useResponseObjectManager;
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
         String useresponseId = req.getParameter("useresponse_id");
         String jiraKey = req.getParameter("jira_key");
+        String objectType = req.getParameter("object_type");
 
-        if (useresponseId == null && jiraKey == null) {
+        if (useresponseId == null && jiraKey == null && objectType == null) {
             return;
         }
 
         int parsedId = Integer.valueOf(useresponseId);
-
         int issueId = ComponentAccessor.getIssueManager().getIssueByCurrentKey(jiraKey).getId().intValue();
 
-        useResponseObjectManager.findOrAdd(parsedId, issueId);
+        useResponseObjectManager.findOrAdd(parsedId, issueId, objectType);
         resp.getWriter().write("{ \"status\" : \"success\" }");
     }
 

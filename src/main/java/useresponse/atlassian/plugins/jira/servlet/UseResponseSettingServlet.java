@@ -99,8 +99,7 @@ public class UseResponseSettingServlet extends HttpServlet {
         StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
         PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
 
-        migrate();
-        addURPriorities();
+        prepareDB();
 
         Map<String, Object> context = new HashMap<String, Object>();
         HashMap<String, String> statuses = null;
@@ -174,6 +173,11 @@ public class UseResponseSettingServlet extends HttpServlet {
 
     }
 
+    private void prepareDB() {
+        migrate();
+        addURPriorities();
+    }
+
     private void migrate() {
         ao.migrate(StatusesLink.class);
         ao.migrate(CommentLink.class);
@@ -181,7 +185,6 @@ public class UseResponseSettingServlet extends HttpServlet {
         ao.migrate(URPriority.class);
         ao.migrate(PriorityLink.class);
         ao.migrate(IssueFileLink.class);
-        ao.migrate(URObjectType.class);
     }
 
     private void addURPriorities() {

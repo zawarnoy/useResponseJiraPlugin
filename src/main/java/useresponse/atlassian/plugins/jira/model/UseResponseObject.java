@@ -16,5 +16,7 @@ public interface UseResponseObject extends Entity {
 
     void setNeedOfSync(boolean needOfSync);
 
+    String getObjectType();
 
+    void setObjectType(String type);
 }

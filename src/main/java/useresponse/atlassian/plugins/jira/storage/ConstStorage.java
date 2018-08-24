@@ -17,13 +17,4 @@ public class ConstStorage {
             put("urgent", "Urgent");
         }
     };
-
-    public static final String[] OBJECT_TYPES =
-            {
-                    "ticket",
-                    "idea",
-                    "question",
-                    "topic"
-            };
-
 }

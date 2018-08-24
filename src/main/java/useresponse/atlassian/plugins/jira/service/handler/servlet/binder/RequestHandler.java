@@ -9,6 +9,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.service.handler.Handler;
@@ -21,8 +22,8 @@ public class RequestHandler implements Handler<String, String> {
     private final CommentLinkManager commentLinkManager;
 
     public RequestHandler(UseResponseObjectManager useResponseObjectManager, CommentLinkManager commentLinkManager) {
-        this.useResponseObjectManager = useResponseObjectManager;
-        this.commentLinkManager = commentLinkManager;
+        this.useResponseObjectManager   = useResponseObjectManager;
+        this.commentLinkManager         = commentLinkManager;
     }
 
     @Override
@@ -64,7 +65,8 @@ public class RequestHandler implements Handler<String, String> {
     private void handleIssueData(JSONObject issueData) {
         int use_response_id = Integer.valueOf((String.valueOf(issueData.get("use_response_id"))));
         String jiraKey = String.valueOf(issueData.get("jira_key"));
-        useResponseObjectManager.findOrAdd(use_response_id, ComponentAccessor.getIssueManager().getIssueObject(jiraKey).getId().intValue());
+        String objectType = (String) issueData.get("object_type");
+        useResponseObjectManager.findOrAdd(use_response_id, ComponentAccessor.getIssueManager().getIssueObject(jiraKey).getId().intValue(), objectType);
     }
 
     private void handleCommentsData(JSONArray commentsData) {

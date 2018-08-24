@@ -91,7 +91,7 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
         try {
             writer.write("<h1>Items</h1>");
             for (UseResponseObject object : useResponseObjectManager.all()) {
-                writer.print("ur id: " + object.getUseResponseId() + " jira id:" + object.getJiraId() + "<br>");
+                writer.print("ur id: " + object.getUseResponseId() + " jira id:" + object.getJiraId() + " object type: " + object.getObjectType() + "<br>");
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -6,6 +6,7 @@ import com.atlassian.jira.plugin.webfragment.model.JiraHelper;
 import com.atlassian.jira.user.ApplicationUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.manager.impl.UseResponseObjectManagerImpl;
+import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 
 public class UseresponseLinkButtonCondition extends AbstractWebCondition {
 
@@ -16,7 +17,8 @@ public class UseresponseLinkButtonCondition extends AbstractWebCondition {
     @Override
     public boolean shouldDisplay(ApplicationUser applicationUser, JiraHelper jiraHelper) {
         Issue currentIssue = (Issue)jiraHelper.getContextParams().get("issue");
-        if(objectManager.findByJiraId(currentIssue.getId().intValue()) == null) {
+        UseResponseObject object = objectManager.findByJiraId(currentIssue.getId().intValue());
+        if(object == null && !(object.getObjectType().equals("ticket"))) {
             return false;
         }
         return true;

@@ -87,7 +87,6 @@ public class IssueBinderServlet extends HttpServlet {
     }
 
     @Override
-    @RequiresXsrfCheck
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
         SettingsService settingsService = new SettingsService(userManager, loginUriProvider, pluginSettingsFactory);

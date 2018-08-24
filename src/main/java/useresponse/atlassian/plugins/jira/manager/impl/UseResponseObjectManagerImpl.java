@@ -27,20 +27,21 @@ public class UseResponseObjectManagerImpl implements UseResponseObjectManager {
     }
 
     @Override
-    public UseResponseObject add(int useResponseId, int jiraId) {
+    public UseResponseObject add(int useResponseId, int jiraId, String type) {
         final UseResponseObject useResponseObject = ao.create(UseResponseObject.class);
         useResponseObject.setUseResponseId(useResponseId);
         useResponseObject.setJiraId(jiraId);
         useResponseObject.setNeedOfSync(true);
+        useResponseObject.setObjectType(type);
         useResponseObject.save();
         return useResponseObject;
     }
 
     @Override
-    public UseResponseObject findOrAdd(int useResponseId, int jiraId) {
+    public UseResponseObject findOrAdd(int useResponseId, int jiraId, String type) {
         UseResponseObject object = findByJiraId(jiraId);
         if (object == null) {
-            return add(useResponseId, jiraId);
+            return add(useResponseId, jiraId, type);
         } else {
             return object;
         }
