@@ -14,6 +14,7 @@ import useresponse.atlassian.plugins.jira.service.converter.content.ContentForSe
 
 import java.text.SimpleDateFormat;
 import java.util.Map;
+import java.util.TimeZone;
 
 public class CommentRequestParametersBuilder extends RequestParametersBuilder {
 
@@ -63,7 +64,9 @@ public class CommentRequestParametersBuilder extends RequestParametersBuilder {
     }
 
     public CommentRequestParametersBuilder addCreatedAt(Comment comment) {
-        requestMap.put("created_at", (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(comment.getCreated()));
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GTM"));
+        requestMap.put("created_at", dateFormat.format(comment.getCreated()));
         return this;
     }
 
