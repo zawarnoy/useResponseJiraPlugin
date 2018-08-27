@@ -9,23 +9,16 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.util.UserManager;
 import com.google.gson.Gson;
 import org.json.simple.parser.ParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.model.CommentLink;
-import useresponse.atlassian.plugins.jira.request.Request;
 import useresponse.atlassian.plugins.jira.service.handler.Handler;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class RequestHandler implements Handler<String, String> {
 
-    Logger log = LoggerFactory.getLogger(RequestHandler.class);
 
     private ApplicationUser loggedUser;
     private CommentLinkManager commentLinkManager;
@@ -37,12 +30,13 @@ public class RequestHandler implements Handler<String, String> {
 
     @Override
     public String handle(String jsonData) throws IOException, ParseException {
-        List<Map<String, String>> commentsData = (new Gson()).fromJson(jsonData, List.class);
+        Gson gson = new Gson();
+        List<Map<String, String>> commentsData = gson.fromJson(jsonData, List.class);
         List<Map> result = new ArrayList<>();
         for (int i = 0; i < commentsData.size(); i++) {
             result.add(handleOneComment(commentsData.get(i)));
         }
-        return (new Gson()).toJson(result);
+        return gson.toJson(result);
     }
 
     private Map<String, String> handleOneComment(Map<String, String> commentData) {
@@ -51,8 +45,6 @@ public class RequestHandler implements Handler<String, String> {
         CommentLink link = commentLinkManager.findByUseResponseId(Integer.parseInt(commentData.get("useresponse_comment_id")));
         if (commentData.get("is_deleted") != null && link != null) {
             boolean status = deleteComment(commentData, link);
-//            response.put("useresponse_comment_id", commentData.get("useresponse_comment_id"));
-//            response.put("status", status ? "success" : "failure");
         } else {
             if (link == null) {
                 comment = createComment(commentData);
@@ -91,7 +83,9 @@ public class RequestHandler implements Handler<String, String> {
 
         Comment comment = null;
         try {
-            comment = commentManager.create(issue, creator, commentData.get("content"), null, null, (new SimpleDateFormat("yyyy-MM-dd HH:mm:SS").parse(commentData.get("created_at"))), false);
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:SS");
+            format.setTimeZone(TimeZone.getTimeZone("GMT"));
+            comment = commentManager.create(issue, creator, commentData.get("content"), null, null, format.parse(commentData.get("created_at")), false);
         } catch (java.text.ParseException e) {
             e.printStackTrace();
         }

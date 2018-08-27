@@ -2,7 +2,6 @@ package useresponse.atlassian.plugins.jira.settings;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
-import javax.inject.Inject;
 
 public class PluginSettingsImpl implements PluginSettings {
 

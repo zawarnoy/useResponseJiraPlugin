@@ -64,13 +64,13 @@ public class CommentServlet extends HttpServlet {
         BufferedReader br = new BufferedReader(reader);
 
         String bufer;
-        String data = "";
+        StringBuilder data = new StringBuilder();
 
         while ((bufer = br.readLine()) != null) {
-            data = data + bufer;
+            data.append(bufer);
         }
 
-        return data;
+        return data.toString();
     }
 
 
