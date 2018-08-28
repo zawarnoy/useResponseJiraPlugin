@@ -39,6 +39,7 @@ import useresponse.atlassian.plugins.jira.service.request.parameters.builder.Iss
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.IssueRequestParametersBuilder;
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
+import useresponse.atlassian.plugins.jira.storage.Storage;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -114,10 +115,12 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 
     @EventListener
     public void onIssueEvent(IssueEvent issueEvent) {
-
         if (!Boolean.parseBoolean(pluginSettings.getAutosendingFlag())) {
             return;
         }
+
+        Storage.isFromBinder = false;
+
         try {
             executeAction(issueEvent);
         } catch (Exception e) {

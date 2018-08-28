@@ -73,7 +73,7 @@
   <web-item name="UseResponseLink" i18n-name-key="use-response-link.name" key="use-response-link" section="transitions-all" weight="1000">
     <description key="use-response-link.description">UseResponse Item link</description>
     <label>$label</label>
-    <link linkId="use-response-link-link" target="_blank">$link</link>
+    <link linkId="use-response-link">$link</link>
     <param name="issueId">$issue.id</param>
     <context-provider class="useresponse.atlassian.plugins.jira.provider.UseResponseLinkButtonProvider"/>
     <condition class="useresponse.atlassian.plugins.jira.condition.UseresponseLinkButtonCondition"/>
@@ -105,4 +105,7 @@
     <description key="issue-link-servlet.description">The Issue Link Servlet Plugin</description>
     <url-pattern>/issuelink</url-pattern>
   </servlet>
+  <rest name="Text Converter Rest Resource" i18n-name-key="text-converter-rest-resource.name" key="text-converter-rest-resource" path="/converter" version="1.0">
+    <description key="text-converter-rest-resource.description">The Text Converter Rest Resource Plugin</description>
+  </rest>
 </atlassian-plugin>

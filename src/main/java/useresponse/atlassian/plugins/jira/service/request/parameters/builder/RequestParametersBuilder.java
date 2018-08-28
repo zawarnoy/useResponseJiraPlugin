@@ -31,6 +31,11 @@ public abstract class RequestParametersBuilder {
         return this;
     }
 
+    public RequestParametersBuilder addDeleteAction() {
+        requestMap.put("action", "delete");
+        return this;
+    }
+
     public RequestParametersBuilder addEditAction() {
         requestMap.put("action", "edit");
         return this;

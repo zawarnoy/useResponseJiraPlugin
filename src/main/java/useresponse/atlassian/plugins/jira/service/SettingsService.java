@@ -12,7 +12,7 @@ import useresponse.atlassian.plugins.jira.request.GetRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
-import useresponse.atlassian.plugins.jira.storage.ConstStorage;
+import useresponse.atlassian.plugins.jira.storage.Storage;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -47,7 +47,7 @@ public class SettingsService {
     private String createUseResponseStatusesLinkFromSettings(PluginSettings settings) {
         String domain = settings.getUseResponseDomain();
         String apiKey = settings.getUseResponseApiKey();
-        return domain + ConstStorage.API_STRING + "statuses.json?object_type=ticket&apiKey=" + apiKey;
+        return domain + Storage.API_STRING + "statuses.json?object_type=ticket&apiKey=" + apiKey;
     }
 
     private HashMap<String, String> getStatusesFromJson(String json) throws ParseException {
@@ -94,7 +94,7 @@ public class SettingsService {
         Request request = new GetRequest();
         String response = null;
         try {
-            response = request.sendRequest(urDomain + ConstStorage.API_STRING + "me.json?apiKey=" + urApiKey);
+            response = request.sendRequest(urDomain + Storage.API_STRING + "me.json?apiKey=" + urApiKey);
         } catch (Exception e) {
             return false;
         }

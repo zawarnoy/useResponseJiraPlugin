@@ -43,7 +43,7 @@ import java.util.concurrent.Future;
 import com.atlassian.jira.config.DefaultStatusManager;
 import com.atlassian.jira.config.DefaultPriorityManager;
 import com.atlassian.activeobjects.external.ActiveObjects;
-import useresponse.atlassian.plugins.jira.storage.ConstStorage;
+import useresponse.atlassian.plugins.jira.storage.Storage;
 
 
 @Scanned
@@ -188,7 +188,7 @@ public class UseResponseSettingServlet extends HttpServlet {
     }
 
     private void addURPriorities() {
-        for (Map.Entry<String, String> entry : ConstStorage.UR_PRIORITIES.entrySet()) {
+        for (Map.Entry<String, String> entry : Storage.UR_PRIORITIES.entrySet()) {
             urPriorityManager.findOrAdd(entry.getKey(), entry.getValue());
         }
     }

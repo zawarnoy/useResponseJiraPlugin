@@ -13,7 +13,7 @@ import useresponse.atlassian.plugins.jira.request.Request;
 import useresponse.atlassian.plugins.jira.service.SettingsService;
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
-import useresponse.atlassian.plugins.jira.storage.ConstStorage;
+import useresponse.atlassian.plugins.jira.storage.Storage;
 
 import java.io.IOException;
 import java.security.KeyManagementException;
@@ -70,7 +70,7 @@ public abstract class AbstractListenerAction implements Action {
 
     protected String collectUrl(String requestString) {
         PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
-        return pluginSettings.getUseResponseDomain() + ConstStorage.API_STRING + requestString + "?apiKey=" + pluginSettings.getUseResponseApiKey();
+        return pluginSettings.getUseResponseDomain() + Storage.API_STRING + requestString + "?apiKey=" + pluginSettings.getUseResponseApiKey();
     }
 
     /**
@@ -80,7 +80,7 @@ public abstract class AbstractListenerAction implements Action {
      */
     protected String getSpecialApiPath() {
         PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
-        return pluginSettings.getUseResponseDomain() + ConstStorage.API_STRING + ConstStorage.JIRA_DATA_HANDLER_ROUTE + "?apiKey=" + pluginSettings.getUseResponseApiKey();
+        return pluginSettings.getUseResponseDomain() + Storage.API_STRING + Storage.JIRA_DATA_HANDLER_ROUTE + "?apiKey=" + pluginSettings.getUseResponseApiKey();
     }
 
     protected int getIdFromResponse(String response) throws ParseException {

@@ -3,7 +3,7 @@ package useresponse.atlassian.plugins.jira.storage;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ConstStorage {
+public class Storage {
 
     public static final String API_STRING = "api/4.0/";
     public static final String JIRA_DATA_HANDLER_ROUTE = "jira-tickets/entry/add.json";
@@ -17,4 +17,6 @@ public class ConstStorage {
             put("urgent", "Urgent");
         }
     };
+
+    public static boolean isFromBinder = false;
 }

@@ -1,11 +1,7 @@
 package useresponse.atlassian.plugins.jira.service.request.parameters.builder;
 
-import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.entity.WithId;
-import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.jira.issue.comments.Comment;
-import com.atlassian.jira.issue.fields.renderer.IssueRenderContext;
-import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
 import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.model.CommentLink;
@@ -28,7 +24,7 @@ public class CommentRequestParametersBuilder extends RequestParametersBuilder {
 
     public CommentRequestParametersBuilder addStandardParametersForRequest(Comment comment) {
         requestMap = addContent             (requestMap, comment);
-        requestMap = addJiraCommentIdToMap  (requestMap, comment);
+        requestMap = addJiraCommentIdToMap  (requestMap, comment.getId().intValue());
         requestMap = addJiraIssueIdToMap    (requestMap, comment);
         requestMap = addHtmlTreat           (requestMap);
         return this;
@@ -39,8 +35,8 @@ public class CommentRequestParametersBuilder extends RequestParametersBuilder {
         return map;
     }
 
-    private Map<Object, Object> addJiraCommentIdToMap(Map<Object, Object> map, Comment comment) {
-        map.put("jira_comment_id", comment.getId().intValue());
+    public Map<Object, Object> addJiraCommentIdToMap(Map<Object, Object> map, int commentId) {
+        map.put("jira_comment_id", commentId);
         return map;
     }
 

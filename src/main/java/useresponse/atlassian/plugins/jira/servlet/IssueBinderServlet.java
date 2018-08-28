@@ -4,7 +4,6 @@ import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.properties.APKeys;
 import com.atlassian.jira.issue.*;
 import com.atlassian.jira.issue.comments.CommentManager;
-import com.atlassian.jira.security.xsrf.RequiresXsrfCheck;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.auth.LoginUriProvider;
@@ -42,7 +41,7 @@ import useresponse.atlassian.plugins.jira.service.request.parameters.builder.Iss
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.IssueRequestParametersBuilder;
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
-import useresponse.atlassian.plugins.jira.storage.ConstStorage;
+import useresponse.atlassian.plugins.jira.storage.Storage;
 
 @Scanned
 public class IssueBinderServlet extends HttpServlet {
@@ -99,6 +98,8 @@ public class IssueBinderServlet extends HttpServlet {
             resp.getWriter().write("Conn");
         }
 
+        Storage.isFromBinder = true;
+
         CommentRequestParametersBuilder commentRequestParametersBuilder = new CommentRequestParametersBuilder(
                 commentLinkManager,
                 useResponseObjectManager
@@ -136,7 +137,7 @@ public class IssueBinderServlet extends HttpServlet {
             Request request = requestBuilder.build(issue);
             PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
 
-            request.setUrl(pluginSettings.getUseResponseDomain() + ConstStorage.API_STRING + ConstStorage.JIRA_DATA_HANDLER_ROUTE + "?apiKey=" + pluginSettings.getUseResponseApiKey());
+            request.setUrl(pluginSettings.getUseResponseDomain() + Storage.API_STRING + Storage.JIRA_DATA_HANDLER_ROUTE + "?apiKey=" + pluginSettings.getUseResponseApiKey());
             String response = request.sendRequest();
 
             Handler<String, String> handler = new RequestHandler(useResponseObjectManager, commentLinkManager);

@@ -4,7 +4,7 @@ import useresponse.atlassian.plugins.jira.action.Action;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
-import useresponse.atlassian.plugins.jira.storage.ConstStorage;
+import useresponse.atlassian.plugins.jira.storage.Storage;
 
 import java.util.Map;
 
@@ -27,6 +27,6 @@ public class SettingsSendAction implements Action {
     }
 
     private String createUrl() {
-        return pluginSettings.getUseResponseDomain() + ConstStorage.API_STRING + ConstStorage.JIRA_SETTINGS_ROUTE + "?apiKey=" + pluginSettings.getUseResponseApiKey();
+        return pluginSettings.getUseResponseDomain() + Storage.API_STRING + Storage.JIRA_SETTINGS_ROUTE + "?apiKey=" + pluginSettings.getUseResponseApiKey();
     }
 }

@@ -20,6 +20,8 @@ public interface Request {
 
     void setUrl(String url);
 
+    void addLoginData(String username, String password);
+
     String sendRequest() throws UndefinedUrlException, NoSuchAlgorithmException, KeyManagementException, InvalidResponseException, IOException;
 
     String sendRequest(String url) throws IOException, InvalidResponseException, NoSuchAlgorithmException, KeyManagementException;

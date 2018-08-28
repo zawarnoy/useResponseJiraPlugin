@@ -18,8 +18,15 @@ public class CommentsService {
     private static Logger log = LoggerFactory.getLogger(CommentsService.class);
 
     public static Integer getDeletedCommentId(Issue issue, CommentLinkManager commentLinkManager) {
+        List<Integer> arrayResult = getDeletedCommentsId(issue, commentLinkManager);
+        return arrayResult.size() > 0 ? arrayResult.get(0) : null;
+    }
+
+    public static List<Integer> getDeletedCommentsId(Issue issue, CommentLinkManager commentLinkManager) {
         List<CommentLink> comments = commentLinkManager.findByIssueId(issue.getId().intValue());
         List<Comment> remainingComments = ComponentAccessor.getCommentManager().getComments(issue);
+
+        List<Integer> result = new ArrayList<>();
 
         LinkedSet<CommentLink> commentLinksSet = new LinkedSet<>(comments);
 
@@ -31,9 +38,21 @@ public class CommentsService {
 
         Iterator<CommentLink> iterator = commentLinksSet.iterator();
         if (iterator.hasNext()) {
-            return iterator.next().getUseResponseCommentId();
+            CommentLink link = iterator.next();
+            result.add(link.getUseResponseCommentId());
+            log.error("DELETED ID: " + link.getUseResponseCommentId());
         }
-        return null;
+        return result;
+    }
+
+    public static boolean isDeletedComment(Comment comment, CommentLinkManager commentLinkManager) {
+        List<Integer> deletedCommentIds = getDeletedCommentsId(comment.getIssue(), commentLinkManager);
+        for (int id : deletedCommentIds) {
+            if (comment.getId().intValue() == id) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean isInCommentsList(List<Comment> comments, int wantedCommentId) {
@@ -43,10 +62,5 @@ public class CommentsService {
             }
         }
         return false;
-    }
-
-    private static List<Integer> getDeletedCommentsId() {
-        ArrayList result = new ArrayList();
-        return result;
     }
 }

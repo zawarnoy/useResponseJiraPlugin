@@ -18,9 +18,6 @@ public class CommentRequestBuilder {
     }
 
     public Map<Object, Object> build(Comment comment) {
-//        if(CommentsService.getDeletedCommentId(comment.getIssue(), commentManager)) {
-//
-//        }
         if (commentManager.findByJiraId(comment.getId().intValue()) == null) {
             return buildNewCommentMap(comment);
         } else {
@@ -49,7 +46,10 @@ public class CommentRequestBuilder {
     }
 
     private Map<Object, Object> buildDeleteCommentMap(int useResponseCommentId) {
-        builder.setRequestMap(new HashMap<>());
+        HashMap<Object, Object> params = new HashMap<>();
+        params.put("useresponse_comment_id", useResponseCommentId);
+        builder.setRequestMap(params);
+        builder.addDeleteAction();
         return builder.getRequestMap();
     }
 }
