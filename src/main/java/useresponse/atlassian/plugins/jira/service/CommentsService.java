@@ -36,11 +36,9 @@ public class CommentsService {
             }
         }
 
-        Iterator<CommentLink> iterator = commentLinksSet.iterator();
-        if (iterator.hasNext()) {
-            CommentLink link = iterator.next();
+        for (CommentLink link : commentLinksSet) {
             result.add(link.getUseResponseCommentId());
-            log.error("DELETED ID: " + link.getUseResponseCommentId());
+            commentLinkManager.delete(link);
         }
         return result;
     }

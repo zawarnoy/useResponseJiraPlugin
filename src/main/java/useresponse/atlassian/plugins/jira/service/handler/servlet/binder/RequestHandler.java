@@ -67,7 +67,10 @@ public class RequestHandler implements Handler<String, String> {
 
     private void handleCommentsData(JSONArray commentsData) {
         for (int i = 0; i < commentsData.size(); i++) {
-            handleOneCommentData((JSONObject) commentsData.get(i));
+            JSONObject object =  (JSONObject) commentsData.get(i);
+            if(object != null){
+                handleOneCommentData(object);
+            }
         }
     }
 

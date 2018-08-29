@@ -5,16 +5,12 @@ import com.atlassian.jira.config.properties.APKeys;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.storage.Storage;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ContentForSendingConverter {
-
-    static Logger log = LoggerFactory.getLogger(ContentForSendingConverter.class);
 
     public static String convert(Issue issue) {
         JiraRendererPlugin renderer = ComponentAccessor.getRendererManager().getRendererForType("atlassian-wiki-renderer");
@@ -32,12 +28,9 @@ public class ContentForSendingConverter {
         Pattern pattern = Pattern.compile("(/[a-z-]*?)?/images/icons/emoticons/.*?\\.png");
         Matcher matcher = pattern.matcher(content);
         StringBuffer buffer = new StringBuffer();
-        log.error(content);
         while (matcher.find()) {
             String match = matcher.group();
             matcher.appendReplacement(buffer, handleOneLink(match));
-            log.error(buffer.toString());
-
         }
         buffer = matcher.appendTail(buffer);
 
