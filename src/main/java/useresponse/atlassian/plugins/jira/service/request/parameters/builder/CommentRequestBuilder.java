@@ -1,16 +1,19 @@
 package useresponse.atlassian.plugins.jira.service.request.parameters.builder;
 
+import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.comments.Comment;
 import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.service.CommentsService;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class CommentRequestBuilder {
 
     private CommentRequestParametersBuilder builder;
-    private CommentLinkManager commentManager;
+    public CommentLinkManager commentManager;
 
     public CommentRequestBuilder(CommentRequestParametersBuilder builder, CommentLinkManager commentLinkManager) {
         this.builder = builder;
@@ -51,5 +54,19 @@ public class CommentRequestBuilder {
         builder.setRequestMap(params);
         builder.addDeleteAction();
         return builder.getRequestMap();
+    }
+
+    public List<Map<Object, Object>> getDeletedComments(Issue issue) {
+
+        List<Integer> deletedCommentsIds = CommentsService.getDeletedCommentsId(issue, commentManager);
+
+        List<Map<Object, Object>> result = new ArrayList<>();
+
+        if (deletedCommentsIds.size() > 0) {
+            for (int id : deletedCommentsIds) {
+                result.add(buildDeleteCommentMap(id));
+            }
+        }
+        return result;
     }
 }

@@ -50,6 +50,9 @@ public class RequestBuilder {
         for (Comment comment : commentManager.getComments(issue)) {
             commentsList.add(commentRequestBuilder.build(comment));
         }
+
+        commentsList.addAll(commentRequestBuilder.getDeletedComments(issue));
+
         requestMap.put("comments", commentsList);
 
         request.addParameter(requestMap);

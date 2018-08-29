@@ -24,19 +24,20 @@ public class ContentForSendingConverter {
 
     public static String convert(Comment comment) {
         JiraRendererPlugin renderer = ComponentAccessor.getRendererManager().getRendererForType("atlassian-wiki-renderer");
-        return renderer.render(comment.getBody(), comment.getIssue().getIssueRenderContext());
+        String content = renderer.render(comment.getBody(), comment.getIssue().getIssueRenderContext());
+        return Storage.isFromBinder ? handleContent(content) : content;
     }
 
-
     private static String handleContent(String content) {
-        Pattern pattern = Pattern.compile("(/.*?)?/images/icons/emoticons/.*?\\.png");
+        Pattern pattern = Pattern.compile("(/[a-z-]*?)?/images/icons/emoticons/.*?\\.png");
         Matcher matcher = pattern.matcher(content);
         StringBuffer buffer = new StringBuffer();
-
+        log.error(content);
         while (matcher.find()) {
             String match = matcher.group();
             matcher.appendReplacement(buffer, handleOneLink(match));
-            log.error(matcher.toString());
+            log.error(buffer.toString());
+
         }
         buffer = matcher.appendTail(buffer);
 

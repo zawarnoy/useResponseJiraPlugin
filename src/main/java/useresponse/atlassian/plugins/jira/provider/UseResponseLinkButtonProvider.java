@@ -66,5 +66,4 @@ public class UseResponseLinkButtonProvider extends AbstractJiraContextProvider {
         }
         return "UseResponse - " + object.getUseResponseId();
     }
-
 }
