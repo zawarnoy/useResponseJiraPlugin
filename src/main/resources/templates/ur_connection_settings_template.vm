@@ -79,7 +79,7 @@
                 </div>
             #end
 
-            <h3 for="">Autosending</h3>
+            <h3 for="">Autosync with UseResponse</h3>
             <div class="field-group">
                 <div class="switch-field">
 

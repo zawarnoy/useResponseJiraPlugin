@@ -10,7 +10,6 @@ import useresponse.atlassian.plugins.jira.model.CommentLink;
 import useresponse.atlassian.plugins.jira.set.linked.LinkedSet;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class CommentsService {
