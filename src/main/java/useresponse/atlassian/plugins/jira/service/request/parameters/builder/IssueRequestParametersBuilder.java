@@ -1,29 +1,28 @@
 package useresponse.atlassian.plugins.jira.service.request.parameters.builder;
 
-import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.entity.WithId;
 import com.atlassian.jira.issue.AttachmentManager;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.jira.issue.attachment.Attachment;
-import com.atlassian.jira.issue.fields.renderer.IssueRenderContext;
-import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
 import com.atlassian.jira.issue.label.Label;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.manager.IssueFileLinkManager;
 import useresponse.atlassian.plugins.jira.manager.PriorityLinkManager;
 import useresponse.atlassian.plugins.jira.manager.StatusesLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.model.StatusesLink;
-import useresponse.atlassian.plugins.jira.service.converter.content.ContentForSendingConverter;
+import useresponse.atlassian.plugins.jira.service.converter.content.ContentConverter;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class IssueRequestParametersBuilder extends RequestParametersBuilder {
-
+    Logger logger = LoggerFactory.getLogger(IssueRequestParametersBuilder.class);
     protected PriorityLinkManager priorityLinkManager;
 
     protected AttachmentManager attachmentManager;
@@ -69,7 +68,7 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
     }
 
     public IssueRequestParametersBuilder addStatusToMap(Issue issue) {
-        StatusesLink statusesLink = statusesLinkManager.findByJiraStatusName((issue.getStatus().getName()));
+        StatusesLink statusesLink = statusesLinkManager.findByJiraStatusName((issue.getStatus().getSimpleStatus().getName()));
         if (statusesLink != null) {
             requestMap.put("status", statusesLink.getUseResponseStatusSlug());
         }
@@ -123,7 +122,7 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
     }
 
     private Map<Object, Object> addContentToRequest(Map<Object, Object> map, Issue issue) {
-        map.put("content", ContentForSendingConverter.convert(issue));
+        map.put("content", ContentConverter.convert(issue));
         return map;
     }
 

@@ -6,7 +6,7 @@ import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.model.CommentLink;
 import useresponse.atlassian.plugins.jira.model.UseResponseObject;
-import useresponse.atlassian.plugins.jira.service.converter.content.ContentForSendingConverter;
+import useresponse.atlassian.plugins.jira.service.converter.content.ContentConverter;
 
 import java.text.SimpleDateFormat;
 import java.util.Map;
@@ -31,7 +31,7 @@ public class CommentRequestParametersBuilder extends RequestParametersBuilder {
     }
 
     private Map<Object, Object> addContent(Map<Object, Object> map, Comment comment) {
-        map.put("content", ContentForSendingConverter.convert(comment));
+        map.put("content", ContentConverter.convert(comment));
         return map;
     }
 

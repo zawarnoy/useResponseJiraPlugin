@@ -3,8 +3,13 @@ package useresponse.atlassian.plugins.jira.servlet;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.DefaultPriorityManager;
 import com.atlassian.jira.config.DefaultStatusManager;
+import com.atlassian.jira.config.properties.APKeys;
 import com.atlassian.jira.issue.IssueManager;
+import com.atlassian.jira.issue.RendererManager;
+import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
 import com.atlassian.jira.issue.status.Status;
+import com.atlassian.jira.plugin.JiraPluginManager;
+import com.atlassian.jira.project.template.module.Icon;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.user.UserManager;
 import com.google.gson.Gson;
@@ -32,6 +37,7 @@ import useresponse.atlassian.plugins.jira.model.URPriority;
 import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
+import useresponse.atlassian.plugins.jira.service.IconsService;
 import useresponse.atlassian.plugins.jira.service.PrioritiesService;
 import useresponse.atlassian.plugins.jira.service.StatusesService;
 
@@ -152,8 +158,6 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
 
 
         writer.write("<br>");
-
-        Enumeration headerNames = req.getHeaderNames();
 
 
         writer.close();

@@ -33,7 +33,6 @@ public class RequestHandler implements Handler<String, String> {
             JSONObject object = (JSONObject) parser.parse(response);
             JSONObject data = (JSONObject) object.get("success");
 
-
             if (useResponseObjectManager != null) {
                 JSONObject issueData = (JSONObject) data.get("issue");
                 if (issueData != null) {

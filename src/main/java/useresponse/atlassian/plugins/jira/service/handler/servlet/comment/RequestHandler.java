@@ -82,13 +82,15 @@ public class RequestHandler implements Handler<String, String> {
         ApplicationUser creator = handleCreatorName(commentData.get("username"));
 
         Comment comment = null;
+        Date date = new Date();
         try {
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:SS");
             format.setTimeZone(TimeZone.getTimeZone("GMT"));
-            comment = commentManager.create(issue, creator, commentData.get("content"), null, null, format.parse(commentData.get("created_at")), false);
+            date = format.parse(commentData.get("created_at"));
         } catch (java.text.ParseException e) {
             e.printStackTrace();
         }
+        comment = commentManager.create(issue, creator, commentData.get("content"), null, null, date, false);
         return comment;
     }
 

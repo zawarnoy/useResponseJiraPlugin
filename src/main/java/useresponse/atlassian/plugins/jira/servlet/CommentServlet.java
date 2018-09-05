@@ -9,14 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.manager.impl.CommentLinkManagerImpl;
 import useresponse.atlassian.plugins.jira.service.handler.Handler;
 import useresponse.atlassian.plugins.jira.service.handler.servlet.comment.RequestHandler;
+import useresponse.atlassian.plugins.jira.service.request.ServletService;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,7 +39,7 @@ public class CommentServlet extends HttpServlet {
             return;
         }
 
-        String jsonData = this.getJsonFromRequest(req);
+        String jsonData = ServletService.getJsonFromRequest(req);
 
         Handler<String, String> handler = new RequestHandler(loggedUser, commentLinkManager);
 
@@ -57,21 +56,4 @@ public class CommentServlet extends HttpServlet {
         }
         resp.getWriter().write(response);
     }
-
-    private String getJsonFromRequest(HttpServletRequest request) throws IOException {
-        InputStreamReader reader = new InputStreamReader(request.getInputStream());
-
-        BufferedReader br = new BufferedReader(reader);
-
-        String bufer;
-        StringBuilder data = new StringBuilder();
-
-        while ((bufer = br.readLine()) != null) {
-            data.append(bufer);
-        }
-
-        return data.toString();
-    }
-
-
 }

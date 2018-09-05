@@ -1,16 +1,16 @@
 package useresponse.atlassian.plugins.jira.servlet;
 
-import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.DefaultStatusManager;
 import com.atlassian.jira.event.type.EventDispatchOption;
-import com.atlassian.jira.issue.Issue;
-import com.atlassian.jira.issue.IssueInputParameters;
+import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.user.UserUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import useresponse.atlassian.plugins.jira.service.converter.content.ContentConverter;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
@@ -28,28 +28,75 @@ public class IssueServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
-        String statusName = req.getParameter("status_name");
-        String issueKey = req.getParameter("issue_key");
-
         DefaultStatusManager statusManager = ComponentAccessor.getComponent(DefaultStatusManager.class);
 
-        if(issueKey == null) {
+        String issueKey = null;
+        String statusName = null;
+        String authorEmail = null;
+        String content = null;
+
+        try {
+            issueKey = (String) req.getParameter("issue_key");
+        } catch (NullPointerException exception) {
+            exception.printStackTrace();
+        }
+        try {
+            statusName = (String) req.getParameter("status_name");
+        } catch (NullPointerException exception) {
+            exception.printStackTrace();
+        }
+        try {
+            authorEmail = (String) req.getParameter("author_email");
+        } catch (NullPointerException exception) {
+            exception.printStackTrace();
+        }
+        try {
+            content = (String) req.getParameter("content");
+        } catch (NullPointerException exception) {
+            exception.printStackTrace();
+        }
+
+        if (issueKey == null) {
             return;
         }
 
-        for (Status status : statusManager.getStatuses()) {
-            if (status.getName().equals(statusName)) {
-                MutableIssue issue = ComponentAccessor.getIssueManager().getIssueByCurrentKey(issueKey);
-                issue.setStatus(status);
-                issue.store();
-                return;
-            }
-        }
+        IssueManager issueManager = ComponentAccessor.getIssueManager();
+        MutableIssue issue = issueManager.getIssueByCurrentKey(issueKey);
+
+
+        issue = setDescription(issue, content);
+        issue = setStatusByStatusName(issue, statusName);
+        issue = setReporterByEmail(issue, authorEmail);
+        issue.store();
     }
 
-    @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doPut(req, resp);
+    private MutableIssue setStatusByStatusName(MutableIssue issue, String statusName) {
+        if (statusName != null) {
+            DefaultStatusManager statusManager = ComponentAccessor.getComponent(DefaultStatusManager.class);
+            for (Status status : statusManager.getStatuses()) {
+                if (status.getSimpleStatus().getName().equals(statusName)) {
+                    issue.setStatus(status);
+                    break;
+                }
+            }
+        }
+        return issue;
+    }
+
+    private MutableIssue setDescription(MutableIssue issue, String content) {
+        if(content != null) {
+            content = ContentConverter.convertForJira(content, issue);
+            issue.setDescription(content);
+        }
+        return issue;
+    }
+
+    private MutableIssue setReporterByEmail(MutableIssue issue, String reporterEmail) {
+        if (reporterEmail != null) {
+            ApplicationUser user = UserUtils.getUserByEmail(reporterEmail);
+
+            issue.setReporter(user);
+        }
+        return issue;
     }
 }
