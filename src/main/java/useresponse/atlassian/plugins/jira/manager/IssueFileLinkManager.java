@@ -12,4 +12,6 @@ public interface IssueFileLinkManager {
     IssueFileLink add(int issueId, String filename);
     List<IssueFileLink> all();
     IssueFileLink find(int issueId, String filename);
+    void delete(IssueFileLink link);
+    void delete(int issueId, String filename);
 }

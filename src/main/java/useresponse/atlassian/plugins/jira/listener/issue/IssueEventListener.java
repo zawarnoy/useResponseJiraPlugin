@@ -119,6 +119,8 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
             return;
         }
 
+        log.error("here!");
+        
         Storage.isFromBinder = false;
 
         try {

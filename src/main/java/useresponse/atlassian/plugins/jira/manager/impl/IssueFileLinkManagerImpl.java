@@ -52,4 +52,17 @@ public class IssueFileLinkManagerImpl implements IssueFileLinkManager {
         IssueFileLink[] links = ao.find(IssueFileLink.class, Query.select().where("jira_issue_id = ? AND sent_filename = ?", String.valueOf(issueId), filename));
         return links.length > 0 ? links[0] : null;
     }
+
+    @Override
+    public void delete(IssueFileLink link) {
+        ao.delete(link);
+    }
+
+    @Override
+    public void delete(int issueId, String filename) {
+        IssueFileLink link = find(issueId, filename);
+        if(link != null) {
+            delete(link);
+        }
+    }
 }

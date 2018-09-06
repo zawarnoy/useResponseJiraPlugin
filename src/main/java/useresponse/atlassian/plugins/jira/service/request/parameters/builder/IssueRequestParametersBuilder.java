@@ -1,5 +1,6 @@
 package useresponse.atlassian.plugins.jira.service.request.parameters.builder;
 
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.entity.WithId;
 import com.atlassian.jira.issue.AttachmentManager;
 import com.atlassian.jira.issue.Issue;
@@ -14,6 +15,7 @@ import useresponse.atlassian.plugins.jira.manager.IssueFileLinkManager;
 import useresponse.atlassian.plugins.jira.manager.PriorityLinkManager;
 import useresponse.atlassian.plugins.jira.manager.StatusesLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
+import useresponse.atlassian.plugins.jira.model.IssueFileLink;
 import useresponse.atlassian.plugins.jira.model.StatusesLink;
 import useresponse.atlassian.plugins.jira.service.converter.content.ContentConverter;
 
@@ -76,17 +78,17 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
     }
 
     public IssueRequestParametersBuilder addStandardParametersToMap(Issue issue) throws IOException {
-        requestMap = addHtmlTreat       (requestMap);
+        requestMap = addHtmlTreat(requestMap);
         requestMap = addContentToRequest(requestMap, issue);
-        requestMap = addTitleToRequest  (requestMap, issue);
-        requestMap = addReporterToMap   (requestMap, issue);
-        requestMap = addPriorityToMap   (requestMap, issue);
-        requestMap = addLabelsToMap     (requestMap, issue);
+        requestMap = addTitleToRequest(requestMap, issue);
+        requestMap = addReporterToMap(requestMap, issue);
+        requestMap = addPriorityToMap(requestMap, issue);
+        requestMap = addLabelsToMap(requestMap, issue);
         requestMap = addAttachmentsToMap(requestMap, issue);
         requestMap = addResponsibleToMap(requestMap, issue);
         requestMap = addJiraIssueIdToMap(requestMap, issue);
-        requestMap = addDueOnToMap      (requestMap, issue);
-        requestMap = addProjectKeyToMap (requestMap, issue);
+        requestMap = addDueOnToMap(requestMap, issue);
+        requestMap = addProjectKeyToMap(requestMap, issue);
         return this;
     }
 
@@ -98,7 +100,7 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
     }
 
     private Map<Object, Object> addProjectKeyToMap(Map<Object, Object> map, Issue issue) {
-        if(issue.getProjectObject() != null) {
+        if (issue.getProjectObject() != null) {
             map.put("project_key", issue.getProjectObject().getKey());
         }
         return map;
@@ -142,14 +144,20 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
 
     private Map<Object, Object> addAttachmentsToMap(Map<Object, Object> map, Issue issue) throws IOException {
         Collection<Attachment> attachments = attachmentManager.getAttachments(issue);
-        int issueId = issue.getId().intValue();
+        List<String> deletedAttachmentsList = getDeletedAttachmentsList(issue);
+
         ArrayList<Map> attachmentsData = new ArrayList<Map>();
 
-        String filename;
+        if(!deletedAttachmentsList.isEmpty()) {
+            map.put("deleted_attachments", deletedAttachmentsList);
+        }
 
         if (attachments.isEmpty()) {
             return map;
         }
+
+        String filename;
+        int issueId = issue.getId().intValue();
 
         for (Attachment attachment : attachments) {
             filename = attachment.getFilename();
@@ -160,6 +168,31 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
         }
         map.put("attachments", attachmentsData);
         return map;
+    }
+
+    private List<String> getDeletedAttachmentsList(Issue issue) {
+        List<IssueFileLink> links = issueFileLinkManager.findByJiraIssueId(issue.getId().intValue());
+        List<Attachment> existedAttachments = ComponentAccessor.getAttachmentManager().getAttachments(issue);
+        List<String> result = new ArrayList<>();
+
+        for (IssueFileLink link : links) {
+            if(!isLinkInList(link, existedAttachments)) {
+                result.add(link.getSentFilename());
+                issueFileLinkManager.delete(link);
+            }
+        }
+        return result;
+    }
+
+    private boolean isLinkInList(IssueFileLink link, Iterable<Attachment> attachments) {
+        boolean flag = false;
+        for (Attachment attachment : attachments) {
+            if (link.getSentFilename().equals(attachment.getFilename())) {
+                flag = true;
+                break;
+            }
+        }
+        return flag;
     }
 
     private boolean checkNeedToSentAttachment(int issueId, String attachmentName) {
@@ -196,7 +229,7 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
 
     @Override
     public <T extends WithId> RequestParametersBuilder addAuthorToRequest(T entity) {
-        requestMap.put("force_author", ((Issue)entity).getCreator().getEmailAddress());
+        requestMap.put("force_author", ((Issue) entity).getCreator().getEmailAddress());
         return this;
     }
 }

@@ -28,6 +28,8 @@ public class IssueServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        
+
         DefaultStatusManager statusManager = ComponentAccessor.getComponent(DefaultStatusManager.class);
 
         String issueKey = null;
