@@ -29,11 +29,22 @@ public class AttachmentsRequestHandler implements Handler<String, String> {
 
         Map data = (new Gson()).fromJson(s, Map.class);
 
-        String issueKey = (String) data.get("issueKey");
+        String issueKey = null;
+        MutableIssue issue = null;
 
-        MutableIssue issue = ComponentAccessor.getIssueManager().getIssueByCurrentKey(issueKey);
+        try {
+            issueKey = (String) data.get("issueKey");
+        } catch (NullPointerException e) {
+            try {
+                String commentId = (String) data.get("comment_id");
+                issueKey = ComponentAccessor.getCommentManager().getCommentById(Long.valueOf(commentId)).getIssue().getKey();
+            } catch (NullPointerException ex) {
+                return "";
+            }
+        }
 
-        issue = addAttachments(issue, (List<Map<String, String>>) data.get("attachments"));
+        issue = ComponentAccessor.getIssueManager().getIssueByCurrentKey(issueKey);
+        addAttachments(issue, (List<Map<String, String>>) data.get("attachments"));
 
         return (new Gson()).toJson(
                 new HashMap<String, String>() {{

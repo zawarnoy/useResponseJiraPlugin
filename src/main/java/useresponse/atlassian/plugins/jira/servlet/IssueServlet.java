@@ -79,7 +79,7 @@ public class IssueServlet extends HttpServlet {
                 Handler<String, String> handler = new AttachmentsRequestHandler();
                 attachmentsHandleResponse = handler.handle(json);
             } catch (Exception exception) {
-                log.error("Exception IssueServlet(attachments handle). Message: " + exception.getMessage());
+                log.error("Exception Issue Servlet (attachments handle). Message: " + exception.getMessage());
                 exception.printStackTrace();
             }
         }
