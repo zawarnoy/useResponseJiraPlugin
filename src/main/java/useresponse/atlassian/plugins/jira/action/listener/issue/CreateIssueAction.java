@@ -10,7 +10,7 @@ import useresponse.atlassian.plugins.jira.manager.PriorityLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
-import useresponse.atlassian.plugins.jira.service.handler.servlet.binder.RequestHandler;
+import useresponse.atlassian.plugins.jira.service.handler.servlet.binder.IssueBinderServletRequestHandler;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.IssueRequestBuilder;
 
 import java.io.IOException;
@@ -45,7 +45,7 @@ public class CreateIssueAction extends AbstractIssueAction {
 
     @Override
     public void handleResponse(String response) {
-        (new RequestHandler(useResponseObjectManager, commentLinkManager)).handle(response);
+        (new IssueBinderServletRequestHandler(useResponseObjectManager, commentLinkManager)).handle(response);
     }
 
     @Override

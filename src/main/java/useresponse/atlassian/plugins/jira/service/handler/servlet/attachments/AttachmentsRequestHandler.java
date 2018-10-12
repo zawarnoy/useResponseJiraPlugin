@@ -20,9 +20,9 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class RequestHandler implements Handler<String, String> {
+public class AttachmentsRequestHandler implements Handler<String, String> {
 
-    private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(AttachmentsRequestHandler.class);
 
     @Override
     public String handle(String s) throws IOException, ParseException {

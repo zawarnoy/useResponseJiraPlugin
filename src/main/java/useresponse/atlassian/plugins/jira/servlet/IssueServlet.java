@@ -2,31 +2,25 @@ package useresponse.atlassian.plugins.jira.servlet;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.DefaultStatusManager;
-import com.atlassian.jira.config.properties.APKeys;
-import com.atlassian.jira.event.type.EventDispatchOption;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
-import com.atlassian.jira.issue.attachment.CreateAttachmentParamsBean;
 import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.UserUtils;
-import com.atlassian.jira.web.util.AttachmentException;
-import org.apache.commons.lang3.RandomStringUtils;
+import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.service.converter.content.ContentConverter;
+import useresponse.atlassian.plugins.jira.service.handler.Handler;
+import useresponse.atlassian.plugins.jira.service.handler.servlet.attachments.AttachmentsRequestHandler;
+import useresponse.atlassian.plugins.jira.service.request.ServletService;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.Charset;
-import java.sql.Time;
-import java.util.*;
+import java.util.Map;
 
 public class IssueServlet extends HttpServlet {
 
@@ -46,26 +40,47 @@ public class IssueServlet extends HttpServlet {
         String statusName = null;
         String authorEmail = null;
         String content = null;
+        String attachmentsHandleResponse = null;
 
-        try {
-            issueKey = (String) req.getParameter("issue_key");
-        } catch (NullPointerException exception) {
-            exception.printStackTrace();
-        }
-        try {
-            statusName = (String) req.getParameter("status_name");
-        } catch (NullPointerException exception) {
-            exception.printStackTrace();
-        }
-        try {
-            authorEmail = (String) req.getParameter("author_email");
-        } catch (NullPointerException exception) {
-            exception.printStackTrace();
-        }
-        try {
-            content = (String) req.getParameter("content");
-        } catch (NullPointerException exception) {
-            exception.printStackTrace();
+        String json = ServletService.getJsonFromRequest(req);
+
+        Map<String, Object> data = (new Gson()).fromJson(json, Map.class);
+
+
+
+        if (data != null) {
+
+            try {
+                issueKey = (String) data.get("issueKey");
+            } catch (NullPointerException exception) {
+                log.error("Exception IssueServlet. Message: " + exception.getMessage());
+                exception.printStackTrace();
+            }
+            try {
+                statusName = (String) data.get("statusName");
+            } catch (NullPointerException exception) {
+                log.error("Exception IssueServlet. Message: " + exception.getMessage());
+                exception.printStackTrace();
+            }
+            try {
+                authorEmail = (String) data.get("authorEmail");
+            } catch (NullPointerException exception) {
+                log.error("Exception IssueServlet. Message: " + exception.getMessage());
+                exception.printStackTrace();
+            }
+            try {
+                content = (String) data.get("content");
+            } catch (NullPointerException exception) {
+                log.error("Exception IssueServlet. Message: " + exception.getMessage());
+                exception.printStackTrace();
+            }
+            try {
+                Handler<String, String> handler = new AttachmentsRequestHandler();
+                attachmentsHandleResponse = handler.handle(json);
+            } catch (Exception exception) {
+                log.error("Exception IssueServlet. Message: " + exception.getMessage());
+                exception.printStackTrace();
+            }
         }
 
         if (issueKey == null) {
@@ -110,60 +125,4 @@ public class IssueServlet extends HttpServlet {
         }
         return issue;
     }
-
-//    private MutableIssue addAttachments(MutableIssue issue, List<Map<String, String>> attachments) {
-//        for (Map<String, String> attachment : attachments) {
-//            addOneAttach(issue, attachment);
-//        }
-//        return issue;
-//    }
-//
-//    private void addOneAttach(MutableIssue issue, Map<String, String> data) {
-//        String filename = data.get("filename");
-//
-//        CreateAttachmentParamsBean bean = null;
-//        try {
-//            bean = new CreateAttachmentParamsBean(
-//                    downloadFileToDisk(data, issue),
-//                    filename,
-//                    null,
-//                    issue.getReporter(),
-//                    issue,
-//                    isZipFile(filename),
-//                    null,
-//                    null,
-//                    new Date(),
-//                    false
-//            );
-//        } catch (IOException e) {
-//            log.error("An exception thrown while file " + filename + "was loaded!");
-//        }
-//
-//        try {
-//            ComponentAccessor.getAttachmentManager().createAttachment(bean);
-//        } catch (AttachmentException e) {
-//            log.error("Adding Attachment error" + e.getMessage());
-//        }
-//    }
-//
-//    private File downloadFileToDisk(Map<String, String> data, MutableIssue issue) throws IOException {
-//        String attachmentsPath = ComponentAccessor.getAttachmentPathManager().getAttachmentPath();
-//
-//        String pathToFile = attachmentsPath + "\\" + issue.getProjectObject().getKey() + issue.getKey() + RandomStringUtils.randomAlphabetic(10);
-//        byte[] fileData = Base64.getDecoder().decode(data.get("content"));
-//
-//        File file = new File(pathToFile);
-//
-//        if(file.createNewFile()) {
-//            try(OutputStream stream = new FileOutputStream(pathToFile)){
-//                stream.write(fileData);
-//            }
-//        }
-//
-//        return file;
-//    }
-//
-//    private boolean isZipFile(String filename) {
-//        return false;
-//    }
 }

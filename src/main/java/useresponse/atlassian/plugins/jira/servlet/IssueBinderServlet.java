@@ -33,7 +33,7 @@ import java.util.HashMap;
 import useresponse.atlassian.plugins.jira.request.Request;
 import useresponse.atlassian.plugins.jira.service.SettingsService;
 import useresponse.atlassian.plugins.jira.service.handler.Handler;
-import useresponse.atlassian.plugins.jira.service.handler.servlet.binder.RequestHandler;
+import useresponse.atlassian.plugins.jira.service.handler.servlet.binder.IssueBinderServletRequestHandler;
 import useresponse.atlassian.plugins.jira.service.request.RequestBuilder;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestBuilder;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestParametersBuilder;
@@ -138,7 +138,7 @@ public class IssueBinderServlet extends HttpServlet {
             request.setUrl(pluginSettings.getUseResponseDomain() + Storage.API_STRING + Storage.JIRA_DATA_HANDLER_ROUTE + "?apiKey=" + pluginSettings.getUseResponseApiKey());
             String response = request.sendRequest();
 
-            Handler<String, String> handler = new RequestHandler(useResponseObjectManager, commentLinkManager);
+            Handler<String, String> handler = new IssueBinderServletRequestHandler(useResponseObjectManager, commentLinkManager);
             responseForUser = handler.handle(response);
             syncStatus = "1";
 

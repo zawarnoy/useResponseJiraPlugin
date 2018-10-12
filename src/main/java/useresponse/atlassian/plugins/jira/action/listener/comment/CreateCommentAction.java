@@ -7,7 +7,7 @@ import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
-import useresponse.atlassian.plugins.jira.service.handler.servlet.binder.RequestHandler;
+import useresponse.atlassian.plugins.jira.service.handler.servlet.binder.IssueBinderServletRequestHandler;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestBuilder;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class CreateCommentAction extends AbstractCommentAction {
 
     @Override
     public void handleResponse(String response) {
-        (new RequestHandler(useResponseObjectManager, commentLinkManager)).handle(response);
+        (new IssueBinderServletRequestHandler(useResponseObjectManager, commentLinkManager)).handle(response);
     }
 
     @Override

@@ -12,12 +12,12 @@ import useresponse.atlassian.plugins.jira.service.handler.Handler;
 
 import java.util.HashMap;
 
-public class RequestHandler implements Handler<String, String> {
+public class IssueBinderServletRequestHandler implements Handler<String, String> {
 
     private final UseResponseObjectManager useResponseObjectManager;
     private final CommentLinkManager commentLinkManager;
 
-    public RequestHandler(UseResponseObjectManager useResponseObjectManager, CommentLinkManager commentLinkManager) {
+    public IssueBinderServletRequestHandler(UseResponseObjectManager useResponseObjectManager, CommentLinkManager commentLinkManager) {
         this.useResponseObjectManager   = useResponseObjectManager;
         this.commentLinkManager         = commentLinkManager;
     }

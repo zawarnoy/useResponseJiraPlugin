@@ -17,13 +17,13 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class RequestHandler implements Handler<String, String> {
+public class CommentServletRequestHandler implements Handler<String, String> {
 
 
     private ApplicationUser loggedUser;
     private CommentLinkManager commentLinkManager;
 
-    public RequestHandler(ApplicationUser loggedUser, CommentLinkManager commentLinkManager) {
+    public CommentServletRequestHandler(ApplicationUser loggedUser, CommentLinkManager commentLinkManager) {
         this.loggedUser = loggedUser;
         this.commentLinkManager = commentLinkManager;
     }
