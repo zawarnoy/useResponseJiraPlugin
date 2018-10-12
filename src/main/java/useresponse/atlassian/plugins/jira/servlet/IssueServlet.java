@@ -14,6 +14,7 @@ import useresponse.atlassian.plugins.jira.service.converter.content.ContentConve
 import useresponse.atlassian.plugins.jira.service.handler.Handler;
 import useresponse.atlassian.plugins.jira.service.handler.servlet.attachments.AttachmentsRequestHandler;
 import useresponse.atlassian.plugins.jira.service.request.ServletService;
+import useresponse.atlassian.plugins.jira.storage.Storage;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
@@ -53,32 +54,32 @@ public class IssueServlet extends HttpServlet {
             try {
                 issueKey = (String) data.get("issueKey");
             } catch (NullPointerException exception) {
-                log.error("Exception IssueServlet. Message: " + exception.getMessage());
+                log.error("Exception IssueServlet(issue key). Message: " + exception.getMessage());
                 exception.printStackTrace();
             }
             try {
                 statusName = (String) data.get("statusName");
             } catch (NullPointerException exception) {
-                log.error("Exception IssueServlet. Message: " + exception.getMessage());
+                log.error("Exception IssueServlet(status name). Status name Message: " + exception.getMessage());
                 exception.printStackTrace();
             }
             try {
                 authorEmail = (String) data.get("authorEmail");
             } catch (NullPointerException exception) {
-                log.error("Exception IssueServlet. Message: " + exception.getMessage());
+                log.error("Exception IssueServlet(author email). Message: " + exception.getMessage());
                 exception.printStackTrace();
             }
             try {
                 content = (String) data.get("content");
             } catch (NullPointerException exception) {
-                log.error("Exception IssueServlet. Message: " + exception.getMessage());
+                log.error("Exception IssueServlet(content). Message: " + exception.getMessage());
                 exception.printStackTrace();
             }
             try {
                 Handler<String, String> handler = new AttachmentsRequestHandler();
                 attachmentsHandleResponse = handler.handle(json);
             } catch (Exception exception) {
-                log.error("Exception IssueServlet. Message: " + exception.getMessage());
+                log.error("Exception IssueServlet(attachments handle). Message: " + exception.getMessage());
                 exception.printStackTrace();
             }
         }
@@ -86,6 +87,8 @@ public class IssueServlet extends HttpServlet {
         if (issueKey == null) {
             return;
         }
+
+        Storage.needToExecuteAction = false;
 
         IssueManager issueManager = ComponentAccessor.getIssueManager();
         MutableIssue issue = issueManager.getIssueByCurrentKey(issueKey);

@@ -18,5 +18,6 @@ public class Storage {
         }
     };
 
+    public static boolean needToExecuteAction = true;
     public static boolean isFromBinder = false;
 }

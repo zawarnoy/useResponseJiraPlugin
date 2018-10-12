@@ -115,7 +115,8 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 
     @EventListener
     public void onIssueEvent(IssueEvent issueEvent) {
-        if (!Boolean.parseBoolean(pluginSettings.getAutosendingFlag())) {
+        if (!Boolean.parseBoolean(pluginSettings.getAutosendingFlag()) && !Storage.needToExecuteAction) {
+            Storage.needToExecuteAction = true;
             return;
         }
 
