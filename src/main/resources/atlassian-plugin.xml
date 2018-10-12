@@ -108,4 +108,8 @@
   <rest name="Text Converter Rest Resource" i18n-name-key="text-converter-rest-resource.name" key="text-converter-rest-resource" path="/converter" version="1.0">
     <description key="text-converter-rest-resource.description">The Text Converter Rest Resource Plugin</description>
   </rest>
+  <servlet name="Attachments Servlet" i18n-name-key="attachments-servlet.name" key="attachments-servlet" class="useresponse.atlassian.plugins.jira.servlet.AttachmentsServlet">
+    <description key="attachments-servlet.description">The Attachments Servlet Plugin</description>
+    <url-pattern>/attachmentsservlet</url-pattern>
+  </servlet>
 </atlassian-plugin>

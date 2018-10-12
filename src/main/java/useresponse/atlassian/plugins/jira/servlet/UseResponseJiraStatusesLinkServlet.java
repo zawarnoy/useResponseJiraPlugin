@@ -4,12 +4,17 @@ import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.DefaultPriorityManager;
 import com.atlassian.jira.config.DefaultStatusManager;
 import com.atlassian.jira.config.properties.APKeys;
+import com.atlassian.jira.config.util.JiraHome;
+import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueManager;
+import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
 import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.plugin.JiraPluginManager;
 import com.atlassian.jira.project.template.module.Icon;
+import com.atlassian.jira.util.PathUtils;
+import com.atlassian.jira.web.action.issue.util.BackwardCompatibleTemporaryAttachmentUtil;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.user.UserManager;
 import com.google.gson.Gson;
@@ -159,6 +164,17 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
 
         writer.write("<br>");
 
+//        writer.write("<h1>Path</h1>: ");
+
+//
+//        writer.write(ComponentAccessor.getApplicationProperties().getString(APKeys.JIRA_PATH_ATTACHMENTS) + "<br><br>");
+//        writer.write(ComponentAccessor.getComponentOfType(JiraHome.class).getHomePath() + "<br><br>");
+//        writer.write(ComponentAccessor.getAttachmentPathManager().getAttachmentPath() + "<br><br>");
+//
+//        MutableIssue issue = ComponentAccessor.getIssueManager().getIssueByCurrentKey("TEST-12");
+
+//        writer.write(issue.getProjectObject().getKey() + "<br>");
+//        writer.write(issue.getId().toString());
 
         writer.close();
     }

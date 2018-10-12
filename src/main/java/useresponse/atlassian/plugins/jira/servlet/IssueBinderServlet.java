@@ -128,8 +128,6 @@ public class IssueBinderServlet extends HttpServlet {
         String syncStatus;
 
         try {
-
-
             if (issue == null) {
                 throw new IssueNotExistException("Can't find issue with id " + issueId);
             }
