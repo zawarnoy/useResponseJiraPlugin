@@ -31,6 +31,7 @@ public class AttachmentsRequestHandler implements Handler<String, String> {
 
         String issueKey = null;
         MutableIssue issue = null;
+        HashMap<String, Object> response = new HashMap<>();
 
         try {
             issueKey = (String) data.get("issueKey");
@@ -39,17 +40,18 @@ public class AttachmentsRequestHandler implements Handler<String, String> {
                 String commentId = (String) data.get("comment_id");
                 issueKey = ComponentAccessor.getCommentManager().getCommentById(Long.valueOf(commentId)).getIssue().getKey();
             } catch (NullPointerException ex) {
-                return "";
+                response.put("status", "error");
+                response.put("message", "");
+                return (new Gson()).toJson(response);
             }
         }
 
         issue = ComponentAccessor.getIssueManager().getIssueByCurrentKey(issueKey);
         addAttachments(issue, (List<Map<String, String>>) data.get("attachments"));
 
-        return (new Gson()).toJson(
-                new HashMap<String, String>() {{
-                    put("status", "success");
-                }});
+        response.put("status", "success");
+
+        return (new Gson()).toJson(response);
     }
 
     private MutableIssue addAttachments(MutableIssue issue, List<Map<String, String>> attachments) {
