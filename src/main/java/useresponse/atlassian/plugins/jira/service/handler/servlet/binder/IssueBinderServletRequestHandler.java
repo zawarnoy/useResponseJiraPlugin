@@ -61,7 +61,8 @@ public class IssueBinderServletRequestHandler implements Handler<String, String>
         int use_response_id = Integer.valueOf((String.valueOf(issueData.get("use_response_id"))));
         String jiraKey = String.valueOf(issueData.get("jira_key"));
         String objectType = (String) issueData.get("object_type");
-        useResponseObjectManager.findOrAdd(use_response_id, ComponentAccessor.getIssueManager().getIssueObject(jiraKey).getId().intValue(), objectType);
+        boolean sync = "1".equals((String) issueData.get("sync"));
+        useResponseObjectManager.findOrAdd(use_response_id, ComponentAccessor.getIssueManager().getIssueObject(jiraKey).getId().intValue(), objectType, sync);
     }
 
     private void handleCommentsData(JSONArray commentsData) {

@@ -10,6 +10,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import useresponse.atlassian.plugins.jira.manager.IssueFileLinkManager;
 import useresponse.atlassian.plugins.jira.service.handler.Handler;
 
 import java.io.File;
@@ -23,6 +24,12 @@ import java.util.regex.Pattern;
 public class AttachmentsRequestHandler implements Handler<String, String> {
 
     private static final Logger log = LoggerFactory.getLogger(AttachmentsRequestHandler.class);
+
+    private IssueFileLinkManager fileLinkManager;
+
+    public void setFileLinkManager(IssueFileLinkManager fileLinkManager) {
+        this.fileLinkManager = fileLinkManager;
+    }
 
     @Override
     public String handle(String s) throws IOException, ParseException {
@@ -55,6 +62,10 @@ public class AttachmentsRequestHandler implements Handler<String, String> {
     }
 
     private MutableIssue addAttachments(MutableIssue issue, List<Map<String, String>> attachments) {
+        if(attachments == null) {
+            log.error("Attachments array is empty!");
+            return issue;
+        }
         for (Map<String, String> attachment : attachments) {
             addOneAttachment(issue, attachment);
         }
@@ -80,10 +91,10 @@ public class AttachmentsRequestHandler implements Handler<String, String> {
             );
         } catch (IOException e) {
             log.error("An exception thrown while file " + filename + "was loaded!");
-        }
-
-        try {
+        }ы
+                4авыа
             ComponentAccessor.getAttachmentManager().createAttachment(bean);
+            fileLinkManager.add(issue.getId().intValue(), filename);
         } catch (AttachmentException e) {
             log.error("Adding Attachment error" + e.getMessage());
         }

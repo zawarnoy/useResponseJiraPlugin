@@ -11,11 +11,7 @@ public class AttachmentService {
 
     public static List<Integer> findDeleted() {
         List<Integer> result = new ArrayList<>();
-
         AttachmentManager attachmentManager = ComponentAccessor.getAttachmentManager();
-
-
         return result;
     }
-
 }

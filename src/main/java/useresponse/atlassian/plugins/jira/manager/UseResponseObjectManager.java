@@ -8,9 +8,9 @@ import java.util.List;
 @Transactional
 public interface UseResponseObjectManager {
 
-    UseResponseObject add(int useResponseId, int jiraId, String type);
+    UseResponseObject add(int useResponseId, int jiraId, String type, boolean sync);
 
-    UseResponseObject findOrAdd(int useResponseId, int jiraId, String type);
+    UseResponseObject findOrAdd(int useResponseId, int jiraId, String type, boolean sync);
 
     UseResponseObject findByUseResponseId(int useResponseId);
 
