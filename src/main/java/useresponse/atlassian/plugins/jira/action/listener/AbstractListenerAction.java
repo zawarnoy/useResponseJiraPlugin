@@ -76,7 +76,6 @@ public abstract class AbstractListenerAction implements Action {
     /**
      * For creating via jira in Useresponse system
      *
-     * @return
      */
     protected String getSpecialApiPath() {
         PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);

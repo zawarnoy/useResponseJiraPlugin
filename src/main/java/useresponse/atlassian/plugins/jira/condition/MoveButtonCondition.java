@@ -28,12 +28,11 @@ public class MoveButtonCondition extends AbstractWebCondition {
 
     @Override
     public boolean shouldDisplay(ApplicationUser applicationUser, JiraHelper jiraHelper) {
-        PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
         Issue currentIssue = (Issue) jiraHelper.getContextParams().get("issue");
         return
                 SettingsService.testURConnection(pluginSettingsFactory) &&
-                        (!isLinkExists(currentIssue) || objectManager.findByJiraId(currentIssue.getId().intValue()).getObjectType().equals("ticket")) &&
-                        (!isLinkExists(currentIssue) || !Boolean.parseBoolean(pluginSettings.getAutosendingFlag()));
+                        (!isLinkExists(currentIssue) && objectManager.findByJiraId(currentIssue.getId().intValue()).getObjectType().equals("ticket")) &&
+                        (!isLinkExists(currentIssue) && objectManager.findByJiraId(currentIssue.getId().intValue()).getNeedOfSync());
     }
 
     private boolean isLinkExists(Issue issue) {

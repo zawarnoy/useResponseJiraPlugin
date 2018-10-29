@@ -116,7 +116,7 @@ public class UseResponseSettingServlet extends HttpServlet {
         context.put("useResponsePriorities", prioritiesService.getUseResponsePriorities());
         context.put("baseUrl", applicationProperties.getBaseUrl(UrlMode.ABSOLUTE));
         context.put("useResponseStatuses", statuses);
-        context.put("autosending", pluginSettings.getAutosendingFlag() != null && Boolean.parseBoolean(pluginSettings.getAutosendingFlag()));
+//        context.put("autosending", pluginSettings.getAutosendingFlag() != null && Boolean.parseBoolean(pluginSettings.getAutosendingFlag()));
 
         response.setContentType("text/html");
         templateRenderer.render(SETTINGS_TEMPLATE, context, response.getWriter());

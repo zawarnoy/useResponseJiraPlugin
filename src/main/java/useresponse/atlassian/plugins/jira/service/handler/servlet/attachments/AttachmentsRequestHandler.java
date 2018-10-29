@@ -91,10 +91,9 @@ public class AttachmentsRequestHandler implements Handler<String, String> {
             );
         } catch (IOException e) {
             log.error("An exception thrown while file " + filename + "was loaded!");
-        }ы
-                4авыа
+        }
+        try {
             ComponentAccessor.getAttachmentManager().createAttachment(bean);
-            fileLinkManager.add(issue.getId().intValue(), filename);
         } catch (AttachmentException e) {
             log.error("Adding Attachment error" + e.getMessage());
         }

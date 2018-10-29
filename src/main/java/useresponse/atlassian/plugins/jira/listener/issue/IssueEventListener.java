@@ -32,6 +32,7 @@ import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.manager.impl.*;
 import com.atlassian.activeobjects.external.ActiveObjects;
 import useresponse.atlassian.plugins.jira.model.CommentLink;
+import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 import useresponse.atlassian.plugins.jira.service.CommentsService;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestBuilder;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestParametersBuilder;
@@ -115,13 +116,21 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 
     @EventListener
     public void onIssueEvent(IssueEvent issueEvent) {
-        if (!Boolean.parseBoolean(pluginSettings.getAutosendingFlag()) && !Storage.needToExecuteAction) {
+
+        UseResponseObject object = useResponseObjectManager.findByJiraId(issueEvent.getIssue().getId().intValue());
+
+        boolean needOfSync = object.getNeedOfSync();
+        boolean isTicket = "ticket".equals(object.getObjectType());
+
+        if(!isTicket) {
+            return;
+        }
+
+        if (!Boolean.parseBoolean(pluginSettings.getAutosendingFlag()) && !Storage.needToExecuteAction && !needOfSync) {
             Storage.needToExecuteAction = true;
             return;
         }
 
-        log.error("here!");
-        
         Storage.isFromBinder = false;
 
         try {

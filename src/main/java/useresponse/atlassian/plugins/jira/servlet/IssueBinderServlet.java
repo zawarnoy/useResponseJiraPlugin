@@ -125,8 +125,6 @@ public class IssueBinderServlet extends HttpServlet {
         int issueId = Integer.parseInt(req.getParameter("issue_id"));
         Issue issue = issueManager.getIssueObject(Long.valueOf(issueId));
 
-        String syncStatus;
-
         try {
             if (issue == null) {
                 throw new IssueNotExistException("Can't find issue with id " + issueId);
@@ -140,7 +138,6 @@ public class IssueBinderServlet extends HttpServlet {
 
             Handler<String, String> handler = new IssueBinderServletRequestHandler(useResponseObjectManager, commentLinkManager);
             responseForUser = handler.handle(response);
-            syncStatus = "1";
 
         } catch (
                 InvalidResponseException |
@@ -153,42 +150,15 @@ public class IssueBinderServlet extends HttpServlet {
                         ConnectException e) {
             e.printStackTrace();
             responseForUser = handleException(e);
-            syncStatus = "0";
         }
 
         if (req.getHeader("x-requested-with") == null) {
-            resp.sendRedirect(ComponentAccessor.getApplicationProperties().getString(APKeys.JIRA_BASEURL) + "/browse/" + issue.getKey() + "?sync_status=" + syncStatus);
+            resp.sendRedirect(ComponentAccessor.getApplicationProperties().getString(APKeys.JIRA_BASEURL) + "/browse/" + issue.getKey());
         }
 
         if (responseForUser != null) {
             resp.getWriter().write(responseForUser);
         }
-    }
-
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-        String responseForUser = null;
-
-        PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
-
-        try {
-            if (pluginSettings.getUseResponseDomain().equals(request.getParameter("apiKey"))) {
-                throw new ConnectionException("Invalid apiKey!");
-            }
-
-            responseForUser = "kek";
-
-            //Todo receive data from ur
-
-
-        } catch (ConnectionException e) {
-            responseForUser = handleException(e);
-        }
-
-
-        response.getWriter().write(responseForUser);
-
     }
 
     private String handleException(Exception e) {
