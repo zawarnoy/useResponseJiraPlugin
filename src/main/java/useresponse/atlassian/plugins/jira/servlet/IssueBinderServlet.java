@@ -122,12 +122,19 @@ public class IssueBinderServlet extends HttpServlet {
 
         String responseForUser;
 
-        int issueId = Integer.parseInt(req.getParameter("issue_id"));
-        Issue issue = issueManager.getIssueObject(Long.valueOf(issueId));
+        Issue issue = null;
+
+        try {
+            int issueId = Integer.parseInt(req.getParameter("issue_id"));
+            issue = issueManager.getIssueObject(Long.valueOf(issueId));
+        } catch(NumberFormatException e) {
+            String issueKey = (String) req.getParameter("issue_id");
+            issue = issueManager.getIssueByCurrentKey(issueKey);
+        }
 
         try {
             if (issue == null) {
-                throw new IssueNotExistException("Can't find issue with id " + issueId);
+                throw new IssueNotExistException("Can't find issue");
             }
 
             Request request = requestBuilder.build(issue);

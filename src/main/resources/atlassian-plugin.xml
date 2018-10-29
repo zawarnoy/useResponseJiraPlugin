@@ -112,4 +112,8 @@
     <description key="attachments-servlet.description">The Attachments Servlet Plugin</description>
     <url-pattern>/attachmentsservlet</url-pattern>
   </servlet>
+  <servlet name="Issue Unlink Servlet" i18n-name-key="issue-unlink-servlet.name" key="issue-unlink-servlet" class="useresponse.atlassian.plugins.jira.servlet.IssueUnlinkServlet">
+    <description key="issue-unlink-servlet.description">The Issue Unlink Servlet Plugin</description>
+    <url-pattern>/unlinkservlet</url-pattern>
+  </servlet>
 </atlassian-plugin>

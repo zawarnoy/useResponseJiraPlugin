@@ -50,7 +50,8 @@ public class UseResponseObjectManagerImpl implements UseResponseObjectManager {
 
     @Override
     public UseResponseObject findByUseResponseId(int useResponseId) {
-        return null;
+        UseResponseObject[] objects = ao.find(UseResponseObject.class, Query.select().where("use_response_id = ?", String.valueOf(useResponseId)));
+        return objects.length > 0 ? objects[0] : null;
     }
 
     @Override
