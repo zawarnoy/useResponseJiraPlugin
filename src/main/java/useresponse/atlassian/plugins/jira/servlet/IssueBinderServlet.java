@@ -10,12 +10,8 @@ import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.user.UserManager;
 import com.google.gson.Gson;
-import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
-import useresponse.atlassian.plugins.jira.exception.ConnectionException;
-import useresponse.atlassian.plugins.jira.exception.InvalidResponseException;
 import useresponse.atlassian.plugins.jira.exception.IssueNotExistException;
-import useresponse.atlassian.plugins.jira.exception.UndefinedUrlException;
 import useresponse.atlassian.plugins.jira.manager.impl.*;
 
 import javax.inject.Inject;
@@ -24,10 +20,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.ConnectException;
-import java.net.UnknownHostException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 
 import useresponse.atlassian.plugins.jira.request.Request;
@@ -146,15 +138,7 @@ public class IssueBinderServlet extends HttpServlet {
             Handler<String, String> handler = new IssueBinderServletRequestHandler(useResponseObjectManager, commentLinkManager);
             responseForUser = handler.handle(response);
 
-        } catch (
-                InvalidResponseException |
-                        NoSuchAlgorithmException |
-                        KeyManagementException |
-                        UndefinedUrlException |
-                        IssueNotExistException |
-                        ParseException |
-                        UnknownHostException |
-                        ConnectException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             responseForUser = handleException(e);
         }

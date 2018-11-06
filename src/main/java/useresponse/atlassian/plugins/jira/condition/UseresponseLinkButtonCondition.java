@@ -18,7 +18,7 @@ public class UseresponseLinkButtonCondition extends AbstractWebCondition {
     public boolean shouldDisplay(ApplicationUser applicationUser, JiraHelper jiraHelper) {
         Issue currentIssue = (Issue)jiraHelper.getContextParams().get("issue");
         UseResponseObject object = objectManager.findByJiraId(currentIssue.getId().intValue());
-        if(object == null && !(object.getObjectType().equals("ticket"))) {
+        if(object == null) {
             return false;
         }
         return true;

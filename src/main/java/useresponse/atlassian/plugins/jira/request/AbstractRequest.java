@@ -1,7 +1,10 @@
 package useresponse.atlassian.plugins.jira.request;
 
 
+import com.atlassian.jira.event.issue.IssueEvent;
 import com.google.gson.Gson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.exception.InvalidResponseException;
 import useresponse.atlassian.plugins.jira.exception.UndefinedUrlException;
 
@@ -19,6 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class AbstractRequest implements Request {
+
+    private static final Logger log = LoggerFactory.getLogger(AbstractRequest.class);
 
     private static final int REQUEST_TIMEOUT = 15000;
     private static boolean sslConfigured = false;
@@ -108,6 +113,7 @@ public abstract class AbstractRequest implements Request {
         }
 
         if (responseCode == 0 || responseCode >= 300) {
+            log.error("URL: " + this.url);
             throw new InvalidResponseException(responseMessage);
         }
 

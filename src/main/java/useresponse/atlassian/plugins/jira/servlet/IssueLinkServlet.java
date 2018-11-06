@@ -3,6 +3,7 @@ package useresponse.atlassian.plugins.jira.servlet;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
+import useresponse.atlassian.plugins.jira.exception.MissingParameterException;
 import useresponse.atlassian.plugins.jira.manager.impl.UseResponseObjectManagerImpl;
 import useresponse.atlassian.plugins.jira.service.request.ServletService;
 
@@ -31,20 +32,35 @@ public class IssueLinkServlet extends HttpServlet {
         String objectType = (String) data.get("object_type");
         Boolean sync = (Boolean) data.get("sync");
 
-        if (useresponseId == null && jiraKey == null && objectType == null && sync == null) {
-            return;
-        }
-
-        int parsedId = Integer.valueOf(useresponseId);
-        int issueId = ComponentAccessor.getIssueManager().getIssueByCurrentKey(jiraKey).getId().intValue();
-
         Map<String, String> responseMap = new HashMap<>();
 
-        responseMap.put("status", "success");
+//        ComponentAccessor.getUserManager().getUserByName();
+
+        try {
+            if (useresponseId == null) {
+                throw new MissingParameterException("useresponse_id");
+            }
+            if (jiraKey == null) {
+                throw new MissingParameterException("jira_key");
+            }
+            if (objectType == null) {
+                throw new MissingParameterException("object_type");
+            }
+            if (sync == null) {
+                throw new MissingParameterException("sync");
+            }
+
+            int parsedId = Integer.valueOf(useresponseId);
+            int issueId = ComponentAccessor.getIssueManager().getIssueByCurrentKey(jiraKey).getId().intValue();
+            useResponseObjectManager.findOrAdd(parsedId, issueId, objectType, sync);
+
+            responseMap.put("status", "success");
+        } catch (MissingParameterException e) {
+            responseMap.put("status", "error");
+            responseMap.put("message", e.getMessage());
+        }
 
         String response = (new Gson()).toJson(responseMap);
-
-        useResponseObjectManager.findOrAdd(parsedId, issueId, objectType, sync);
         resp.getWriter().write(response);
     }
 

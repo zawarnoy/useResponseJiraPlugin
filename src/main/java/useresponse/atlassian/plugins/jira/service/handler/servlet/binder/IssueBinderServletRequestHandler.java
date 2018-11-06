@@ -2,17 +2,24 @@ package useresponse.atlassian.plugins.jira.service.handler.servlet.binder;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.service.handler.Handler;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class IssueBinderServletRequestHandler implements Handler<String, String> {
+
+    Logger log = LoggerFactory.getLogger(IssueBinderServletRequestHandler.class);
 
     private final UseResponseObjectManager useResponseObjectManager;
     private final CommentLinkManager commentLinkManager;
@@ -29,54 +36,52 @@ public class IssueBinderServletRequestHandler implements Handler<String, String>
 
         try {
 
-            JSONParser parser = new JSONParser();
-            JSONObject object = (JSONObject) parser.parse(response);
-            JSONObject data = (JSONObject) object.get("success");
+            log.error(response);
+
+            Map decodedResponse = (new Gson()).fromJson(response, Map.class);
+
+            Map data = (Map) decodedResponse.get("success");
 
             if (useResponseObjectManager != null) {
-                JSONObject issueData = (JSONObject) data.get("issue");
+                Map issueData = (Map) data.get("issue");
                 if (issueData != null) {
                     handleIssueData(issueData);
                 }
             }
 
             if (commentLinkManager != null) {
-                JSONArray commentsData = (JSONArray) data.get("comments");
+                List<Map> commentsData = (List) data.get("comments");
                 if (commentsData != null) {
                     handleCommentsData(commentsData);
                 }
             }
-
-
-            responseForUser = generateResponseForUser();
-        } catch (ParseException e) {
-            responseForUser = generateExceptionResponse();
+        } catch (Exception e) {
             e.printStackTrace();
+            log.error("Exception: " + e.getMessage());
         }
+
+        responseForUser = generateResponseForUser();
 
         return responseForUser;
     }
 
-    private void handleIssueData(JSONObject issueData) {
+    private void handleIssueData(Map issueData) {
         int use_response_id = Integer.valueOf((String.valueOf(issueData.get("use_response_id"))));
         String jiraKey = String.valueOf(issueData.get("jira_key"));
         String objectType = (String) issueData.get("object_type");
         boolean sync = "1".equals((String) issueData.get("sync"));
-        useResponseObjectManager.findOrAdd(use_response_id, ComponentAccessor.getIssueManager().getIssueObject(jiraKey).getId().intValue(), objectType, false);
+        useResponseObjectManager.findOrAdd(use_response_id, ComponentAccessor.getIssueManager().getIssueObject(jiraKey).getId().intValue(), objectType, sync);
     }
 
-    private void handleCommentsData(JSONArray commentsData) {
-        for (int i = 0; i < commentsData.size(); i++) {
-            JSONObject object =  (JSONObject) commentsData.get(i);
-            if(object != null){
-                handleOneCommentData(object);
-            }
+    private void handleCommentsData(List<Map> commentsData) {
+        for(Map commentData : commentsData) {
+            handleOneCommentData(commentData);
         }
     }
 
-    private void handleOneCommentData(JSONObject commentData) {
-        int use_response_comment_id = Integer.valueOf((String.valueOf(commentData.get("use_response_comment_id"))));
-        int jira_comment_id = Integer.valueOf((String.valueOf(commentData.get("jira_comment_id"))));
+    private void handleOneCommentData(Map commentData) {
+        int use_response_comment_id = Double.valueOf((String) commentData.get("use_response_comment_id")).intValue();
+        int jira_comment_id = Double.valueOf((Double) commentData.get("jira_comment_id")).intValue();
         int issueId = ComponentAccessor.getCommentManager().getCommentById(Long.parseLong(String.valueOf(jira_comment_id))).getIssue().getId().intValue();
         commentLinkManager.findOrAdd(use_response_comment_id, jira_comment_id, issueId);
     }

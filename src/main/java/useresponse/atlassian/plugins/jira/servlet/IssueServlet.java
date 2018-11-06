@@ -10,6 +10,9 @@ import com.atlassian.jira.user.UserUtils;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
+import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 import useresponse.atlassian.plugins.jira.service.converter.content.ContentConverter;
 import useresponse.atlassian.plugins.jira.service.handler.Handler;
 import useresponse.atlassian.plugins.jira.service.handler.servlet.attachments.AttachmentsRequestHandler;
@@ -26,6 +29,9 @@ import java.util.Map;
 public class IssueServlet extends HttpServlet {
 
     Logger log = LoggerFactory.getLogger(IssueServlet.class);
+
+    @Autowired
+    private UseResponseObjectManager objectManager;
 
     public IssueServlet() {
 
@@ -76,8 +82,8 @@ public class IssueServlet extends HttpServlet {
                 exception.printStackTrace();
             }
             try {
-                Handler<String, String> handler = new AttachmentsRequestHandler();
-                attachmentsHandleResponse = handler.handle(json);
+                Handler<String, String> attachmentsRequestHandler = new AttachmentsRequestHandler();
+                attachmentsHandleResponse = attachmentsRequestHandler.handle(json);
             } catch (Exception exception) {
                 log.error("Exception Issue Servlet (attachments handle). Message: " + exception.getMessage());
                 exception.printStackTrace();
@@ -88,10 +94,22 @@ public class IssueServlet extends HttpServlet {
             return;
         }
 
+
+
         Storage.needToExecuteAction = false;
 
         IssueManager issueManager = ComponentAccessor.getIssueManager();
         MutableIssue issue = issueManager.getIssueByCurrentKey(issueKey);
+
+        UseResponseObject useResponseObject = objectManager.findByJiraId(issue.getId().intValue());
+
+        String objectType = (String) data.get("object_type");
+
+        if(objectType != null) {
+            useResponseObject.setObjectType(objectType);
+            useResponseObject.save();
+        }
+
 
         issue = setDescription(issue, content);
         issue = setStatusByStatusName(issue, statusName);

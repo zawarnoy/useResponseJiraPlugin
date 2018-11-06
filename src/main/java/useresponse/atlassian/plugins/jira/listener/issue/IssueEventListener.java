@@ -119,18 +119,19 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 
         UseResponseObject object = useResponseObjectManager.findByJiraId(issueEvent.getIssue().getId().intValue());
 
-        boolean needOfSync = object.getNeedOfSync();
-        boolean isTicket = "ticket".equals(object.getObjectType());
-
-        if(!isTicket) {
+        if(object == null) {
             return;
         }
 
-        if (!Boolean.parseBoolean(pluginSettings.getAutosendingFlag()) && !Storage.needToExecuteAction && !needOfSync) {
+        boolean needOfSync = object.getNeedOfSync();
+        boolean isTicket = "ticket".equals(object.getObjectType());
+
+        if (!(Storage.needToExecuteAction && needOfSync && isTicket)) {
             Storage.needToExecuteAction = true;
             return;
         }
 
+        // various content processing for different sources
         Storage.isFromBinder = false;
 
         try {
@@ -192,6 +193,9 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
             action = commentActionFactory.createAction(DeleteIssueAction.class);
         } else if (typeId.equals(EventType.ISSUE_COMMENT_DELETED_ID)) {
             Integer deletedCommentId = CommentsService.getDeletedCommentId(issueEvent.getIssue(), commentLinkManager);
+            if(deletedCommentId == null) {
+                action = null;
+            }
             commentActionFactory.setEntity(() -> (long) deletedCommentId);
             action = commentActionFactory.createAction(DeleteCommentAction.class);
         } else {

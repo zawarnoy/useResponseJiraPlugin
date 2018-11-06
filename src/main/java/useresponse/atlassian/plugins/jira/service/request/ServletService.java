@@ -17,7 +17,6 @@ public class ServletService {
         while ((bufer = br.readLine()) != null) {
             data.append(bufer);
         }
-
         return data.toString();
     }
 }
