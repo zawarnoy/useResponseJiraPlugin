@@ -119,17 +119,19 @@ public class IssueBinderServlet extends HttpServlet {
         try {
             int issueId = Integer.parseInt(req.getParameter("issue_id"));
             issue = issueManager.getIssueObject(Long.valueOf(issueId));
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             String issueKey = (String) req.getParameter("issue_id");
             issue = issueManager.getIssueByCurrentKey(issueKey);
         }
+
+        int syncStatus = Integer.parseInt(req.getParameter("sync"));
 
         try {
             if (issue == null) {
                 throw new IssueNotExistException("Can't find issue");
             }
 
-            Request request = requestBuilder.build(issue);
+            Request request = requestBuilder.build(issue, syncStatus);
             PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
 
             request.setUrl(pluginSettings.getUseResponseDomain() + Storage.API_STRING + Storage.JIRA_DATA_HANDLER_ROUTE + "?apiKey=" + pluginSettings.getUseResponseApiKey());

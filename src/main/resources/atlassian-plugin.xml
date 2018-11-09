@@ -66,7 +66,7 @@
   <web-item name="useResponselinkbutton.label" i18n-name-key="useResponselinkbutton.name" key="useResponselinkbutton" section="transitions-all" weight="1000">
     <description key="useResponselinkbutton.description">The UseResponse link button</description>
     <label key="useResponselinkbutton.label"/>
-    <link linkId="useResponselinkbutton">/plugins/servlet/urbinder?issue_id=$issue.id&amp;atl_token=${atl_token}</link>
+    <link linkId="useResponselinkbutton">/plugins/servlet/urbinder?issue_id=$issue.id&amp;sync=1&amp;atl_token=${atl_token}</link>
     <condition class="useresponse.atlassian.plugins.jira.condition.MoveButtonCondition"/>
     <component-import key="resources"/>
   </web-item>

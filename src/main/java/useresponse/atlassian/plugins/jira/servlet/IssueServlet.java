@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.model.UseResponseObject;
+import useresponse.atlassian.plugins.jira.service.IssueService;
 import useresponse.atlassian.plugins.jira.service.converter.content.ContentConverter;
 import useresponse.atlassian.plugins.jira.service.handler.Handler;
 import useresponse.atlassian.plugins.jira.service.handler.servlet.attachments.AttachmentsRequestHandler;
@@ -48,6 +49,7 @@ public class IssueServlet extends HttpServlet {
         String authorEmail = null;
         String content = null;
         String attachmentsHandleResponse = null;
+        String assigneeEmail = null;
 
         String json = ServletService.getJsonFromRequest(req);
 
@@ -82,6 +84,12 @@ public class IssueServlet extends HttpServlet {
                 exception.printStackTrace();
             }
             try {
+                assigneeEmail = (String) data.get("responsibleEmail");
+            } catch (NullPointerException exception) {
+                log.error("Exception IssueServlet(responsible). Message: " + exception.getMessage());
+                exception.printStackTrace();
+            }
+            try {
                 Handler<String, String> attachmentsRequestHandler = new AttachmentsRequestHandler();
                 attachmentsHandleResponse = attachmentsRequestHandler.handle(json);
             } catch (Exception exception) {
@@ -93,8 +101,6 @@ public class IssueServlet extends HttpServlet {
         if (issueKey == null) {
             return;
         }
-
-
 
         Storage.needToExecuteAction = false;
 
@@ -110,40 +116,10 @@ public class IssueServlet extends HttpServlet {
             useResponseObject.save();
         }
 
-
-        issue = setDescription(issue, content);
-        issue = setStatusByStatusName(issue, statusName);
-        issue = setReporterByEmail(issue, authorEmail);
+        issue = IssueService.setDescription(issue, content);
+        issue = IssueService.setStatusByStatusName(issue, statusName);
+        issue = IssueService.setReporterByEmail(issue, authorEmail);
+        issue = IssueService.setAssigneeByEmail(issue, assigneeEmail);
         issue.store();
-    }
-
-    private MutableIssue setStatusByStatusName(MutableIssue issue, String statusName) {
-        if (statusName != null) {
-            DefaultStatusManager statusManager = ComponentAccessor.getComponent(DefaultStatusManager.class);
-            for (Status status : statusManager.getStatuses()) {
-                if (status.getSimpleStatus().getName().equals(statusName)) {
-                    issue.setStatus(status);
-                    break;
-                }
-            }
-        }
-        return issue;
-    }
-
-    private MutableIssue setDescription(MutableIssue issue, String content) {
-        if (content != null) {
-            content = ContentConverter.convertForJira(content, issue);
-            issue.setDescription(content);
-        }
-        return issue;
-    }
-
-    private MutableIssue setReporterByEmail(MutableIssue issue, String reporterEmail) {
-        if (reporterEmail != null) {
-            ApplicationUser user = UserUtils.getUserByEmail(reporterEmail);
-
-            issue.setReporter(user);
-        }
-        return issue;
     }
 }

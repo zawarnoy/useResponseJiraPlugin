@@ -130,7 +130,7 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
 
     private Map<Object, Object> addReporterToMap(Map<Object, Object> map, Issue issue) {
         if (issue.getReporterUser() != null) {
-            map.put("force_author", issue.getReporterUser().getEmailAddress());
+            map.put("force_author", issue.getReporter().getEmailAddress());
         }
         return map;
     }
