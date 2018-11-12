@@ -66,14 +66,14 @@ public class IssueLinkServlet extends HttpServlet {
             int parsedId = Integer.valueOf(useresponseId);
 
             UserDetails userDetails = (new UserDetails(responsibleEmail, responsibleEmail).withEmail(responsibleEmail));
-            try {
-                ComponentAccessor.getUserManager().createUser(userDetails);
-            } catch (CreateException | PermissionException e) {
-                e.printStackTrace();
-            }
 
-            if (!(responsibleEmail == null && responsibleEmail.equals(""))) {
-                issue = IssueService.setAssigneeByEmail(issue, responsibleEmail);
+            if (responsibleEmail.equals("")) {
+                try {
+                    ComponentAccessor.getUserManager().createUser(userDetails);
+                    issue = IssueService.setAssigneeByEmail(issue, responsibleEmail);
+                } catch (CreateException | PermissionException e) {
+                    e.printStackTrace();
+                }
             }
 
             int issueId = issue.getId().intValue();
