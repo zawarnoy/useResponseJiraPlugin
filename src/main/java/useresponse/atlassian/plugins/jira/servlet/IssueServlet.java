@@ -116,6 +116,8 @@ public class IssueServlet extends HttpServlet {
             useResponseObject.save();
         }
 
+
+
         issue = IssueService.setDescription(issue, content);
         issue = IssueService.setStatusByStatusName(issue, statusName);
         issue = IssueService.setReporterByEmail(issue, authorEmail);

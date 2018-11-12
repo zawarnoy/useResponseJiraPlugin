@@ -65,16 +65,7 @@ public class IssueLinkServlet extends HttpServlet {
 
             int parsedId = Integer.valueOf(useresponseId);
 
-            UserDetails userDetails = (new UserDetails(responsibleEmail, responsibleEmail).withEmail(responsibleEmail));
-
-            if (responsibleEmail.equals("")) {
-                try {
-                    ComponentAccessor.getUserManager().createUser(userDetails);
-                    issue = IssueService.setAssigneeByEmail(issue, responsibleEmail);
-                } catch (CreateException | PermissionException e) {
-                    e.printStackTrace();
-                }
-            }
+            issue = IssueService.setAssigneeByEmail(issue, responsibleEmail);
 
             int issueId = issue.getId().intValue();
             useResponseObjectManager.findOrAdd(parsedId, issueId, objectType, sync);

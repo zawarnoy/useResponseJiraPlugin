@@ -2,9 +2,12 @@ package useresponse.atlassian.plugins.jira.service;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.DefaultStatusManager;
+import com.atlassian.jira.exception.CreateException;
+import com.atlassian.jira.exception.PermissionException;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.user.UserDetails;
 import com.atlassian.jira.user.UserUtils;
 import useresponse.atlassian.plugins.jira.service.converter.content.ContentConverter;
 
@@ -40,12 +43,16 @@ public class IssueService {
     }
 
     public static MutableIssue setAssigneeByEmail(MutableIssue issue, String assigneeEmail) {
-        if(assigneeEmail != null) {
-            ApplicationUser user = UserUtils.getUserByEmail(assigneeEmail);
-            issue.setAssignee(user);
+        if (!assigneeEmail.equals("")) {
+            try {
+                UserDetails userDetails = (new UserDetails(assigneeEmail, assigneeEmail).withEmail(assigneeEmail));
+                ComponentAccessor.getUserManager().createUser(userDetails);
+                ApplicationUser user = UserUtils.getUserByEmail(assigneeEmail);
+                issue.setAssignee(user);
+            } catch (CreateException | PermissionException e) {
+                e.printStackTrace();
+            }
         }
-
         return issue;
     }
-
 }
