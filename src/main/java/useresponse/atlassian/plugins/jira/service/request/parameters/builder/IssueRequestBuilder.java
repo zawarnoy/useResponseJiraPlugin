@@ -35,6 +35,7 @@ public class IssueRequestBuilder {
                 addStandardParametersToMap(issue).
                 addOwnershipToMap().
                 addObjectTypeToMap().
+                addStatusToMap(issue).
                 addCreatedAt(issue).
                 addAuthorToRequest(issue).
                 addAddAction();
