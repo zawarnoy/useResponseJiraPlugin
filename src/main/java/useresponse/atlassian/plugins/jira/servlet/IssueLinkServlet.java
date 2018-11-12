@@ -7,6 +7,8 @@ import com.atlassian.jira.exception.PermissionException;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.user.UserDetails;
 import com.google.gson.Gson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.exception.MissingParameterException;
 import useresponse.atlassian.plugins.jira.manager.impl.UseResponseObjectManagerImpl;
@@ -23,6 +25,8 @@ import java.util.Map;
 
 public class IssueLinkServlet extends HttpServlet {
 
+    Logger log = LoggerFactory.getLogger(IssueLinkServlet.class);
+
     @Autowired
     private UseResponseObjectManagerImpl useResponseObjectManager;
 
@@ -30,6 +34,8 @@ public class IssueLinkServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
         String json = ServletService.getJsonFromRequest(req);
+
+        log.error(json);
 
         Map<String, Object> data = (new Gson()).fromJson(json, Map.class);
 
@@ -66,7 +72,7 @@ public class IssueLinkServlet extends HttpServlet {
                 e.printStackTrace();
             }
 
-            if (responsibleEmail != null) {
+            if (!(responsibleEmail == null && responsibleEmail.equals(""))) {
                 issue = IssueService.setAssigneeByEmail(issue, responsibleEmail);
             }
 
