@@ -14,7 +14,8 @@ public class IssueRequestBuilder {
 
     /**
      * @param builder
-     * @param objectManager Builds request map for issue
+     * @param objectManager
+     * Builds request map for issue
      */
     public IssueRequestBuilder(IssueRequestParametersBuilder builder, UseResponseObjectManager objectManager) {
         this.builder = builder;

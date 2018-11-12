@@ -2,7 +2,10 @@ package useresponse.atlassian.plugins.jira.servlet;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.event.type.EventDispatchOption;
+import com.atlassian.jira.exception.CreateException;
+import com.atlassian.jira.exception.PermissionException;
 import com.atlassian.jira.issue.MutableIssue;
+import com.atlassian.jira.user.UserDetails;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.exception.MissingParameterException;
@@ -38,8 +41,6 @@ public class IssueLinkServlet extends HttpServlet {
 
         Map<String, String> responseMap = new HashMap<>();
 
-//        ComponentAccessor.getUserManager().getUserByName();
-
         try {
             if (useresponseId == null) {
                 throw new MissingParameterException("useresponse_id");
@@ -57,6 +58,13 @@ public class IssueLinkServlet extends HttpServlet {
             MutableIssue issue = ComponentAccessor.getIssueManager().getIssueByCurrentKey(jiraKey);
 
             int parsedId = Integer.valueOf(useresponseId);
+
+            UserDetails userDetails = (new UserDetails(responsibleEmail, responsibleEmail).withEmail(responsibleEmail));
+            try {
+                ComponentAccessor.getUserManager().createUser(userDetails);
+            } catch (CreateException | PermissionException e) {
+                e.printStackTrace();
+            }
 
             if (responsibleEmail != null) {
                 issue = IssueService.setAssigneeByEmail(issue, responsibleEmail);
