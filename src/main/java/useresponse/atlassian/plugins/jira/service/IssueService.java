@@ -35,9 +35,12 @@ public class IssueService {
     }
 
     public static MutableIssue setReporterByEmail(MutableIssue issue, String reporterEmail) {
-        if (reporterEmail != null) {
-            ApplicationUser user = UserUtils.getUserByEmail(reporterEmail);
-            issue.setReporter(user);
+        if (!reporterEmail.equals("")) {
+            try {
+                issue.setReporter(createUser(reporterEmail));
+            } catch (PermissionException | CreateException e) {
+                e.printStackTrace();
+            }
         }
         return issue;
     }
@@ -45,14 +48,16 @@ public class IssueService {
     public static MutableIssue setAssigneeByEmail(MutableIssue issue, String assigneeEmail) {
         if (!assigneeEmail.equals("")) {
             try {
-                UserDetails userDetails = (new UserDetails(assigneeEmail, assigneeEmail).withEmail(assigneeEmail));
-                ComponentAccessor.getUserManager().createUser(userDetails);
-                ApplicationUser user = UserUtils.getUserByEmail(assigneeEmail);
-                issue.setAssignee(user);
+                issue.setAssignee(createUser(assigneeEmail));
             } catch (CreateException | PermissionException e) {
                 e.printStackTrace();
             }
         }
         return issue;
+    }
+
+    private static ApplicationUser createUser(String email) throws PermissionException, CreateException {
+        UserDetails userDetails = (new UserDetails(email, email).withEmail(email));
+        return ComponentAccessor.getUserManager().createUser(userDetails);
     }
 }

@@ -43,7 +43,8 @@ public class IssueLinkServlet extends HttpServlet {
         String jiraKey = (String) data.get("jira_key");
         String objectType = (String) data.get("object_type");
         Boolean sync = (Boolean) data.get("sync");
-        String responsibleEmail = (String) data.get("responsibleEmail");
+        String responsibleEmail = (String) data.get("responsible_email");
+        String creatorEmail = (String) data.get("creator_email");
 
         Map<String, String> responseMap = new HashMap<>();
 
@@ -66,6 +67,7 @@ public class IssueLinkServlet extends HttpServlet {
             int parsedId = Integer.valueOf(useresponseId);
 
             issue = IssueService.setAssigneeByEmail(issue, responsibleEmail);
+            issue = IssueService.setReporterByEmail(issue, creatorEmail);
 
             int issueId = issue.getId().intValue();
             useResponseObjectManager.findOrAdd(parsedId, issueId, objectType, sync);
