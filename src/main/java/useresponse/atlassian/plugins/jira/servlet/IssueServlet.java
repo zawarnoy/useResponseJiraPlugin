@@ -56,7 +56,6 @@ public class IssueServlet extends HttpServlet {
         Map<String, Object> data = (new Gson()).fromJson(json, Map.class);
 
 
-
         if (data != null) {
 
             try {
@@ -116,11 +115,12 @@ public class IssueServlet extends HttpServlet {
             useResponseObject.save();
         }
 
-
+//        ComponentAccessor.getIssueManager().updateIssue(ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser(), issue, );
 
         issue = IssueService.setDescription(issue, content);
         issue = IssueService.setStatusByStatusName(issue, statusName);
         issue = IssueService.setReporterByEmail(issue, authorEmail);
+        issue = IssueService.setCreatorByEmail(issue, authorEmail);
         issue = IssueService.setAssigneeByEmail(issue, assigneeEmail);
         issue.store();
     }

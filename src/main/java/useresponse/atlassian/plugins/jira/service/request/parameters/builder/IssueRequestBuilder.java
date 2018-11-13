@@ -44,7 +44,7 @@ public class IssueRequestBuilder {
     }
 
     private Map<Object, Object> buildUpdateIssueRequestMap(Issue issue) throws IOException {
-        builder.setRequestMap(new HashMap<Object, Object>());
+        builder.setRequestMap(new HashMap<>());
         builder.
                 addStandardParametersToMap(issue).
                 addUseResponseObjectId(issue).

@@ -23,11 +23,6 @@ public class AttachmentsServlet extends HttpServlet {
     private static final Logger log = LoggerFactory.getLogger(AttachmentsServlet.class);
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.getWriter().write("here!");
-    }
-
-    @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String answer = null;
         try {

@@ -9,9 +9,13 @@ import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.UserDetails;
 import com.atlassian.jira.user.UserUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.service.converter.content.ContentConverter;
 
 public class IssueService {
+
+    static Logger log = LoggerFactory.getLogger(IssueService.class);
 
     public static MutableIssue setStatusByStatusName(MutableIssue issue, String statusName) {
         if (statusName != null) {
@@ -38,6 +42,17 @@ public class IssueService {
         if (!reporterEmail.equals("")) {
             try {
                 issue.setReporter(findOrCreateUser(reporterEmail));
+            } catch (PermissionException | CreateException e) {
+                e.printStackTrace();
+            }
+        }
+        return issue;
+    }
+
+    public static MutableIssue setCreatorByEmail(MutableIssue issue, String creatorEmail) {
+        if (!creatorEmail.equals("")) {
+            try {
+                issue.setReporter(findOrCreateUser(creatorEmail));
             } catch (PermissionException | CreateException e) {
                 e.printStackTrace();
             }
