@@ -4,6 +4,8 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.action.Action;
 import useresponse.atlassian.plugins.jira.exception.ConnectionException;
 import useresponse.atlassian.plugins.jira.exception.InvalidResponseException;
@@ -21,14 +23,11 @@ import java.security.NoSuchAlgorithmException;
 
 /**
  * Parent of all actions which preform data transfer to UseResponse
- * _
- * (+_+)
- * -|-
- * /\
- * <p>
  * Contains methods which can help with transfer
  */
 public abstract class AbstractListenerAction implements Action {
+
+    Logger logger = LoggerFactory.getLogger(AbstractListenerAction.class);
 
     protected Request request;
     protected PluginSettingsFactory pluginSettingsFactory;
@@ -56,8 +55,10 @@ public abstract class AbstractListenerAction implements Action {
         if (!SettingsService.testURConnection(pluginSettingsFactory)) {
             throw new ConnectionException("Can't connect to UseResponse services");
         }
+        logger.error(this.getClass().getCanonicalName());
         request = addParameters(request);
         String url = createUrl();
+        logger.error(url);
         String response = request.sendRequest(url);
         handleResponse(response);
     }

@@ -3,6 +3,7 @@ package useresponse.atlassian.plugins.jira.service.handler.servlet.attachments;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.MutableIssue;
+import com.atlassian.jira.issue.attachment.Attachment;
 import com.atlassian.jira.issue.attachment.CreateAttachmentParamsBean;
 import com.atlassian.jira.web.util.AttachmentException;
 import com.google.gson.Gson;
@@ -20,6 +21,8 @@ import java.io.OutputStream;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.atlassian.jira.component.ComponentAccessor.getAttachmentManager;
 
 public class AttachmentsRequestHandler implements Handler<String, String> {
 
@@ -62,14 +65,25 @@ public class AttachmentsRequestHandler implements Handler<String, String> {
     }
 
     private MutableIssue addAttachments(MutableIssue issue, List<Map<String, String>> attachments) {
-        if(attachments == null) {
+        if (attachments == null) {
             log.error("Attachments array is empty!");
             return issue;
         }
         for (Map<String, String> attachment : attachments) {
-            addOneAttachment(issue, attachment);
+            if (checkNeedToAdd(issue.getAttachments(), attachment)) {
+                addOneAttachment(issue, attachment);
+            }
         }
         return issue;
+    }
+
+    private boolean checkNeedToAdd(Collection<Attachment> existedAttachments, Map<String, String> attachment) {
+        for(Attachment existedAttachment : existedAttachments) {
+            if(existedAttachment.getFilename().equals(attachment.get("filename"))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void addOneAttachment(MutableIssue issue, Map<String, String> data) {
@@ -93,7 +107,7 @@ public class AttachmentsRequestHandler implements Handler<String, String> {
             log.error("An exception thrown while file " + filename + "was loaded!");
         }
         try {
-            ComponentAccessor.getAttachmentManager().createAttachment(bean);
+            getAttachmentManager().createAttachment(bean);
         } catch (AttachmentException e) {
             log.error("Adding Attachment error" + e.getMessage());
         }
