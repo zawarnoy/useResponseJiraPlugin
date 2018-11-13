@@ -81,7 +81,7 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
         requestMap = addHtmlTreat(requestMap);
         requestMap = addContentToRequest(requestMap, issue);
         requestMap = addTitleToRequest(requestMap, issue);
-        requestMap = addReporterToMap(requestMap, issue);
+        requestMap = addCreatorToMap(requestMap, issue);
         requestMap = addPriorityToMap(requestMap, issue);
         requestMap = addLabelsToMap(requestMap, issue);
         requestMap = addAttachmentsToMap(requestMap, issue);
@@ -128,8 +128,8 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
         return map;
     }
 
-    private Map<Object, Object> addReporterToMap(Map<Object, Object> map, Issue issue) {
-        if (issue.getReporterUser() != null) {
+    private Map<Object, Object> addCreatorToMap(Map<Object, Object> map, Issue issue) {
+        if (issue.getReporter() != null) {
             map.put("force_author", issue.getReporter().getEmailAddress());
         }
         return map;
@@ -229,7 +229,7 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
 
     @Override
     public <T extends WithId> RequestParametersBuilder addAuthorToRequest(T entity) {
-        requestMap.put("force_author", ((Issue) entity).getCreator().getEmailAddress());
+        requestMap.put("force_author", ((Issue) entity).getReporter().getEmailAddress());
         return this;
     }
 }

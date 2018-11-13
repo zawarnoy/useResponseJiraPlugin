@@ -7,6 +7,7 @@ import com.atlassian.jira.entity.WithId;
 import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.event.type.EventType;
 import com.atlassian.jira.issue.AttachmentManager;
+import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
@@ -144,6 +145,10 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
     private void executeAction(IssueEvent issueEvent) {
         Long typeId = issueEvent.getEventTypeId();
 
+        MutableIssue issue = ComponentAccessor.getIssueManager().getIssueByCurrentKey(issueEvent.getIssue().getKey());
+
+        log.error(issue.toString());
+
         IssueRequestBuilder issueRequestBuilder = new IssueRequestBuilder(
                 new IssueRequestParametersBuilder(
                         rendererManager,
@@ -164,7 +169,7 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
         );
 
         ListenerActionFactory issueActionFactory = new IssueActionFactory(
-                issueEvent.getIssue(),
+                issue,
                 useResponseObjectManager,
                 rendererManager,
                 priorityLinkManager,

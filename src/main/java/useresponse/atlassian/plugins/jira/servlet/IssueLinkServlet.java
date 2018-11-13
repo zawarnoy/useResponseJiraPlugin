@@ -63,7 +63,6 @@ public class IssueLinkServlet extends HttpServlet {
             }
 
             MutableIssue issue = ComponentAccessor.getIssueManager().getIssueByCurrentKey(jiraKey);
-
             int parsedId = Integer.valueOf(useresponseId);
 
             issue = IssueService.setAssigneeByEmail(issue, responsibleEmail);

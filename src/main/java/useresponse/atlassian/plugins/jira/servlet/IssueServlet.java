@@ -2,8 +2,10 @@ package useresponse.atlassian.plugins.jira.servlet;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.DefaultStatusManager;
+import com.atlassian.jira.event.type.EventDispatchOption;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
+import com.atlassian.jira.issue.UpdateIssueRequest;
 import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.UserUtils;
@@ -115,12 +117,9 @@ public class IssueServlet extends HttpServlet {
             useResponseObject.save();
         }
 
-//        ComponentAccessor.getIssueManager().updateIssue(ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser(), issue, );
-
         issue = IssueService.setDescription(issue, content);
         issue = IssueService.setStatusByStatusName(issue, statusName);
         issue = IssueService.setReporterByEmail(issue, authorEmail);
-        issue = IssueService.setCreatorByEmail(issue, authorEmail);
         issue = IssueService.setAssigneeByEmail(issue, assigneeEmail);
         issue.store();
     }
