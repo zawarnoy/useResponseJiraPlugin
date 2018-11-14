@@ -1,6 +1,8 @@
 package useresponse.atlassian.plugins.jira.service.handler.servlet.comment;
 
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.exception.CreateException;
+import com.atlassian.jira.exception.PermissionException;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.jira.issue.comments.CommentManager;
@@ -11,6 +13,7 @@ import com.google.gson.Gson;
 import org.json.simple.parser.ParseException;
 import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.model.CommentLink;
+import useresponse.atlassian.plugins.jira.service.IssueService;
 import useresponse.atlassian.plugins.jira.service.handler.Handler;
 
 import java.io.IOException;
@@ -79,7 +82,7 @@ public class CommentServletRequestHandler implements Handler<String, String> {
         String issueKey = commentData.get("issue_key");
 
         Issue issue = ComponentAccessor.getIssueManager().getIssueByCurrentKey(issueKey);
-        ApplicationUser creator = handleCreatorName(commentData.get("username"));
+        ApplicationUser creator = handleCreatorEmail(commentData.get("email"));
 
         Comment comment = null;
         Date date = new Date();
@@ -102,12 +105,12 @@ public class CommentServletRequestHandler implements Handler<String, String> {
         return comment;
     }
 
-    private ApplicationUser handleCreatorName(String username) {
-        UserManager userManager = ComponentAccessor.getUserManager();
-
-        if (userManager.getUserByName(username) == null) {
-            return this.loggedUser;
+    private ApplicationUser handleCreatorEmail(String email) {
+        try {
+            return IssueService.findOrCreateUser(email);
+        } catch (PermissionException | CreateException e) {
+            e.printStackTrace();
         }
-        return userManager.getUserByName(username);
+        return this.loggedUser;
     }
 }

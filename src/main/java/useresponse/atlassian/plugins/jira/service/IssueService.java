@@ -71,7 +71,7 @@ public class IssueService {
         return issue;
     }
 
-    private static ApplicationUser findOrCreateUser(String email) throws PermissionException, CreateException {
+    public static ApplicationUser findOrCreateUser(String email) throws PermissionException, CreateException {
         ApplicationUser user = UserUtils.getUserByEmail(email);
         if (user == null) {
             UserDetails userDetails = (new UserDetails(email, email).withEmail(email));
