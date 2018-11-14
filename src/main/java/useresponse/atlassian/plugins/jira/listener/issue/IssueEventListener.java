@@ -131,11 +131,10 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
             return;
         }
 
-        if (Storage.needToExecuteAction) {
+        if (!Storage.needToExecuteAction) {
             Storage.needToExecuteAction = true;
             return;
         }
-
         // various content processing for different sources
         Storage.isFromBinder = false;
 

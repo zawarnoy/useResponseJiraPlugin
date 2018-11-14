@@ -4,6 +4,7 @@ import com.atlassian.jira.entity.WithId;
 import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.google.gson.Gson;
+import com.google.gson.internal.StringMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.action.ActionType;
@@ -41,10 +42,10 @@ public class DeleteCommentAction extends AbstractCommentAction {
     @Override
     protected void handleResponse(String response) {
         try{
-            HashMap data = (new Gson()).fromJson(response, HashMap.class);
-            HashMap result = (HashMap) data.get("success");
+            StringMap data = (new Gson()).fromJson(response, StringMap.class);
+            StringMap result = (StringMap) data.get("success");
             if (result != null) {
-                commentLinkManager.deleteByUseResponseId((int) result.get("id"));
+                commentLinkManager.deleteByUseResponseId(((Double) result.get("id")).intValue());
             }
         } catch (Exception e) {
             e.printStackTrace();
