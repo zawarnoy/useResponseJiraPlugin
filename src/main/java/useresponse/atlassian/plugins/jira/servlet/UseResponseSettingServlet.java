@@ -116,7 +116,6 @@ public class UseResponseSettingServlet extends HttpServlet {
         context.put("useResponsePriorities", prioritiesService.getUseResponsePriorities());
         context.put("baseUrl", applicationProperties.getBaseUrl(UrlMode.ABSOLUTE));
         context.put("useResponseStatuses", statuses);
-//        context.put("autosending", pluginSettings.getAutosendingFlag() != null && Boolean.parseBoolean(pluginSettings.getAutosendingFlag()));
 
         response.setContentType("text/html");
         templateRenderer.render(SETTINGS_TEMPLATE, context, response.getWriter());
@@ -134,7 +133,6 @@ public class UseResponseSettingServlet extends HttpServlet {
         PrioritiesService prioritiesService = new PrioritiesService(ComponentAccessor.getComponent(DefaultPriorityManager.class), priorityLinkManager, urPriorityManager);
         StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
         PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
-
         HashMap<String, Object> map = new HashMap<>();
         HashMap<String, Object> context = new HashMap<>();
 
@@ -156,7 +154,7 @@ public class UseResponseSettingServlet extends HttpServlet {
 
             map.put("linkTemplate", writer.toString());
             map.put("status", "success");
-            map.put("message", checkOnAutosendingParamExisting(request) ? SETTINGS_ARE_CHANCHED_STRING : SUCCESSFULL_CONNECTION_STRING);
+            map.put("message", request.getParameterMap().size() > 5 ? SETTINGS_ARE_CHANCHED_STRING : SUCCESSFULL_CONNECTION_STRING);
         } catch (
                 Exception e)
 
@@ -246,10 +244,6 @@ public class UseResponseSettingServlet extends HttpServlet {
         if (!SettingsService.testURConnection(domain, apiKey))
             throw (new ConnectionException("Wrong domain/apiKey"));
         settingsService.setURParameters(domain, apiKey);
-    }
-
-    private boolean checkOnAutosendingParamExisting(HttpServletRequest request) {
-        return request.getParameter("autosending") != null;
     }
 
     private void sendSettings(Map settings) {
