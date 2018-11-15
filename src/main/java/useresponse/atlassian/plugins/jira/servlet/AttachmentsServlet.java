@@ -5,7 +5,9 @@ import com.atlassian.jira.user.ApplicationUser;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.exception.NotLoggedException;
+import useresponse.atlassian.plugins.jira.manager.IssueFileLinkManager;
 import useresponse.atlassian.plugins.jira.service.handler.Handler;
 import useresponse.atlassian.plugins.jira.service.handler.servlet.attachments.AttachmentsRequestHandler;
 import useresponse.atlassian.plugins.jira.service.request.ServletService;
@@ -22,6 +24,9 @@ import java.io.IOException;
 public class AttachmentsServlet extends HttpServlet {
     private static final Logger log = LoggerFactory.getLogger(AttachmentsServlet.class);
 
+    @Autowired
+    IssueFileLinkManager fileLinkManager;
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String answer = null;
@@ -36,7 +41,7 @@ public class AttachmentsServlet extends HttpServlet {
             String json = ServletService.getJsonFromRequest(req);
 
             Handler<String, String> handler = new AttachmentsRequestHandler();
-
+            ((AttachmentsRequestHandler) handler).setFileLinkManager(fileLinkManager);
 
             try {
                 answer = handler.handle(json);

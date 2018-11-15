@@ -13,6 +13,7 @@ import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import useresponse.atlassian.plugins.jira.manager.IssueFileLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 import useresponse.atlassian.plugins.jira.service.IssueService;
@@ -35,6 +36,9 @@ public class IssueServlet extends HttpServlet {
 
     @Autowired
     private UseResponseObjectManager objectManager;
+
+    @Autowired
+    private IssueFileLinkManager fileLinkManager;
 
     public IssueServlet() {
 
@@ -92,6 +96,7 @@ public class IssueServlet extends HttpServlet {
             }
             try {
                 Handler<String, String> attachmentsRequestHandler = new AttachmentsRequestHandler();
+                ((AttachmentsRequestHandler) attachmentsRequestHandler).setFileLinkManager(fileLinkManager);
                 attachmentsHandleResponse = attachmentsRequestHandler.handle(json);
             } catch (Exception exception) {
                 log.error("Exception Issue Servlet (attachments handle). Message: " + exception.getMessage());

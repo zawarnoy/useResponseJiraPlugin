@@ -2,6 +2,7 @@ package useresponse.atlassian.plugins.jira.service.handler.servlet.attachments;
 
 
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.issue.AttachmentManager;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.attachment.Attachment;
 import com.atlassian.jira.issue.attachment.CreateAttachmentParamsBean;
@@ -12,6 +13,7 @@ import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.manager.IssueFileLinkManager;
+import useresponse.atlassian.plugins.jira.manager.impl.IssueFileLinkManagerImpl;
 import useresponse.atlassian.plugins.jira.service.handler.Handler;
 
 import java.io.File;
@@ -45,6 +47,9 @@ public class AttachmentsRequestHandler implements Handler<String, String> {
 
         try {
             issueKey = (String) data.get("issueKey");
+            if (issueKey == null) {
+                throw new NullPointerException();
+            }
         } catch (NullPointerException e) {
             try {
                 String commentId = (String) data.get("comment_id");
@@ -103,6 +108,9 @@ public class AttachmentsRequestHandler implements Handler<String, String> {
                     new Date(),
                     false
             );
+
+            fileLinkManager.add(issue.getId().intValue(), filename);
+
         } catch (IOException e) {
             log.error("An exception thrown while file " + filename + "was loaded!");
         }

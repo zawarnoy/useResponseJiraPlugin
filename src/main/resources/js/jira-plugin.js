@@ -44,7 +44,5 @@ AJS.$(document).ready(function () {
                 swal(response.message, "", "error");
             }
         });
-
-
     });
 });
