@@ -27,7 +27,7 @@ public class StatusesService {
 
         for (Status status : statuses) {
             if (status != null)
-                statusList.add(status.getSimpleStatus().getName());
+                statusList.add(status.getName());
         }
 
         return statusList;

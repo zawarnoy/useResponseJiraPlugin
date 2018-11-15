@@ -119,7 +119,7 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
         Iterator<Status> iterator = statuses.iterator();
         while (iterator.hasNext()) {
             Status status = iterator.next();
-            writer.write(status.getSimpleStatus().getName() + "<br>");
+            writer.write(status.getName() + "<br>");
         }
 
 
