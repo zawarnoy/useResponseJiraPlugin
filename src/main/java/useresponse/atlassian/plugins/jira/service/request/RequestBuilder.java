@@ -51,7 +51,7 @@ public class RequestBuilder {
 
         List<Map<Object, Object>> commentsList = new ArrayList<>();
         for (Comment comment : commentManager.getComments(issue)) {
-            commentsList.add(commentRequestBuilder.build(comment));
+            commentsList.add(commentRequestBuilder.build(comment, false));
         }
 
         commentsList.addAll(commentRequestBuilder.getDeletedComments(issue));

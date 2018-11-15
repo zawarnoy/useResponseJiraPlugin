@@ -58,7 +58,6 @@ public abstract class AbstractListenerAction implements Action {
         logger.error(this.getClass().getCanonicalName());
         request = addParameters(request);
         String url = createUrl();
-        logger.error(url);
         String response = request.sendRequest(url);
         handleResponse(response);
     }

@@ -93,7 +93,8 @@ public class CommentServletRequestHandler implements Handler<String, String> {
         } catch (java.text.ParseException e) {
             e.printStackTrace();
         }
-        comment = commentManager.create(issue, creator, commentData.get("content"), null, null, new Date(), false);
+        Date commentTime = ((new Date()).getTime() - date.getTime()) > 10000 ? date : new Date();
+        comment = commentManager.create(issue, creator, commentData.get("content"), null, null, commentTime, false);
         return comment;
     }
 

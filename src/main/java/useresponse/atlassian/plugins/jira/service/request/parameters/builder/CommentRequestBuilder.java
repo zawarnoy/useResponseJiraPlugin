@@ -21,30 +21,36 @@ public class CommentRequestBuilder {
     }
 
     public Map<Object, Object> build(Comment comment) {
+        return build(comment, true);
+    }
+
+    public Map<Object, Object> build(Comment comment, boolean notify) {
         if (commentManager.findByJiraId(comment.getId().intValue()) == null) {
-            return buildNewCommentMap(comment);
+            return buildNewCommentMap(comment, notify);
         } else {
-            return buildUpdateCommentMap(comment);
+            return buildUpdateCommentMap(comment, notify);
         }
     }
 
-    private Map<Object, Object> buildNewCommentMap(Comment comment) {
+    private Map<Object, Object> buildNewCommentMap(Comment comment, boolean notify) {
         builder.setRequestMap(new HashMap<>());
         builder.
                 addStandardParametersForRequest(comment).
                 addCreatedAt(comment).
                 addAuthorToRequest(comment).
-                addAddAction();
+                addAddAction().
+                addNotifyFlag(notify);
         return builder.getRequestMap();
 
     }
 
-    private Map<Object, Object> buildUpdateCommentMap(Comment comment) {
+    private Map<Object, Object> buildUpdateCommentMap(Comment comment, boolean notify) {
         builder.setRequestMap(new HashMap<>());
         builder.addStandardParametersForRequest(comment).
                 addUseResponseObjectIdToMap(comment).
                 addUseResponseCommentIdToMap(comment).
-                addEditAction();
+                addEditAction().
+                addNotifyFlag(notify);
         return builder.getRequestMap();
     }
 

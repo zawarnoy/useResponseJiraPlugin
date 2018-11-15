@@ -40,4 +40,14 @@ public abstract class RequestParametersBuilder {
         requestMap.put("action", "edit");
         return this;
     }
+
+    public RequestParametersBuilder addUpdateLinkAction() {
+        requestMap.put("action", "update_link");
+        return this;
+    }
+
+    public RequestParametersBuilder addNotifyFlag(boolean notify) {
+        requestMap.put("notify", notify);
+        return this;
+    }
 }

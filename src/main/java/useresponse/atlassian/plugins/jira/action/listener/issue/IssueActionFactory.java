@@ -43,7 +43,10 @@ public class IssueActionFactory extends AbsctractListenerActionFactory {
             return new UpdateIssueAction((Issue) entity, useResponseObjectManager, rendererManager, priorityLinkManager, pluginSettingsFactory, ComponentAccessor.getComponent(DefaultAttachmentManager.class), issueFileLinkManager, statusesLinkManager, issueRequestBuilder);
         } else if (actionClass.getCanonicalName().equals(DeleteIssueAction.class.getCanonicalName())) {
             return new DeleteIssueAction((Issue) entity, useResponseObjectManager, pluginSettingsFactory);
-        } else {
+        } else if (actionClass.getCanonicalName().equals(UpdateIssueLinkAction.class.getCanonicalName())) {
+            return new UpdateIssueLinkAction((Issue) entity, pluginSettingsFactory, issueRequestBuilder);
+        }
+        else {
             return null;
         }
     }

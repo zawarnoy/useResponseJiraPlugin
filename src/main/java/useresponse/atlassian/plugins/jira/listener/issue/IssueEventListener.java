@@ -25,10 +25,7 @@ import useresponse.atlassian.plugins.jira.action.listener.comment.CommentActionF
 import useresponse.atlassian.plugins.jira.action.listener.comment.CreateCommentAction;
 import useresponse.atlassian.plugins.jira.action.listener.comment.DeleteCommentAction;
 import useresponse.atlassian.plugins.jira.action.listener.comment.UpdateCommentAction;
-import useresponse.atlassian.plugins.jira.action.listener.issue.CreateIssueAction;
-import useresponse.atlassian.plugins.jira.action.listener.issue.DeleteIssueAction;
-import useresponse.atlassian.plugins.jira.action.listener.issue.IssueActionFactory;
-import useresponse.atlassian.plugins.jira.action.listener.issue.UpdateIssueAction;
+import useresponse.atlassian.plugins.jira.action.listener.issue.*;
 import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.manager.impl.*;
 import com.atlassian.activeobjects.external.ActiveObjects;
@@ -120,7 +117,7 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 
         UseResponseObject object = useResponseObjectManager.findByJiraId(issueEvent.getIssue().getId().intValue());
 
-        if(object == null) {
+        if (object == null) {
             return;
         }
 
@@ -194,6 +191,8 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 
         if (typeId.equals(EventType.ISSUE_CREATED_ID)) {
             action = issueActionFactory.createAction(CreateIssueAction.class);
+        } else if (typeId.equals(EventType.ISSUE_MOVED_ID)) {
+            action = issueActionFactory.createAction(UpdateIssueLinkAction.class);
         } else if (typeId.equals(EventType.ISSUE_COMMENTED_ID)) {
             action = commentActionFactory.createAction(CreateCommentAction.class);
         } else if (typeId.equals(EventType.ISSUE_COMMENT_EDITED_ID)) {
@@ -202,7 +201,7 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
             action = commentActionFactory.createAction(DeleteIssueAction.class);
         } else if (typeId.equals(EventType.ISSUE_COMMENT_DELETED_ID)) {
             Integer deletedCommentId = CommentsService.getDeletedCommentId(issueEvent.getIssue(), commentLinkManager);
-            if(deletedCommentId == null) {
+            if (deletedCommentId == null) {
                 action = null;
             }
             commentActionFactory.setEntity(() -> (long) deletedCommentId);

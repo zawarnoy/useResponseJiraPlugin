@@ -1,10 +1,11 @@
 package useresponse.atlassian.plugins.jira.action;
 
-public class ActionType {
-    public static final int CREATE_ISSUE_ID = 1;
-    public static final int UPDATE_ISSUE_ID = 2;
-    public static final int DELETE_ISSUE_ID = 3;
-    public static final int CREATE_COMMENT_ID = 4;
-    public static final int UPDATE_COMMENT_ID = 5;
-    public static final int DELETE_COMMENT_ID = 6;
+public interface ActionType {
+    int CREATE_ISSUE_ID = 1;
+    int UPDATE_ISSUE_ID = 2;
+    int DELETE_ISSUE_ID = 3;
+    int CREATE_COMMENT_ID = 4;
+    int UPDATE_COMMENT_ID = 5;
+    int DELETE_COMMENT_ID = 6;
+    int UPDATE_ISSUE_LINK_ID = 7;
 }

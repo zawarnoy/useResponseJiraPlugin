@@ -53,6 +53,18 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
         return this;
     }
 
+    public IssueRequestParametersBuilder addNewOldIssueKeysToMap(Set<String> issueKeys) {
+        String oldKey = "";
+        String newKey = "";
+        for(String key : issueKeys) {
+            oldKey = newKey;
+            newKey = key;
+        }
+        requestMap.put("old_jira_issue_id", oldKey);
+        requestMap.put("jira_issue_id", newKey);
+        return this;
+    }
+
     public IssueRequestParametersBuilder addUseResponseObjectId(Issue issue) {
         int useResponseObjectId = useResponseObjectManager.findByJiraId(issue.getId().intValue()).getUseResponseId();
         requestMap.put("useresponse_object_id", useResponseObjectId);
@@ -113,7 +125,7 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
         return map;
     }
 
-    private Map<Object, Object> addJiraIssueIdToMap(Map<Object, Object> map, Issue issue) {
+    public Map<Object, Object> addJiraIssueIdToMap(Map<Object, Object> map, Issue issue) {
         map.put("jira_issue_id", issue.getKey());
         return map;
     }
