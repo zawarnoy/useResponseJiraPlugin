@@ -3,6 +3,8 @@ package useresponse.atlassian.plugins.jira.manager.impl;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import net.java.ao.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.manager.StatusesLinkManager;
 import useresponse.atlassian.plugins.jira.model.StatusesLink;
 import com.atlassian.activeobjects.external.ActiveObjects;
@@ -16,7 +18,7 @@ import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
 @Scanned
 @Named
 public class StatusesLinkManagerImpl implements StatusesLinkManager {
-
+    Logger logger = LoggerFactory.getLogger(StatusesLinkManagerImpl.class);
     @ComponentImport
     private final ActiveObjects ao;
 
@@ -27,7 +29,18 @@ public class StatusesLinkManagerImpl implements StatusesLinkManager {
 
     @Override
     public StatusesLink findByJiraStatusName(String jiraStatusName) {
-        StatusesLink[] objects = ao.find(StatusesLink.class, Query.select().where("jira_status_name = ?", jiraStatusName ));
+//        jiraStatusName = jiraStatusName.replaceAll("\\s", "");
+//        List<StatusesLink> links = all();
+//        for(StatusesLink link : links) {
+//            if(link.getJiraStatusName().equals(jiraStatusName)) {
+//                logger.error("LINK: " + link.getJiraStatusName() + " : " + link.getUseResponseStatusSlug());
+//                return link;
+//            }
+//        }
+//        logger.error("NO RESULTS!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+//        return null;
+        StatusesLink[] objects = ao.find(StatusesLink.class, Query.select().where("jira_status_name = ?", jiraStatusName));
+        logger.error("NUMBER!" + objects.length);
         return objects.length > 0 ? objects[0] : null;
     }
 

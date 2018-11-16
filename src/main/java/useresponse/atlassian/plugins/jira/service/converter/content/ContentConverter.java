@@ -4,6 +4,7 @@ import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.properties.APKeys;
 import com.atlassian.jira.issue.AttachmentManager;
 import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.attachment.Attachment;
 import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
@@ -13,6 +14,7 @@ import useresponse.atlassian.plugins.jira.manager.IssueFileLinkManager;
 import useresponse.atlassian.plugins.jira.service.IconsService;
 import useresponse.atlassian.plugins.jira.storage.Storage;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -59,9 +61,10 @@ public class ContentConverter {
         return matcher.find() ? matcher.group() : null;
     }
 
-    public static String convertForJira(String content, Issue issue) {
+    public static String convertForJira(String content, MutableIssue issue) {
         content = convertIcons(content);
-        content = convertFilesInContent(content, issue);
+        issue.setDescription(content);
+        content = convertImages(issue);
         return content;
     }
 
@@ -104,5 +107,34 @@ public class ContentConverter {
             result = buffer.toString();
         }
         return result;
+    }
+
+    public static String convertImages(MutableIssue issue) {
+        String content = issue.getDescription();
+
+        Collection<Attachment> attachments = issue.getAttachments();
+
+        for(Attachment attachment : attachments) {
+            Pattern pattern = Pattern.compile("\\[" + removeExtention(attachment) + "\\]");
+            Matcher matcher = pattern.matcher(content);
+            StringBuffer buffer = new StringBuffer();
+            while (matcher.find()) {
+                matcher.appendReplacement(buffer, "!" + attachment.getFilename() + "!");
+            }
+
+            buffer = matcher.appendTail(buffer);
+            content = buffer.toString();
+        }
+        return content;
+    }
+
+    public static String removeExtention(Attachment attachment) {
+        String name = attachment.getFilename();
+        if (name.startsWith(".")) {
+            if (name.lastIndexOf('.') == name.indexOf('.')) return name;
+        }
+        if (!name.contains("."))
+            return name;
+        return name.substring(0, name.lastIndexOf('.'));
     }
 }

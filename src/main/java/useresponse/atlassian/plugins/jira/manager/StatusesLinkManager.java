@@ -12,4 +12,5 @@ public interface StatusesLinkManager {
     StatusesLink findOrAdd(String jiraStatusName, String useResponseStatusSlug);
     StatusesLink editUseResponseSlug(String jiraStatusName, String useResponseStatusSlug);
     List<StatusesLink> all();
+    StatusesLink editOrAdd(String jiraStatusName, String useResponseStatusSlug);
 }

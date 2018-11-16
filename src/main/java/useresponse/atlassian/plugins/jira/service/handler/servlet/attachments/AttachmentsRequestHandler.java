@@ -2,10 +2,10 @@ package useresponse.atlassian.plugins.jira.service.handler.servlet.attachments;
 
 
 import com.atlassian.jira.component.ComponentAccessor;
-import com.atlassian.jira.issue.AttachmentManager;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.attachment.Attachment;
 import com.atlassian.jira.issue.attachment.CreateAttachmentParamsBean;
+import com.atlassian.jira.issue.history.ChangeItemBean;
 import com.atlassian.jira.web.util.AttachmentException;
 import com.google.gson.Gson;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -13,7 +13,6 @@ import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.manager.IssueFileLinkManager;
-import useresponse.atlassian.plugins.jira.manager.impl.IssueFileLinkManagerImpl;
 import useresponse.atlassian.plugins.jira.service.handler.Handler;
 
 import java.io.File;
@@ -115,7 +114,7 @@ public class AttachmentsRequestHandler implements Handler<String, String> {
             log.error("An exception thrown while file " + filename + "was loaded!");
         }
         try {
-            getAttachmentManager().createAttachment(bean);
+            ChangeItemBean changeItemBean = getAttachmentManager().createAttachment(bean);
         } catch (AttachmentException e) {
             log.error("Adding Attachment error" + e.getMessage());
         }

@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.exception.MissingParameterException;
 import useresponse.atlassian.plugins.jira.manager.impl.UseResponseObjectManagerImpl;
+import useresponse.atlassian.plugins.jira.model.IssueFileLink;
 import useresponse.atlassian.plugins.jira.service.IssueService;
 import useresponse.atlassian.plugins.jira.service.request.ServletService;
 
@@ -45,6 +46,7 @@ public class IssueLinkServlet extends HttpServlet {
         Boolean sync = (Boolean) data.get("sync");
         String responsibleEmail = (String) data.get("responsible_email");
         String creatorEmail = (String) data.get("creator_email");
+        String statusName = (String) data.get("status_name");
 
         Map<String, String> responseMap = new HashMap<>();
 
@@ -61,17 +63,22 @@ public class IssueLinkServlet extends HttpServlet {
             if (sync == null) {
                 throw new MissingParameterException("sync");
             }
+            if (statusName == null) {
+                throw new MissingParameterException("status_name");
+            }
 
             MutableIssue issue = ComponentAccessor.getIssueManager().getIssueByCurrentKey(jiraKey);
             int parsedId = Integer.valueOf(useresponseId);
 
             issue = IssueService.setAssigneeByEmail(issue, responsibleEmail);
             issue = IssueService.setReporterByEmail(issue, creatorEmail);
+            issue = IssueService.setStatusByStatusName(issue, statusName);
 
             int issueId = issue.getId().intValue();
             useResponseObjectManager.findOrAdd(parsedId, issueId, objectType, sync);
 
-            ComponentAccessor.getIssueManager().updateIssue(ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser(), issue, EventDispatchOption.DO_NOT_DISPATCH, false);
+//            ComponentAccessor.getIssueManager().updateIssue(ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser(), issue, EventDispatchOption.DO_NOT_DISPATCH, false);
+            issue.store();
             responseMap.put("status", "success");
         } catch (MissingParameterException e) {
             responseMap.put("status", "error");
