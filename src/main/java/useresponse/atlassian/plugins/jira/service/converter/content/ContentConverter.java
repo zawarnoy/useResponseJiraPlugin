@@ -33,7 +33,6 @@ public class ContentConverter {
     public static String convert(Comment comment) {
         JiraRendererPlugin renderer = ComponentAccessor.getRendererManager().getRendererForType("atlassian-wiki-renderer");
         String content = renderer.render(comment.getBody(), comment.getIssue().getIssueRenderContext());
-        logger.error(content);
         return Storage.isFromBinder ? handleContent(content) : content;
     }
 
@@ -109,13 +108,32 @@ public class ContentConverter {
         return result;
     }
 
-    public static String convertImages(MutableIssue issue) {
-        String content = issue.getDescription();
+    /**
+     * For issues
+     * @param issue
+     * @return
+     */
+    public static String convertImages(Issue issue) {
+        return convertImages(issue, issue.getDescription(), null);
+    }
 
+    /**
+     * For comments
+     * @param issue
+     * @param content
+     * @return
+     */
+    public static String convertImages(Issue issue, String content, Comment comment) {
         Collection<Attachment> attachments = issue.getAttachments();
+        String regEx;
 
         for(Attachment attachment : attachments) {
-            Pattern pattern = Pattern.compile("\\[" + removeExtention(attachment) + "\\]");
+            if (comment == null) {
+                regEx = "\\[("+ issue.getId() +"_)?" + removeExtention(attachment) + "]";
+            } else {
+                regEx = "\\[("+ comment.getId() +"_)?" + removeExtention(attachment) + "]";
+            }
+            Pattern pattern = Pattern.compile(regEx);
             Matcher matcher = pattern.matcher(content);
             StringBuffer buffer = new StringBuffer();
             while (matcher.find()) {

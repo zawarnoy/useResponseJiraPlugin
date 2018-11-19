@@ -113,7 +113,6 @@ public abstract class AbstractRequest implements Request {
         }
 
         if (responseCode == 0 || responseCode >= 300) {
-            log.error("URL: " + this.url);
             throw new InvalidResponseException(responseMessage);
         }
 

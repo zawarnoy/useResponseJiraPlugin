@@ -36,8 +36,6 @@ public class IssueLinkServlet extends HttpServlet {
 
         String json = ServletService.getJsonFromRequest(req);
 
-        log.error(json);
-
         Map<String, Object> data = (new Gson()).fromJson(json, Map.class);
 
         String useresponseId = (String) data.get("useresponse_id");

@@ -148,8 +148,6 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 
         MutableIssue issue = ComponentAccessor.getIssueManager().getIssueByCurrentKey(issueEvent.getIssue().getKey());
 
-        log.error(issue.toString());
-
         IssueRequestBuilder issueRequestBuilder = new IssueRequestBuilder(
                 new IssueRequestParametersBuilder(
                         rendererManager,

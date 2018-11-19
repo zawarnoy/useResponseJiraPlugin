@@ -2,10 +2,15 @@ package useresponse.atlassian.plugins.jira.service.handler.servlet.attachments;
 
 
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.event.type.EventDispatchOption;
+import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.attachment.Attachment;
 import com.atlassian.jira.issue.attachment.CreateAttachmentParamsBean;
+import com.atlassian.jira.issue.comments.CommentManager;
+import com.atlassian.jira.issue.comments.MutableComment;
 import com.atlassian.jira.issue.history.ChangeItemBean;
+import com.atlassian.jira.ofbiz.AbstractOfBizValueWrapper;
 import com.atlassian.jira.web.util.AttachmentException;
 import com.google.gson.Gson;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -13,6 +18,7 @@ import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.manager.IssueFileLinkManager;
+import useresponse.atlassian.plugins.jira.service.converter.content.ContentConverter;
 import useresponse.atlassian.plugins.jira.service.handler.Handler;
 
 import java.io.File;
@@ -37,7 +43,6 @@ public class AttachmentsRequestHandler implements Handler<String, String> {
 
     @Override
     public String handle(String s) throws IOException, ParseException {
-
         Map data = (new Gson()).fromJson(s, Map.class);
 
         String issueKey = null;
@@ -63,6 +68,16 @@ public class AttachmentsRequestHandler implements Handler<String, String> {
         issue = ComponentAccessor.getIssueManager().getIssueByCurrentKey(issueKey);
         addAttachments(issue, (List<Map<String, String>>) data.get("attachments"));
 
+        try {
+            String comment_id = (String) data.get("comment_id");
+            CommentManager manager = ComponentAccessor.getCommentManager();
+            MutableComment comment = manager.getMutableComment(Long.valueOf(comment_id));
+            comment.setBody(ContentConverter.convertImages(comment.getIssue(), comment.getBody(), comment));
+            manager.update(comment, false);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+
         response.put("status", "success");
 
         return (new Gson()).toJson(response);
@@ -82,8 +97,8 @@ public class AttachmentsRequestHandler implements Handler<String, String> {
     }
 
     private boolean checkNeedToAdd(Collection<Attachment> existedAttachments, Map<String, String> attachment) {
-        for(Attachment existedAttachment : existedAttachments) {
-            if(existedAttachment.getFilename().equals(attachment.get("filename"))) {
+        for (Attachment existedAttachment : existedAttachments) {
+            if (existedAttachment.getFilename().equals(attachment.get("filename"))) {
                 return false;
             }
         }
@@ -141,6 +156,21 @@ public class AttachmentsRequestHandler implements Handler<String, String> {
         Pattern pattern = Pattern.compile("\\.zip$");
         Matcher matcher = pattern.matcher(filename);
         return matcher.find();
+    }
+
+    private class IssueUpdateTask implements Runnable {
+
+        private MutableIssue issue;
+
+        @Override
+        public void run() {
+            issue.setDescription(ContentConverter.convertImages(issue));
+            ComponentAccessor.getIssueManager().updateIssue(ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser(), issue, EventDispatchOption.DO_NOT_DISPATCH, false);
+        }
+
+        public IssueUpdateTask(MutableIssue issue) {
+            this.issue = issue;
+        }
     }
 
 }

@@ -29,18 +29,7 @@ public class StatusesLinkManagerImpl implements StatusesLinkManager {
 
     @Override
     public StatusesLink findByJiraStatusName(String jiraStatusName) {
-//        jiraStatusName = jiraStatusName.replaceAll("\\s", "");
-//        List<StatusesLink> links = all();
-//        for(StatusesLink link : links) {
-//            if(link.getJiraStatusName().equals(jiraStatusName)) {
-//                logger.error("LINK: " + link.getJiraStatusName() + " : " + link.getUseResponseStatusSlug());
-//                return link;
-//            }
-//        }
-//        logger.error("NO RESULTS!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-//        return null;
         StatusesLink[] objects = ao.find(StatusesLink.class, Query.select().where("jira_status_name = ?", jiraStatusName));
-        logger.error("NUMBER!" + objects.length);
         return objects.length > 0 ? objects[0] : null;
     }
 

@@ -4,6 +4,7 @@ import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.exception.CreateException;
 import com.atlassian.jira.exception.PermissionException;
 import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.issue.comments.MutableComment;
@@ -11,9 +12,12 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.util.UserManager;
 import com.google.gson.Gson;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.model.CommentLink;
 import useresponse.atlassian.plugins.jira.service.IssueService;
+import useresponse.atlassian.plugins.jira.service.converter.content.ContentConverter;
 import useresponse.atlassian.plugins.jira.service.handler.Handler;
 
 import java.io.IOException;
@@ -21,7 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class CommentServletRequestHandler implements Handler<String, String> {
-
+    Logger logger = LoggerFactory.getLogger(CommentServletRequestHandler.class);
 
     private ApplicationUser loggedUser;
     private CommentLinkManager commentLinkManager;
@@ -81,7 +85,7 @@ public class CommentServletRequestHandler implements Handler<String, String> {
 
         String issueKey = commentData.get("issue_key");
 
-        Issue issue = ComponentAccessor.getIssueManager().getIssueByCurrentKey(issueKey);
+        MutableIssue issue = ComponentAccessor.getIssueManager().getIssueByCurrentKey(issueKey);
         ApplicationUser creator = handleCreatorEmail(commentData.get("email"));
 
         Comment comment = null;
@@ -94,7 +98,8 @@ public class CommentServletRequestHandler implements Handler<String, String> {
             e.printStackTrace();
         }
         Date commentTime = ((new Date()).getTime() - date.getTime()) > 10000 ? date : new Date();
-        comment = commentManager.create(issue, creator, commentData.get("content"), null, null, commentTime, false);
+        String content = handleContent(issue, commentData.get("content"));
+        comment = commentManager.create(issue, creator, content, null, null, commentTime, false);
         return comment;
     }
 
@@ -113,5 +118,9 @@ public class CommentServletRequestHandler implements Handler<String, String> {
             e.printStackTrace();
         }
         return this.loggedUser;
+    }
+
+    private String handleContent(MutableIssue issue, String content) {
+        return content;
     }
 }

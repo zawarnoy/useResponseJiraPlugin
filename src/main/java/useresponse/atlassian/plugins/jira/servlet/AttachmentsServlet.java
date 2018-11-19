@@ -39,15 +39,9 @@ public class AttachmentsServlet extends HttpServlet {
             }
 
             String json = ServletService.getJsonFromRequest(req);
-
             Handler<String, String> handler = new AttachmentsRequestHandler();
             ((AttachmentsRequestHandler) handler).setFileLinkManager(fileLinkManager);
-
-            try {
-                answer = handler.handle(json);
-            } catch (ParseException e) {
-                log.error(e.getMessage());
-            }
+            answer = handler.handle(json);
 
         } catch (Exception e) {
             answer = e.getMessage();

@@ -17,7 +17,6 @@ import useresponse.atlassian.plugins.jira.manager.IssueFileLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 import useresponse.atlassian.plugins.jira.service.IssueService;
-import useresponse.atlassian.plugins.jira.service.converter.content.ContentConverter;
 import useresponse.atlassian.plugins.jira.service.handler.Handler;
 import useresponse.atlassian.plugins.jira.service.handler.servlet.attachments.AttachmentsRequestHandler;
 import useresponse.atlassian.plugins.jira.service.request.ServletService;
@@ -54,7 +53,6 @@ public class IssueServlet extends HttpServlet {
         String statusName = null;
         String authorEmail = null;
         String content = null;
-        String attachmentsHandleResponse = null;
         String assigneeEmail = null;
 
         String json = ServletService.getJsonFromRequest(req);
@@ -92,14 +90,6 @@ public class IssueServlet extends HttpServlet {
                 assigneeEmail = (String) data.get("responsibleEmail");
             } catch (NullPointerException exception) {
                 log.error("Exception IssueServlet(responsible). Message: " + exception.getMessage());
-                exception.printStackTrace();
-            }
-            try {
-                Handler<String, String> attachmentsRequestHandler = new AttachmentsRequestHandler();
-                ((AttachmentsRequestHandler) attachmentsRequestHandler).setFileLinkManager(fileLinkManager);
-                attachmentsHandleResponse = attachmentsRequestHandler.handle(json);
-            } catch (Exception exception) {
-                log.error("Exception Issue Servlet (attachments handle). Message: " + exception.getMessage());
                 exception.printStackTrace();
             }
         }

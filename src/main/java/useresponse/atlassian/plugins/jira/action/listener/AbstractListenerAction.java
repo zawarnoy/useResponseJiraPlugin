@@ -55,7 +55,6 @@ public abstract class AbstractListenerAction implements Action {
         if (!SettingsService.testURConnection(pluginSettingsFactory)) {
             throw new ConnectionException("Can't connect to UseResponse services");
         }
-        logger.error(this.getClass().getCanonicalName());
         request = addParameters(request);
         String url = createUrl();
         String response = request.sendRequest(url);

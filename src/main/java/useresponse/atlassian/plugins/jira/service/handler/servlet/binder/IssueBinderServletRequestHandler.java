@@ -35,9 +35,6 @@ public class IssueBinderServletRequestHandler implements Handler<String, String>
         String responseForUser;
 
         try {
-
-            log.error(response);
-
             Map decodedResponse = (new Gson()).fromJson(response, Map.class);
 
             Map data = (Map) decodedResponse.get("success");
