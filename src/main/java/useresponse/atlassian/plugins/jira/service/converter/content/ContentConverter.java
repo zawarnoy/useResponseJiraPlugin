@@ -8,6 +8,7 @@ import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.attachment.Attachment;
 import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
+import com.atlassian.jira.issue.fields.renderer.wiki.AtlassianWikiRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.manager.IssueFileLinkManager;
@@ -25,13 +26,13 @@ public class ContentConverter {
     static Logger logger = LoggerFactory.getLogger(ContentConverter.class);
 
     public static String convert(Issue issue) {
-        JiraRendererPlugin renderer = ComponentAccessor.getRendererManager().getRendererForType("atlassian-wiki-renderer");
+        JiraRendererPlugin renderer = ComponentAccessor.getRendererManager().getRendererForType(AtlassianWikiRenderer.RENDERER_TYPE);
         String content = renderer.render(issue.getDescription(), issue.getIssueRenderContext());
         return Storage.isFromBinder ? handleContent(content) : content;
     }
 
     public static String convert(Comment comment) {
-        JiraRendererPlugin renderer = ComponentAccessor.getRendererManager().getRendererForType("atlassian-wiki-renderer");
+        JiraRendererPlugin renderer = ComponentAccessor.getRendererManager().getRendererForType(AtlassianWikiRenderer.RENDERER_TYPE);
         String content = renderer.render(comment.getBody(), comment.getIssue().getIssueRenderContext());
         return Storage.isFromBinder ? handleContent(content) : content;
     }
@@ -75,11 +76,11 @@ public class ContentConverter {
         for (Attachment attachment : attachments) {
             int id = attachment.getId().intValue();
 
-            Pattern pattern = Pattern.compile("\\[[^\\[\\]]*?" + id +"[^\\[\\]]*?\\]");
+            Pattern pattern = Pattern.compile("\\[[^\\[\\]]*?" + id + "[^\\[\\]]*?\\]");
             Matcher matcher = pattern.matcher(result);
             StringBuffer buffer = new StringBuffer();
 
-            while(matcher.find()) {
+            while (matcher.find()) {
                 matcher.appendReplacement(buffer, "!" + attachment.getFilename() + "!");
             }
 
@@ -98,7 +99,7 @@ public class ContentConverter {
             Pattern pattern = Pattern.compile("\\[" + entry.getKey() + "\\]");
             Matcher matcher = pattern.matcher(result);
             StringBuffer buffer = new StringBuffer();
-            while(matcher.find()) {
+            while (matcher.find()) {
                 matcher.appendReplacement(buffer, entry.getValue());
             }
 
@@ -110,49 +111,65 @@ public class ContentConverter {
 
     /**
      * For issues
+     *
      * @param issue
      * @return
      */
     public static String convertImages(Issue issue) {
-        return convertImages(issue, issue.getDescription(), null);
+        String content = convertImages(issue, issue.getDescription());
+        JiraRendererPlugin renderer = ComponentAccessor.getRendererManager().getRendererForType(AtlassianWikiRenderer.RENDERER_TYPE);
+        content = renderer.render(content, issue.getIssueRenderContext());
+        return content;
     }
 
     /**
      * For comments
+     *
      * @param issue
      * @param content
      * @return
      */
-    public static String convertImages(Issue issue, String content, Comment comment) {
+    public static String convertImages(Issue issue, String content) {
         Collection<Attachment> attachments = issue.getAttachments();
         String regEx;
-
-        for(Attachment attachment : attachments) {
-            if (comment == null) {
-                regEx = "\\[("+ issue.getId() +"_)?" + removeExtention(attachment) + "]";
-            } else {
-                regEx = "\\[("+ comment.getId() +"_)?" + removeExtention(attachment) + "]";
-            }
+        for (Attachment attachment : attachments) {
+            regEx = "\\[(\\d{1,10}_)?" + removeExtension(attachment.getFilename()) + "]";
             Pattern pattern = Pattern.compile(regEx);
             Matcher matcher = pattern.matcher(content);
             StringBuffer buffer = new StringBuffer();
             while (matcher.find()) {
-                matcher.appendReplacement(buffer, "!" + attachment.getFilename() + "!");
+                logger.error("FOUND: " + matcher.group());
+                matcher.appendReplacement(buffer, "{{!" + attachment.getFilename() + "!}}");
             }
-
             buffer = matcher.appendTail(buffer);
             content = buffer.toString();
         }
         return content;
     }
 
-    public static String removeExtention(Attachment attachment) {
-        String name = attachment.getFilename();
+    public static String convertImages(String content, Collection<String> attachmentNames, long id) {
+        String regEx;
+        for (String filename : attachmentNames) {
+            regEx = "\\[(\\d{1,10}_)?" + removeExtension(filename) + "]";
+            Pattern pattern = Pattern.compile(regEx);
+            Matcher matcher = pattern.matcher(content);
+            if (matcher.find()) {
+                content = matcher.replaceAll("!" + filename + "!");
+            }
+        }
+        return content;
+    }
+
+    public static String removeExtension(String name) {
         if (name.startsWith(".")) {
             if (name.lastIndexOf('.') == name.indexOf('.')) return name;
         }
         if (!name.contains("."))
             return name;
         return name.substring(0, name.lastIndexOf('.'));
+    }
+
+    public static String removeExtension(Attachment attachment) {
+        return removeExtension(attachment.getFilename());
     }
 }

@@ -3,14 +3,12 @@ package useresponse.atlassian.plugins.jira.service.handler.servlet.attachments;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.event.type.EventDispatchOption;
-import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.attachment.Attachment;
 import com.atlassian.jira.issue.attachment.CreateAttachmentParamsBean;
 import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.issue.comments.MutableComment;
 import com.atlassian.jira.issue.history.ChangeItemBean;
-import com.atlassian.jira.ofbiz.AbstractOfBizValueWrapper;
 import com.atlassian.jira.web.util.AttachmentException;
 import com.google.gson.Gson;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -48,19 +46,22 @@ public class AttachmentsRequestHandler implements Handler<String, String> {
         String issueKey = null;
         MutableIssue issue = null;
         HashMap<String, Object> response = new HashMap<>();
+        int attachmentsType;
 
         try {
             issueKey = (String) data.get("issueKey");
             if (issueKey == null) {
                 throw new NullPointerException();
             }
+            attachmentsType = AttachmentsType.ISSUE_ATTACHMENT;
         } catch (NullPointerException e) {
             try {
                 String commentId = (String) data.get("comment_id");
                 issueKey = ComponentAccessor.getCommentManager().getCommentById(Long.valueOf(commentId)).getIssue().getKey();
+                attachmentsType = AttachmentsType.COMMENT_ATTACHMENT;
             } catch (NullPointerException ex) {
                 response.put("status", "error");
-                response.put("message", "");
+                response.put("message", ex.getMessage());
                 return (new Gson()).toJson(response);
             }
         }
@@ -68,14 +69,24 @@ public class AttachmentsRequestHandler implements Handler<String, String> {
         issue = ComponentAccessor.getIssueManager().getIssueByCurrentKey(issueKey);
         addAttachments(issue, (List<Map<String, String>>) data.get("attachments"));
 
-        try {
-            String comment_id = (String) data.get("comment_id");
-            CommentManager manager = ComponentAccessor.getCommentManager();
-            MutableComment comment = manager.getMutableComment(Long.valueOf(comment_id));
-            comment.setBody(ContentConverter.convertImages(comment.getIssue(), comment.getBody(), comment));
-            manager.update(comment, false);
-        } catch (Exception e) {
-            log.error(e.getMessage());
+        List<String> filenames = new ArrayList<>();
+
+        for (Map<String, String> attachment : (List<Map<String, String>>) data.get("attachments")) {
+            filenames.add(attachment.get("filename"));
+        }
+
+        switch (attachmentsType) {
+            case AttachmentsType.ISSUE_ATTACHMENT:
+                issue.setDescription(ContentConverter.convertImages(issue));
+                ComponentAccessor.getIssueManager().updateIssue(ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser(), issue, EventDispatchOption.DO_NOT_DISPATCH, false);
+                break;
+            case AttachmentsType.COMMENT_ATTACHMENT:
+                String comment_id = (String) data.get("comment_id");
+                CommentManager manager = ComponentAccessor.getCommentManager();
+                MutableComment comment = manager.getMutableComment(Long.valueOf(comment_id));
+                comment.setBody(ContentConverter.convertImages(comment.getIssue(), comment.getBody()));
+                manager.update(comment, false);
+                break;
         }
 
         response.put("status", "success");
@@ -157,20 +168,4 @@ public class AttachmentsRequestHandler implements Handler<String, String> {
         Matcher matcher = pattern.matcher(filename);
         return matcher.find();
     }
-
-    private class IssueUpdateTask implements Runnable {
-
-        private MutableIssue issue;
-
-        @Override
-        public void run() {
-            issue.setDescription(ContentConverter.convertImages(issue));
-            ComponentAccessor.getIssueManager().updateIssue(ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser(), issue, EventDispatchOption.DO_NOT_DISPATCH, false);
-        }
-
-        public IssueUpdateTask(MutableIssue issue) {
-            this.issue = issue;
-        }
-    }
-
 }

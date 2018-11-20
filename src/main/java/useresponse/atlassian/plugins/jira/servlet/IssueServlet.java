@@ -6,6 +6,8 @@ import com.atlassian.jira.event.type.EventDispatchOption;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.UpdateIssueRequest;
+import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
+import com.atlassian.jira.issue.fields.renderer.wiki.AtlassianWikiRenderer;
 import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.UserUtils;
@@ -17,8 +19,6 @@ import useresponse.atlassian.plugins.jira.manager.IssueFileLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 import useresponse.atlassian.plugins.jira.service.IssueService;
-import useresponse.atlassian.plugins.jira.service.handler.Handler;
-import useresponse.atlassian.plugins.jira.service.handler.servlet.attachments.AttachmentsRequestHandler;
 import useresponse.atlassian.plugins.jira.service.request.ServletService;
 import useresponse.atlassian.plugins.jira.storage.Storage;
 
@@ -116,6 +116,8 @@ public class IssueServlet extends HttpServlet {
         issue = IssueService.setStatusByStatusName(issue, statusName);
         issue = IssueService.setReporterByEmail(issue, authorEmail);
         issue = IssueService.setAssigneeByEmail(issue, assigneeEmail);
+
+        ComponentAccessor.getIssueManager().updateIssue(ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser(), issue, EventDispatchOption.DO_NOT_DISPATCH, false);
         issue.store();
     }
 }
