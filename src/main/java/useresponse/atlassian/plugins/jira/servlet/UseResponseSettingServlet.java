@@ -55,7 +55,7 @@ public class UseResponseSettingServlet extends HttpServlet {
     private static final String SETTINGS_TEMPLATE = "/templates/ur_connection_settings_template.vm";
     private static final String LINK_TEMPLATE = "/templates/ur_link_settings_template.vm";
 
-    private static final String SUCCESSFULL_CONNECTION_STRING = "Your connection is successfull!";
+    private static final String SUCCESSFULL_CONNECTION_STRING = "Your connection is successful!";
     private static final String SETTINGS_ARE_CHANCHED_STRING = "Settings are changed!";
 
     private final UserManager userManager;
