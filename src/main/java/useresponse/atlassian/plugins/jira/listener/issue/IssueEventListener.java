@@ -186,6 +186,7 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 
 
         Action action = null;
+        Action extraAction = null;
 
         if (typeId.equals(EventType.ISSUE_CREATED_ID)) {
             action = issueActionFactory.createAction(CreateIssueAction.class);
@@ -205,6 +206,15 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
             commentActionFactory.setEntity(() -> (long) deletedCommentId);
             action = commentActionFactory.createAction(DeleteCommentAction.class);
         } else {
+            if (typeId.equals(EventType.ISSUE_ASSIGNED_ID)) {
+                Comment comment = getCommentIfNeedSend(issue);
+                commentActionFactory.setEntity(comment);
+                if (comment != null) {
+                    extraAction = commentActionFactory.createAction(CreateCommentAction.class);
+                }
+            }
+
+
             action = issueActionFactory.createAction(UpdateIssueAction.class);
         }
 
@@ -214,5 +224,17 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
         if (action != null) {
             future = executor.submit(action);
         }
+
+        if (extraAction != null) {
+            future = executor.submit(extraAction);
+        }
+    }
+
+    private Comment getCommentIfNeedSend(MutableIssue issue) {
+        Comment comment = null;
+        if (commentLinkManager.findByIssueId(issue.getId().intValue()).size() != ComponentAccessor.getCommentManager().getComments(issue).size()) {
+            comment = ComponentAccessor.getCommentManager().getLastComment(issue);
+        }
+        return comment;
     }
 }

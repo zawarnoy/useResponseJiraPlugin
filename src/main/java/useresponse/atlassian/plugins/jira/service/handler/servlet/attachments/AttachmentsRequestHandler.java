@@ -3,6 +3,7 @@ package useresponse.atlassian.plugins.jira.service.handler.servlet.attachments;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.event.type.EventDispatchOption;
+import com.atlassian.jira.exception.RemoveException;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.attachment.Attachment;
 import com.atlassian.jira.issue.attachment.CreateAttachmentParamsBean;
@@ -45,8 +46,16 @@ public class AttachmentsRequestHandler implements Handler<String, String> {
 
         String issueKey = null;
         MutableIssue issue = null;
+        Boolean delete;
         HashMap<String, Object> response = new HashMap<>();
         int attachmentsType;
+
+
+        try {
+            delete = (boolean) data.get("delete");
+        } catch (Exception e) {
+            delete = false;
+        }
 
         try {
             issueKey = (String) data.get("issueKey");
@@ -67,28 +76,28 @@ public class AttachmentsRequestHandler implements Handler<String, String> {
         }
 
         issue = ComponentAccessor.getIssueManager().getIssueByCurrentKey(issueKey);
-        addAttachments(issue, (List<Map<String, String>>) data.get("attachments"));
+        List<Map<String, String>> attachmentsList = (List<Map<String, String>>) data.get("attachments");
 
-        List<String> filenames = new ArrayList<>();
 
-        for (Map<String, String> attachment : (List<Map<String, String>>) data.get("attachments")) {
-            filenames.add(attachment.get("filename"));
+        if (delete) {
+            deleteAttachments(issue, attachmentsList);
+        } else {
+            addAttachments(issue, attachmentsList);
+
+            switch (attachmentsType) {
+                case AttachmentsType.ISSUE_ATTACHMENT:
+                    issue.setDescription(ContentConverter.convertImages(issue));
+                    ComponentAccessor.getIssueManager().updateIssue(ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser(), issue, EventDispatchOption.DO_NOT_DISPATCH, false);
+                    break;
+                case AttachmentsType.COMMENT_ATTACHMENT:
+                    String comment_id = (String) data.get("comment_id");
+                    CommentManager manager = ComponentAccessor.getCommentManager();
+                    MutableComment comment = manager.getMutableComment(Long.valueOf(comment_id));
+                    comment.setBody(ContentConverter.convertImages(comment.getIssue(), comment.getBody()));
+                    manager.update(comment, false);
+                    break;
+            }
         }
-
-        switch (attachmentsType) {
-            case AttachmentsType.ISSUE_ATTACHMENT:
-                issue.setDescription(ContentConverter.convertImages(issue));
-                ComponentAccessor.getIssueManager().updateIssue(ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser(), issue, EventDispatchOption.DO_NOT_DISPATCH, false);
-                break;
-            case AttachmentsType.COMMENT_ATTACHMENT:
-                String comment_id = (String) data.get("comment_id");
-                CommentManager manager = ComponentAccessor.getCommentManager();
-                MutableComment comment = manager.getMutableComment(Long.valueOf(comment_id));
-                comment.setBody(ContentConverter.convertImages(comment.getIssue(), comment.getBody()));
-                manager.update(comment, false);
-                break;
-        }
-
         response.put("status", "success");
 
         return (new Gson()).toJson(response);
@@ -114,6 +123,22 @@ public class AttachmentsRequestHandler implements Handler<String, String> {
             }
         }
         return true;
+    }
+
+    private void deleteAttachments(MutableIssue issue, List<Map<String, String>> attachmentsList) {
+        List<Attachment> attachments = getAttachmentManager().getAttachments(issue);
+        Attachment attachment;
+        for (Map<String, String> attachmentMap : attachmentsList) {
+            try {
+                attachment = getAttachmentByFilename(attachments, attachmentMap.get("filename"));
+                if (attachment != null) {
+                    getAttachmentManager().deleteAttachment(attachment);
+                    this.fileLinkManager.delete(issue.getId().intValue(), attachmentMap.get("filename"));
+                }
+            } catch (RemoveException | NullPointerException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void addOneAttachment(MutableIssue issue, Map<String, String> data) {
@@ -161,6 +186,15 @@ public class AttachmentsRequestHandler implements Handler<String, String> {
         }
 
         return file;
+    }
+
+    private Attachment getAttachmentByFilename(List<Attachment> attachments, String filename) {
+        for (Attachment attachment : attachments) {
+            if (attachment.getFilename().equals(filename)) {
+                return attachment;
+            }
+        }
+        return null;
     }
 
     private boolean isZipFile(String filename) {

@@ -49,6 +49,7 @@ public class CommentRequestBuilder {
         builder.addStandardParametersForRequest(comment).
                 addUseResponseObjectIdToMap(comment).
                 addUseResponseCommentIdToMap(comment).
+                addAuthorToRequest(comment).
                 addEditAction().
                 addNotifyFlag(notify);
         return builder.getRequestMap();

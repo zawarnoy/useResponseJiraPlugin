@@ -65,6 +65,7 @@ public class ContentConverter {
         content = convertIcons(content);
         issue.setDescription(content);
         content = convertImages(issue);
+        logger.error(content);
         return content;
     }
 
@@ -117,8 +118,6 @@ public class ContentConverter {
      */
     public static String convertImages(Issue issue) {
         String content = convertImages(issue, issue.getDescription());
-//        JiraRendererPlugin renderer = ComponentAccessor.getRendererManager().getRendererForType(AtlassianWikiRenderer.RENDERER_TYPE);
-//        content = renderer.render(content, issue.getIssueRenderContext());
         return content;
     }
 
@@ -138,7 +137,6 @@ public class ContentConverter {
             Matcher matcher = pattern.matcher(content);
             StringBuffer buffer = new StringBuffer();
             while (matcher.find()) {
-                logger.error("FOUND: " + matcher.group());
                 matcher.appendReplacement(buffer, "!" + attachment.getFilename() + "!");
             }
             buffer = matcher.appendTail(buffer);

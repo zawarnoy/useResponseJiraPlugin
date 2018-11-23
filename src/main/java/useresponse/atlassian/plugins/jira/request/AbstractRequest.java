@@ -1,7 +1,6 @@
 package useresponse.atlassian.plugins.jira.request;
 
 
-import com.atlassian.jira.event.issue.IssueEvent;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
