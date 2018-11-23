@@ -1,18 +1,13 @@
 package useresponse.atlassian.plugins.jira.servlet;
 
 import com.atlassian.jira.component.ComponentAccessor;
-import com.atlassian.jira.event.type.EventDispatchOption;
-import com.atlassian.jira.exception.CreateException;
-import com.atlassian.jira.exception.PermissionException;
 import com.atlassian.jira.issue.MutableIssue;
-import com.atlassian.jira.user.UserDetails;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.exception.MissingParameterException;
 import useresponse.atlassian.plugins.jira.manager.impl.UseResponseObjectManagerImpl;
-import useresponse.atlassian.plugins.jira.model.IssueFileLink;
 import useresponse.atlassian.plugins.jira.service.IssueService;
 import useresponse.atlassian.plugins.jira.service.request.ServletService;
 
@@ -68,9 +63,11 @@ public class IssueLinkServlet extends HttpServlet {
             MutableIssue issue = ComponentAccessor.getIssueManager().getIssueByCurrentKey(jiraKey);
             int parsedId = Integer.valueOf(useresponseId);
 
-            issue = IssueService.setAssigneeByEmail(issue, responsibleEmail);
-            issue = IssueService.setReporterByEmail(issue, creatorEmail);
-            issue = IssueService.setStatusByStatusName(issue, statusName);
+            if (sync) {
+                issue = IssueService.setAssigneeByEmail(issue, responsibleEmail);
+                issue = IssueService.setReporterByEmail(issue, creatorEmail);
+                issue = IssueService.setStatusByStatusName(issue, statusName);
+            }
 
             int issueId = issue.getId().intValue();
             useResponseObjectManager.findOrAdd(parsedId, issueId, objectType, sync);
