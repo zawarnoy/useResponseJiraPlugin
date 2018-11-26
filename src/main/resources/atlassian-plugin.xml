@@ -87,12 +87,6 @@
     <context>jira.navigator.simple</context>
     <context>jira.navigator.advanced</context>
   </web-resource>
-  <rest name="Comments Rest Resource" i18n-name-key="comments-rest-resource.name" key="comments-rest-resource" path="/comment" version="1.0">
-    <description key="comments-rest-resource.description">The Comments Rest Resource Plugin</description>
-  </rest>
-  <rest name="Issue Rest Resource" i18n-name-key="issue-rest-resource.name" key="issue-rest-resource" path="/issue" version="1.0">
-    <description key="issue-rest-resource.description">The Issue Rest Resource Plugin</description>
-  </rest>
   <servlet name="Issue Servlet" i18n-name-key="issue-servlet.name" key="issue-servlet" class="useresponse.atlassian.plugins.jira.servlet.IssueServlet">
     <description key="issue-servlet.description">The Issue Servlet Plugin</description>
     <url-pattern>/issueservlet</url-pattern>
@@ -105,9 +99,7 @@
     <description key="issue-link-servlet.description">The Issue Link Servlet Plugin</description>
     <url-pattern>/issuelink</url-pattern>
   </servlet>
-  <rest name="Text Converter Rest Resource" i18n-name-key="text-converter-rest-resource.name" key="text-converter-rest-resource" path="/converter" version="1.0">
-    <description key="text-converter-rest-resource.description">The Text Converter Rest Resource Plugin</description>
-  </rest>
+
   <servlet name="Attachments Servlet" i18n-name-key="attachments-servlet.name" key="attachments-servlet" class="useresponse.atlassian.plugins.jira.servlet.AttachmentsServlet">
     <description key="attachments-servlet.description">The Attachments Servlet Plugin</description>
     <url-pattern>/attachmentsservlet</url-pattern>

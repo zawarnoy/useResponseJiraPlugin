@@ -7,6 +7,7 @@ import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.model.CommentLink;
 import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 import useresponse.atlassian.plugins.jira.service.converter.content.ContentConverter;
+import useresponse.atlassian.plugins.jira.storage.Storage;
 
 import java.text.SimpleDateFormat;
 import java.util.Map;
@@ -63,6 +64,16 @@ public class CommentRequestParametersBuilder extends RequestParametersBuilder {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         dateFormat.setTimeZone(TimeZone.getTimeZone("GTM"));
         requestMap.put("created_at", dateFormat.format(comment.getCreated()));
+        return this;
+    }
+
+    public CommentRequestParametersBuilder addParametersForDelete(int useResponseCommentId) {
+        CommentLink link = commentLinkManager.findByUseResponseId(useResponseCommentId);
+        this.requestMap.put("useresponse_comment_id", link.getUseResponseCommentId());
+        this.requestMap.put("jira_comment_id", link.getJiraCommentId());
+        if (!Storage.userWhoPerformedAction.equals("")) {
+            this.requestMap.put("force_author", Storage.userWhoPerformedAction);
+        }
         return this;
     }
 

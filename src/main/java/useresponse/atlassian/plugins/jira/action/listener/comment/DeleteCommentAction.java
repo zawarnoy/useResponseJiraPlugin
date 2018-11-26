@@ -36,22 +36,16 @@ public class DeleteCommentAction extends AbstractCommentAction {
     @Override
     protected Request addParameters(Request request) {
         Map<Object, Object> requestMap = new HashMap<>();
-        List<Map> commentsList = new ArrayList<>();
-        Map<Object, Object> deletedCommentMap = new HashMap<>();
-        CommentLink link = commentLinkManager.findByUseResponseId(comment.getId().intValue());
-        deletedCommentMap.put("useresponse_comment_id", link.getUseResponseCommentId());
-        deletedCommentMap.put("jira_comment_id", link.getJiraCommentId());
-        deletedCommentMap.put("force_author", Storage.userWhoPerformedAction);
-        deletedCommentMap.put("action", "delete");
-        commentsList.add(deletedCommentMap);
-        requestMap.put("comments", commentsList);
+        Map<Object, Object> commentMap = parametersBuilder.buildDeleteCommentMap(comment.getId().intValue());
+        ArrayList<Map<Object, Object>> comments = new ArrayList<>();
+        comments.add(commentMap);
+        requestMap.put("comments", comments);
         request.addParameter(requestMap);
         return request;
     }
 
     @Override
     protected String createUrl() {
-//        return collectUrl("comments/" + comment.getId() + "/trash.json");
         return getSpecialApiPath();
     }
 
