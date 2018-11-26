@@ -186,7 +186,12 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 
 
         Action action = null;
+        // in case when you need to execute 2 actions
         Action extraAction = null;
+
+        if (issueEvent.getUser() != null) {
+            Storage.userWhoPerformedAction = issueEvent.getUser().getEmailAddress();
+        }
 
         if (typeId.equals(EventType.ISSUE_CREATED_ID)) {
             action = issueActionFactory.createAction(CreateIssueAction.class);
@@ -200,11 +205,10 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
             action = commentActionFactory.createAction(DeleteIssueAction.class);
         } else if (typeId.equals(EventType.ISSUE_COMMENT_DELETED_ID)) {
             Integer deletedCommentId = CommentsService.getDeletedCommentId(issueEvent.getIssue(), commentLinkManager);
-            if (deletedCommentId == null) {
-                action = null;
+            if (deletedCommentId != null) {
+                commentActionFactory.setEntity(() -> (long) deletedCommentId);
+                action = commentActionFactory.createAction(DeleteCommentAction.class);
             }
-            commentActionFactory.setEntity(() -> (long) deletedCommentId);
-            action = commentActionFactory.createAction(DeleteCommentAction.class);
         } else {
             if (typeId.equals(EventType.ISSUE_ASSIGNED_ID)) {
                 Comment comment = getCommentIfNeedSend(issue);
@@ -213,8 +217,6 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
                     extraAction = commentActionFactory.createAction(CreateCommentAction.class);
                 }
             }
-
-
             action = issueActionFactory.createAction(UpdateIssueAction.class);
         }
 

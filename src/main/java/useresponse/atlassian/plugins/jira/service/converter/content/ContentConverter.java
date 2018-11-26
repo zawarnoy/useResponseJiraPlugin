@@ -65,7 +65,6 @@ public class ContentConverter {
         content = convertIcons(content);
         issue.setDescription(content);
         content = convertImages(issue);
-        logger.error(content);
         return content;
     }
 

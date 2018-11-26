@@ -9,6 +9,8 @@ public class Storage {
     public static final String JIRA_DATA_HANDLER_ROUTE = "jira-tickets/entry/add.json";
     public static final String JIRA_SETTINGS_ROUTE = "jira-settings.json";
 
+    public static String userWhoPerformedAction = "";
+
     public static final Map<String, String> UR_PRIORITIES = new HashMap<String, String>() {
         {
             put("low", "Low");

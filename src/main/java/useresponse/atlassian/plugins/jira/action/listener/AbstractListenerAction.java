@@ -1,6 +1,8 @@
 package useresponse.atlassian.plugins.jira.action.listener;
 
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import com.google.gson.Gson;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -54,6 +56,9 @@ public abstract class AbstractListenerAction implements Action {
     private void execute() throws ConnectionException, NoSuchAlgorithmException, KeyManagementException, InvalidResponseException, IOException, ParseException {
         if (!SettingsService.testURConnection(pluginSettingsFactory)) {
             throw new ConnectionException("Can't connect to UseResponse services");
+        }
+        if (!Storage.userWhoPerformedAction.equals("")) {
+            request.addParameter("logged_user_email", Storage.userWhoPerformedAction);
         }
         request = addParameters(request);
         String url = createUrl();

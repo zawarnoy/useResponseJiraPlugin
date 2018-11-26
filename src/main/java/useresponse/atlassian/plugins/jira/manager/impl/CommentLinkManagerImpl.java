@@ -44,7 +44,7 @@ public class CommentLinkManagerImpl implements CommentLinkManager {
 
     @Override
     public CommentLink findByJiraId(int jiraCommentId) {
-        CommentLink[] objects = ao.find(CommentLink.class, Query.select().where("jira_comment_Id = ?", String.valueOf(jiraCommentId)));
+        CommentLink[] objects = ao.find(CommentLink.class, Query.select().where("jira_comment_id = ?", String.valueOf(jiraCommentId)));
         return objects.length > 0 ? objects[0] : null;
     }
 

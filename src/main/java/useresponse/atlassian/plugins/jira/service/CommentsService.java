@@ -37,19 +37,8 @@ public class CommentsService {
 
         for (CommentLink link : commentLinksSet) {
             result.add(link.getUseResponseCommentId());
-            commentLinkManager.delete(link);
         }
         return result;
-    }
-
-    public static boolean isDeletedComment(Comment comment, CommentLinkManager commentLinkManager) {
-        List<Integer> deletedCommentIds = getDeletedCommentsId(comment.getIssue(), commentLinkManager);
-        for (int id : deletedCommentIds) {
-            if (comment.getId().intValue() == id) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private static boolean isInCommentsList(List<Comment> comments, int wantedCommentId) {
