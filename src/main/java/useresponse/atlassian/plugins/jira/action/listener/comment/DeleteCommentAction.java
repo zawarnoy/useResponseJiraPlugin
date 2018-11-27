@@ -8,8 +8,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.action.ActionType;
 import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
+import useresponse.atlassian.plugins.jira.model.CommentLink;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
+import useresponse.atlassian.plugins.jira.storage.Storage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,10 +33,15 @@ public class DeleteCommentAction extends AbstractCommentAction {
     @Override
     protected Request addParameters(Request request) {
         Map<Object, Object> requestMap = new HashMap<>();
-        Map<Object, Object> commentMap = parametersBuilder.buildDeleteCommentMap(comment.getId().intValue());
-        ArrayList<Map<Object, Object>> comments = new ArrayList<>();
-        comments.add(commentMap);
-        requestMap.put("comments", comments);
+        List<Map> commentsList = new ArrayList<>();
+        Map<Object, Object> deletedCommentMap = new HashMap<>();
+        CommentLink link = commentLinkManager.findByUseResponseId(comment.getId().intValue());
+        deletedCommentMap.put("useresponse_comment_id", link.getUseResponseCommentId());
+        deletedCommentMap.put("jira_comment_id", link.getJiraCommentId());
+        deletedCommentMap.put("force_author", Storage.userWhoPerformedAction);
+        deletedCommentMap.put("action", "delete");
+        commentsList.add(deletedCommentMap);
+        requestMap.put("comments", commentsList);
         request.addParameter(requestMap);
         return request;
     }

@@ -80,6 +80,7 @@ public class IssueLinkServlet extends HttpServlet {
             int issueId = issue.getId().intValue();
             useResponseObjectManager.findOrAdd(parsedId, issueId, objectType, sync);
 
+            //
 //            ComponentAccessor.getIssueManager().updateIssue(ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser(), issue, EventDispatchOption.DO_NOT_DISPATCH, false);
             issue.store();
             responseMap.put("status", "success");
