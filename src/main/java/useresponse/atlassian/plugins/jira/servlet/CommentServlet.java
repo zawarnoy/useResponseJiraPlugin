@@ -10,7 +10,6 @@ import useresponse.atlassian.plugins.jira.manager.impl.CommentLinkManagerImpl;
 import useresponse.atlassian.plugins.jira.service.handler.Handler;
 import useresponse.atlassian.plugins.jira.service.handler.servlet.comment.CommentServletRequestHandler;
 import useresponse.atlassian.plugins.jira.service.request.ServletService;
-
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;

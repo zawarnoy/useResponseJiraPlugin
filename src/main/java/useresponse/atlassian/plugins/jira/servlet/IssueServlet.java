@@ -5,12 +5,6 @@ import com.atlassian.jira.config.DefaultStatusManager;
 import com.atlassian.jira.event.type.EventDispatchOption;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
-import com.atlassian.jira.issue.UpdateIssueRequest;
-import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
-import com.atlassian.jira.issue.fields.renderer.wiki.AtlassianWikiRenderer;
-import com.atlassian.jira.issue.status.Status;
-import com.atlassian.jira.user.ApplicationUser;
-import com.atlassian.jira.user.UserUtils;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +15,6 @@ import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 import useresponse.atlassian.plugins.jira.service.IssueService;
 import useresponse.atlassian.plugins.jira.service.request.ServletService;
 import useresponse.atlassian.plugins.jira.storage.Storage;
-
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -46,7 +39,6 @@ public class IssueServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-
         DefaultStatusManager statusManager = ComponentAccessor.getComponent(DefaultStatusManager.class);
 
         String issueKey = null;
@@ -61,7 +53,6 @@ public class IssueServlet extends HttpServlet {
 
 
         if (data != null) {
-
             try {
                 issueKey = (String) data.get("issueKey");
             } catch (NullPointerException exception) {

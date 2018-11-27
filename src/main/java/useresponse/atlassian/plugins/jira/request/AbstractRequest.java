@@ -1,12 +1,10 @@
 package useresponse.atlassian.plugins.jira.request;
 
-
 import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.exception.InvalidResponseException;
 import useresponse.atlassian.plugins.jira.exception.UndefinedUrlException;
-
 import javax.net.ssl.*;
 import java.io.*;
 import java.net.HttpURLConnection;

@@ -6,9 +6,7 @@ import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.model.CommentLink;
 import net.java.ao.Query;
 import com.atlassian.activeobjects.external.ActiveObjects;
-
 import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Arrays;

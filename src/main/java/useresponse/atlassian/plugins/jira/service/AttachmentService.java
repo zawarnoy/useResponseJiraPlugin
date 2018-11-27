@@ -1,9 +1,7 @@
 package useresponse.atlassian.plugins.jira.service;
 
-
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.AttachmentManager;
-
 import java.util.ArrayList;
 import java.util.List;
 

@@ -6,12 +6,10 @@ import net.java.ao.Query;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 import com.atlassian.activeobjects.external.ActiveObjects;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Arrays;
 import java.util.List;
-
 import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
 
 @Scanned

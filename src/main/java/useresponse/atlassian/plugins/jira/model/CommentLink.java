@@ -2,7 +2,6 @@ package useresponse.atlassian.plugins.jira.model;
 
 import net.java.ao.Entity;
 
-
 public interface CommentLink extends Entity {
     int getJiraCommentId();
 

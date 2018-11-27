@@ -2,17 +2,11 @@ package useresponse.atlassian.plugins.jira.service.handler.servlet.binder;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.service.handler.Handler;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

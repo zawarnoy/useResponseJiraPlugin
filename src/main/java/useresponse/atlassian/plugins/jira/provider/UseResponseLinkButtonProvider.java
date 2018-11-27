@@ -12,7 +12,6 @@ import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import com.atlassian.plugin.PluginParseException;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
-
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;

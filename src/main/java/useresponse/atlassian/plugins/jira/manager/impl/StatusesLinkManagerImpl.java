@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.manager.StatusesLinkManager;
 import useresponse.atlassian.plugins.jira.model.StatusesLink;
 import com.atlassian.activeobjects.external.ActiveObjects;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Arrays;

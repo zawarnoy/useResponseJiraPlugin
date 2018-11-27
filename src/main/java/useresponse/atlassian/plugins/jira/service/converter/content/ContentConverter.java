@@ -11,10 +11,8 @@ import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
 import com.atlassian.jira.issue.fields.renderer.wiki.AtlassianWikiRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import useresponse.atlassian.plugins.jira.manager.IssueFileLinkManager;
 import useresponse.atlassian.plugins.jira.service.IconsService;
 import useresponse.atlassian.plugins.jira.storage.Storage;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;

@@ -1,6 +1,5 @@
 package useresponse.atlassian.plugins.jira.service.handler.servlet.attachments;
 
-
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.event.type.EventDispatchOption;
 import com.atlassian.jira.exception.RemoveException;
@@ -19,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.manager.IssueFileLinkManager;
 import useresponse.atlassian.plugins.jira.service.converter.content.ContentConverter;
 import useresponse.atlassian.plugins.jira.service.handler.Handler;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;

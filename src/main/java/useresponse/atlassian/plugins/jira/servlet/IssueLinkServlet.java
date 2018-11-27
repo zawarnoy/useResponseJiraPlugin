@@ -2,15 +2,16 @@ package useresponse.atlassian.plugins.jira.servlet;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.MutableIssue;
+import com.atlassian.jira.user.ApplicationUser;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.exception.MissingParameterException;
+import useresponse.atlassian.plugins.jira.exception.NotLoggedException;
 import useresponse.atlassian.plugins.jira.manager.impl.UseResponseObjectManagerImpl;
 import useresponse.atlassian.plugins.jira.service.IssueService;
 import useresponse.atlassian.plugins.jira.service.request.ServletService;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -29,6 +30,7 @@ public class IssueLinkServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
+
         String json = ServletService.getJsonFromRequest(req);
 
         Map<String, Object> data = (new Gson()).fromJson(json, Map.class);
@@ -44,6 +46,12 @@ public class IssueLinkServlet extends HttpServlet {
         Map<String, String> responseMap = new HashMap<>();
 
         try {
+            ApplicationUser user = ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser();
+
+            if (user == null) {
+                throw new NotLoggedException("");
+            }
+
             if (useresponseId == null) {
                 throw new MissingParameterException("useresponse_id");
             }
@@ -75,7 +83,7 @@ public class IssueLinkServlet extends HttpServlet {
 //            ComponentAccessor.getIssueManager().updateIssue(ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser(), issue, EventDispatchOption.DO_NOT_DISPATCH, false);
             issue.store();
             responseMap.put("status", "success");
-        } catch (MissingParameterException e) {
+        } catch (MissingParameterException | NotLoggedException e) {
             responseMap.put("status", "error");
             responseMap.put("message", e.getMessage());
         }

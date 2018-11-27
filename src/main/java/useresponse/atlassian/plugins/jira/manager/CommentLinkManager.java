@@ -2,7 +2,6 @@ package useresponse.atlassian.plugins.jira.manager;
 
 import com.atlassian.activeobjects.tx.Transactional;
 import useresponse.atlassian.plugins.jira.model.CommentLink;
-
 import java.util.List;
 
 @Transactional

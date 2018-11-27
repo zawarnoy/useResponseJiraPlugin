@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.model.CommentLink;
 import useresponse.atlassian.plugins.jira.set.linked.LinkedSet;
-
 import java.util.ArrayList;
 import java.util.List;
 

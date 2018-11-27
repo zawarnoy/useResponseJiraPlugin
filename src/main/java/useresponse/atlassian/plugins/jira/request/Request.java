@@ -2,7 +2,6 @@ package useresponse.atlassian.plugins.jira.request;
 
 import useresponse.atlassian.plugins.jira.exception.InvalidResponseException;
 import useresponse.atlassian.plugins.jira.exception.UndefinedUrlException;
-
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;

@@ -2,7 +2,6 @@ package useresponse.atlassian.plugins.jira.settings;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
-
 public class PluginSettingsImpl implements PluginSettings {
 
     private static final String PLUGIN_PREFIX = "useresponse.atlassian.plugins.jira";

@@ -7,7 +7,6 @@ import useresponse.atlassian.plugins.jira.model.IssueFileLink;
 import com.atlassian.activeobjects.external.ActiveObjects;
 import net.java.ao.Query;
 import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Arrays;

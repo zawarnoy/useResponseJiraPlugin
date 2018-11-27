@@ -1,7 +1,6 @@
 package useresponse.atlassian.plugins.jira.action.listener.comment;
 
 import com.atlassian.jira.entity.WithId;
-import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.google.gson.Gson;
 import com.google.gson.internal.StringMap;
@@ -9,12 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.action.ActionType;
 import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
-import useresponse.atlassian.plugins.jira.model.CommentLink;
-import useresponse.atlassian.plugins.jira.request.DeleteRequest;
-import useresponse.atlassian.plugins.jira.request.GetRequest;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
-import useresponse.atlassian.plugins.jira.storage.Storage;
 
 import java.util.ArrayList;
 import java.util.HashMap;

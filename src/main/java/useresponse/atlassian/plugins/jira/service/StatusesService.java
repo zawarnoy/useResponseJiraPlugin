@@ -2,7 +2,6 @@ package useresponse.atlassian.plugins.jira.service;
 
 import com.atlassian.jira.config.DefaultStatusManager;
 import com.atlassian.jira.issue.status.Status;
-import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.manager.impl.StatusesLinkManagerImpl;
 import useresponse.atlassian.plugins.jira.model.StatusesLink;
 

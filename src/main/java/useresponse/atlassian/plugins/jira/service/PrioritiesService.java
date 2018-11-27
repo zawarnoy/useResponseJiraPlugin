@@ -6,7 +6,6 @@ import useresponse.atlassian.plugins.jira.manager.URPriorityManager;
 import useresponse.atlassian.plugins.jira.model.PriorityLink;
 import useresponse.atlassian.plugins.jira.model.URPriority;
 import com.atlassian.jira.config.DefaultPriorityManager;
-
 import java.util.*;
 
 public class PrioritiesService {
