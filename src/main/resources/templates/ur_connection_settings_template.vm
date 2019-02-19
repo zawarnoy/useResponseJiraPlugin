@@ -12,7 +12,7 @@
 
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     $webResourceManager.requireResource(
-        "useresponse.atlassian.plugins.jira.jira-plugin:jira-plugin-resources")
+        "useresponse.jira-plugin:jira-plugin-resources")
 
 <div id="hellopreloader">
     <div id="hellopreloader_preload"></div>
@@ -20,7 +20,7 @@
 
 <div class="img-container" style="">
     <a href="https://www.useresponse.com/" target="_blank"><img style="margin: 0;"
-                                                                src="${baseUrl}/download/resources/useresponse.atlassian.plugins.jira.jira-plugin:jira-plugin-resources/images/urPicture.png"
+                                                                src="${baseUrl}/download/resources/useresponse.jira-plugin:jira-plugin-resources/images/urPicture.png"
                                                                 alt="">
     </a>
 </div>

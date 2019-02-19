@@ -34,7 +34,7 @@ AJS.$(document).ready(function () {
         AJS.$.post('', data, function (response) {
             AJS.$('#hellopreloader_preload').fadeOut(200, function () {
             });
-            console.log(response);
+
             response = JSON.parse(response);
 
             if (response.status === "success") {
