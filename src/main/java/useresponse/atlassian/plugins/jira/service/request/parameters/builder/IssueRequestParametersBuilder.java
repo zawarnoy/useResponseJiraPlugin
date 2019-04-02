@@ -1,6 +1,5 @@
 package useresponse.atlassian.plugins.jira.service.request.parameters.builder;
 
-import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.entity.WithId;
 import com.atlassian.jira.issue.AttachmentManager;
 import com.atlassian.jira.issue.Issue;
@@ -10,12 +9,13 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.manager.IssueFileLinkManager;
 import useresponse.atlassian.plugins.jira.manager.PriorityLinkManager;
 import useresponse.atlassian.plugins.jira.manager.StatusesLinkManager;
 import useresponse.atlassian.plugins.jira.model.IssueFileLink;
+import useresponse.atlassian.plugins.jira.model.PriorityLink;
 import useresponse.atlassian.plugins.jira.model.StatusesLink;
+import useresponse.atlassian.plugins.jira.model.URPriority;
 import useresponse.atlassian.plugins.jira.service.converter.content.ContentConverter;
 
 import javax.inject.Inject;
@@ -108,6 +108,7 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
         requestMap = addJiraIssueIdToMap(requestMap, issue);
         requestMap = addDueOnToMap(requestMap, issue);
         requestMap = addProjectKeyToMap(requestMap, issue);
+
         return this;
     }
 
@@ -115,6 +116,7 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
         if (issue.getLabels() != null) {
             map.put("tags", getTagsFromLabels(issue.getLabels()));
         }
+
         return map;
     }
 
@@ -122,6 +124,7 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
         if (issue.getProjectObject() != null) {
             map.put("project_key", issue.getProjectObject().getKey());
         }
+
         return map;
     }
 
@@ -151,13 +154,20 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
         if (issue.getReporter() != null) {
             map.put("force_author", issue.getReporter().getEmailAddress());
         }
+
         return map;
     }
 
     private Map<Object, Object> addPriorityToMap(Map<Object, Object> map, Issue issue) {
-        if (priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName()) != null) {
+        if (issue.getPriority() != null &&
+                priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName()) != null) {
+            PriorityLink link = priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName());
+            URPriority priority = link.getUseResponsePriority();
+            String w = priority.getUseResponsePrioritySlug();
+
             map.put("priority", priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName()).getUseResponsePriority().getUseResponsePrioritySlug());
         }
+
         return map;
     }
 
@@ -186,6 +196,7 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
             }
         }
         map.put("attachments", attachmentsData);
+
         return map;
     }
 
@@ -200,6 +211,7 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
                 issueFileLinkManager.delete(link);
             }
         }
+
         return result;
     }
 
@@ -211,6 +223,7 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
                 break;
             }
         }
+
         return flag;
     }
 
@@ -227,6 +240,7 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
         });
         attachmentData.put("name", attachment.getFilename());
         attachmentData.put("body", body);
+
         return attachmentData;
     }
 
@@ -234,6 +248,7 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
         if (issue.getAssignee() != null) {
             map.put("responsible_email", issue.getAssignee().getEmailAddress());
         }
+
         return map;
     }
 
@@ -243,6 +258,7 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
         while (iterator.hasNext()) {
             result.add(iterator.next().getLabel());
         }
+
         return result;
     }
 

@@ -12,6 +12,7 @@ import useresponse.atlassian.plugins.jira.service.request.parameters.builder.Iss
 
 import javax.inject.Inject;
 import javax.inject.Named;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class IssueActionFactory extends AbsctractListenerActionFactory {
@@ -37,7 +38,7 @@ public class IssueActionFactory extends AbsctractListenerActionFactory {
     @Override
     public Action createAction(Class actionClass) {
         if (actionClass.getCanonicalName().equals(CreateIssueAction.class.getCanonicalName())) {
-            return new CreateIssueAction((Issue) entity, useResponseObjectManager, rendererManager, priorityLinkManager, pluginSettingsFactory, ComponentAccessor.getComponent(DefaultAttachmentManager.class), issueFileLinkManager, issueRequestBuilder);
+            return new CreateIssueAction((Issue) entity);
         } else if (actionClass.getCanonicalName().equals(UpdateIssueAction.class.getCanonicalName())) {
             return new UpdateIssueAction((Issue) entity, useResponseObjectManager, rendererManager, priorityLinkManager, pluginSettingsFactory, ComponentAccessor.getComponent(DefaultAttachmentManager.class), issueFileLinkManager, statusesLinkManager, issueRequestBuilder);
         } else if (actionClass.getCanonicalName().equals(DeleteIssueAction.class.getCanonicalName())) {

@@ -18,22 +18,8 @@ import java.util.HashMap;
 
 public class CreateIssueAction extends AbstractIssueAction {
 
-    public CreateIssueAction(Issue issue,
-                             UseResponseObjectManager useResponseObjectManager,
-                             RendererManager rendererManager,
-                             PriorityLinkManager priorityLinkManager,
-                             PluginSettingsFactory pluginSettingsFactory,
-                             AttachmentManager attachmentManager,
-                             IssueFileLinkManager issueFileLinkManager, IssueRequestBuilder issueRequestBuilder) {
+    public CreateIssueAction(Issue issue) {
         this.issue = issue;
-        this.useResponseObjectManager = useResponseObjectManager;
-        this.rendererManager = rendererManager;
-        this.priorityLinkManager = priorityLinkManager;
-        this.pluginSettingsFactory = pluginSettingsFactory;
-        this.attachmentManager = attachmentManager;
-        this.issueFileLinkManager = issueFileLinkManager;
-        this.builder = issueRequestBuilder;
-
         this.request = new PostRequest();
         this.actionType = ActionType.CREATE_ISSUE_ID;
     }

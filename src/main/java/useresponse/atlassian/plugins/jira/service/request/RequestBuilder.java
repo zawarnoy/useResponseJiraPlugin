@@ -4,6 +4,7 @@ import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.jira.issue.comments.CommentManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestBuilder;
@@ -21,14 +22,15 @@ import java.util.Map;
 
 public class RequestBuilder {
 
-    private CommentManager commentManager;
+    private CommentManager commentManager = ComponentAccessor.getCommentManager();
+
+    @Autowired
     private IssueRequestBuilder issueRequestBuilder;
+
+    @Autowired
     private CommentRequestBuilder commentRequestBuilder;
 
-    public RequestBuilder(IssueRequestBuilder issueRequestBuilder, CommentRequestBuilder commentRequestBuilder) {
-        this.issueRequestBuilder = issueRequestBuilder;
-        this.commentRequestBuilder = commentRequestBuilder;
-        this.commentManager = ComponentAccessor.getCommentManager();
+    public RequestBuilder() {
     }
 
     /**

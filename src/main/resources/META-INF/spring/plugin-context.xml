@@ -27,6 +27,10 @@
           class="useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestBuilder">
     </bean>
 
+    <bean id="requestBuilder"
+          class="useresponse.atlassian.plugins.jira.service.request.RequestBuilder">
+    </bean>
+
     <bean id="issueActionFactory"
           class="useresponse.atlassian.plugins.jira.action.listener.issue.IssueActionFactory">
     </bean>

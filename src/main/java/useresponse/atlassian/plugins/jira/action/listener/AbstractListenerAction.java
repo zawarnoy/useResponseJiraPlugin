@@ -17,6 +17,8 @@ import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 import useresponse.atlassian.plugins.jira.storage.Storage;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -27,13 +29,28 @@ import java.security.NoSuchAlgorithmException;
  */
 public abstract class AbstractListenerAction implements Action {
 
-    Logger logger = LoggerFactory.getLogger(AbstractListenerAction.class);
-
     protected Request request;
     protected PluginSettingsFactory pluginSettingsFactory;
     protected int actionType;
     protected CommentLinkManager commentLinkManager;
     protected UseResponseObjectManager useResponseObjectManager;
+
+    @Inject
+    public void setPluginSettingsFactory(PluginSettingsFactory pluginSettingsFactory) {
+        this.pluginSettingsFactory = pluginSettingsFactory;
+    }
+
+    @Inject
+    @Named("commentLinkManager")
+    public void setCommentLinkManager(CommentLinkManager commentLinkManager) {
+        this.commentLinkManager = commentLinkManager;
+    }
+
+    @Inject
+    @Named("useResponseObjectManager")
+    public void setUseResponseObjectManager(UseResponseObjectManager useResponseObjectManager) {
+        this.useResponseObjectManager = useResponseObjectManager;
+    }
 
     /**
      * Returns error which could appear during the execution on successful completion returns action type.

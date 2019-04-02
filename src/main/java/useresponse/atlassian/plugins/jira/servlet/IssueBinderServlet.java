@@ -25,10 +25,6 @@ import useresponse.atlassian.plugins.jira.service.SettingsService;
 import useresponse.atlassian.plugins.jira.service.handler.Handler;
 import useresponse.atlassian.plugins.jira.service.handler.servlet.binder.IssueBinderServletRequestHandler;
 import useresponse.atlassian.plugins.jira.service.request.RequestBuilder;
-import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestBuilder;
-import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestParametersBuilder;
-import useresponse.atlassian.plugins.jira.service.request.parameters.builder.IssueRequestBuilder;
-import useresponse.atlassian.plugins.jira.service.request.parameters.builder.IssueRequestParametersBuilder;
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 import useresponse.atlassian.plugins.jira.storage.Storage;
@@ -66,16 +62,7 @@ public class IssueBinderServlet extends HttpServlet {
     }
 
     @Autowired
-    CommentRequestParametersBuilder commentRequestParametersBuilder;
-
-    @Autowired
-    IssueRequestParametersBuilder issueRequestParametersBuilder;
-
-    @Autowired
-    CommentRequestBuilder commentRequestBuilder;
-
-    @Autowired
-    IssueRequestBuilder issueRequestBuilder;
+    RequestBuilder requestBuilder;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -91,8 +78,6 @@ public class IssueBinderServlet extends HttpServlet {
         }
 
         Storage.isFromBinder = true;
-
-        RequestBuilder requestBuilder = new RequestBuilder(issueRequestBuilder, commentRequestBuilder);
 
         String responseForUser;
 
