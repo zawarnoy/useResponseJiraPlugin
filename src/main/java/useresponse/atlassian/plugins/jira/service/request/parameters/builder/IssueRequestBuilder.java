@@ -1,8 +1,11 @@
 package useresponse.atlassian.plugins.jira.service.request.parameters.builder;
 
 import com.atlassian.jira.issue.Issue;
+import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,17 +13,12 @@ import java.util.Set;
 
 public class IssueRequestBuilder {
 
+    @Autowired
     private IssueRequestParametersBuilder builder;
-    private UseResponseObjectManager objectManager;
 
-    /**
-     * @param builder
-     * @param objectManager Builds request map for issue
-     */
-    public IssueRequestBuilder(IssueRequestParametersBuilder builder, UseResponseObjectManager objectManager) {
-        this.builder = builder;
-        this.objectManager = objectManager;
-    }
+    @Inject
+    @Named("useResponseObjectManager")
+    private UseResponseObjectManager objectManager;
 
     public Map<Object, Object> build(Issue issue) throws IOException {
         return build(issue, true);
@@ -44,16 +42,15 @@ public class IssueRequestBuilder {
      */
     public Map<Object, Object> build(Issue issue, Set<String> issueKeys) throws IOException {
         builder.setRequestMap(new HashMap<Object, Object>());
-        builder.
-                addNewOldIssueKeysToMap(issueKeys).
+        builder.addNewOldIssueKeysToMap(issueKeys).
                 addUpdateLinkAction();
+
         return builder.getRequestMap();
     }
 
     private Map<Object, Object> buildNewIssueRequestMap(Issue issue, boolean notify) throws IOException {
         builder.setRequestMap(new HashMap<Object, Object>());
-        builder.
-                addStandardParametersToMap(issue).
+        builder.addStandardParametersToMap(issue).
                 addOwnershipToMap().
                 addObjectTypeToMap().
                 addStatusToMap(issue).
@@ -66,8 +63,7 @@ public class IssueRequestBuilder {
 
     private Map<Object, Object> buildUpdateIssueRequestMap(Issue issue, boolean notify) throws IOException {
         builder.setRequestMap(new HashMap<>());
-        builder.
-                addStandardParametersToMap(issue).
+        builder.addStandardParametersToMap(issue).
                 addUseResponseObjectId(issue).
                 addStatusToMap(issue).
                 addEditAction().

@@ -2,11 +2,14 @@ package useresponse.atlassian.plugins.jira.service.request.parameters.builder;
 
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.comments.Comment;
+import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.model.CommentLink;
 import useresponse.atlassian.plugins.jira.service.CommentsService;
 import useresponse.atlassian.plugins.jira.storage.Storage;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,13 +17,12 @@ import java.util.Map;
 
 public class CommentRequestBuilder {
 
+    @Autowired
     private CommentRequestParametersBuilder builder;
-    public CommentLinkManager commentManager;
 
-    public CommentRequestBuilder(CommentRequestParametersBuilder builder, CommentLinkManager commentLinkManager) {
-        this.builder = builder;
-        this.commentManager = commentLinkManager;
-    }
+    @Inject
+    @Named("commentLinkManager")
+    public CommentLinkManager commentManager;
 
     public Map<Object, Object> build(Comment comment) {
         return build(comment, true);

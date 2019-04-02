@@ -41,19 +41,11 @@ public class IssueBinderServlet extends HttpServlet {
     private final PluginSettingsFactory pluginSettingsFactory;
     private final AttachmentManager attachmentManager;
     private final IssueManager issueManager;
-    private final CommentManager commentManager;
-    private final RendererManager rendererManager;
 
-    @Autowired
-    private PriorityLinkManagerImpl priorityLinkManager;
     @Autowired
     private CommentLinkManagerImpl commentLinkManager;
     @Autowired
     private UseResponseObjectManagerImpl useResponseObjectManager;
-    @Autowired
-    private StatusesLinkManagerImpl statusesLinkManager;
-    @Autowired
-    private IssueFileLinkManagerImpl issueFileLinkManager;
 
     private final Gson gson;
 
@@ -70,10 +62,20 @@ public class IssueBinderServlet extends HttpServlet {
         this.pluginSettingsFactory = pluginSettignsFactory;
         this.attachmentManager = attachmentManager;
         this.issueManager = issueManager;
-        this.commentManager = commentManager;
-        this.rendererManager = rendererManager;
         this.gson = new Gson();
     }
+
+    @Autowired
+    CommentRequestParametersBuilder commentRequestParametersBuilder;
+
+    @Autowired
+    IssueRequestParametersBuilder issueRequestParametersBuilder;
+
+    @Autowired
+    CommentRequestBuilder commentRequestBuilder;
+
+    @Autowired
+    IssueRequestBuilder issueRequestBuilder;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -89,24 +91,6 @@ public class IssueBinderServlet extends HttpServlet {
         }
 
         Storage.isFromBinder = true;
-
-        CommentRequestParametersBuilder commentRequestParametersBuilder = new CommentRequestParametersBuilder(
-                commentLinkManager,
-                useResponseObjectManager
-        );
-
-        IssueRequestParametersBuilder issueRequestParametersBuilder = new IssueRequestParametersBuilder(
-                rendererManager,
-                priorityLinkManager,
-                useResponseObjectManager,
-                attachmentManager,
-                issueFileLinkManager,
-                pluginSettingsFactory,
-                statusesLinkManager
-        );
-
-        CommentRequestBuilder commentRequestBuilder = new CommentRequestBuilder(commentRequestParametersBuilder, commentLinkManager);
-        IssueRequestBuilder issueRequestBuilder = new IssueRequestBuilder(issueRequestParametersBuilder, useResponseObjectManager);
 
         RequestBuilder requestBuilder = new RequestBuilder(issueRequestBuilder, commentRequestBuilder);
 

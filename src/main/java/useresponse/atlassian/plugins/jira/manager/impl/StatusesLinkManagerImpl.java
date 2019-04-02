@@ -15,9 +15,9 @@ import java.util.List;
 import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
 
 @Scanned
-@Named
+@Named("statusesLinkManager")
 public class StatusesLinkManagerImpl implements StatusesLinkManager {
-    Logger logger = LoggerFactory.getLogger(StatusesLinkManagerImpl.class);
+
     @ComponentImport
     private final ActiveObjects ao;
 

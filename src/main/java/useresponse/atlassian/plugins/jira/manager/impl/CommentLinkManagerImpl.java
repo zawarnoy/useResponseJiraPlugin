@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Scanned
-@Named
+@Named("commentLinkManager")
 public class CommentLinkManagerImpl implements CommentLinkManager {
 
     @ComponentImport

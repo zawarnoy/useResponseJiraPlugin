@@ -1,39 +1,38 @@
 package useresponse.atlassian.plugins.jira.action.listener.issue;
 
 import com.atlassian.jira.component.ComponentAccessor;
-import com.atlassian.jira.entity.WithId;
 import com.atlassian.jira.issue.Issue;
-import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.jira.issue.managers.DefaultAttachmentManager;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import useresponse.atlassian.plugins.jira.action.Action;
 import useresponse.atlassian.plugins.jira.action.listener.AbsctractListenerActionFactory;
 import useresponse.atlassian.plugins.jira.manager.IssueFileLinkManager;
 import useresponse.atlassian.plugins.jira.manager.PriorityLinkManager;
 import useresponse.atlassian.plugins.jira.manager.StatusesLinkManager;
-import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.IssueRequestBuilder;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class IssueActionFactory extends AbsctractListenerActionFactory {
 
+    @Inject
+    @Named("statusesLinkManager")
     private StatusesLinkManager statusesLinkManager;
-    private  IssueFileLinkManager issueFileLinkManager;
-    private  PriorityLinkManager priorityLinkManager;
+
+    @Inject
+    @Named("issueFileLinkManager")
+    private IssueFileLinkManager issueFileLinkManager;
+
+    @Inject
+    @Named("priorityLinkManager")
+    private PriorityLinkManager priorityLinkManager;
+
+    @Autowired
     private IssueRequestBuilder issueRequestBuilder;
 
-    public IssueActionFactory(WithId entity, UseResponseObjectManager useResponseObjectManager, RendererManager rendererManager, PriorityLinkManager priorityLinkManager, PluginSettingsFactory pluginSettingsFactory, IssueFileLinkManager issueFileLinkManager, StatusesLinkManager statusesLinkManager, IssueRequestBuilder issueRequestBuilder) {
-        this.useResponseObjectManager = useResponseObjectManager;
-        this.rendererManager = rendererManager;
-        this.priorityLinkManager = priorityLinkManager;
-        this.pluginSettingsFactory = pluginSettingsFactory;
-        this.issueFileLinkManager = issueFileLinkManager;
-        this.statusesLinkManager = statusesLinkManager;
-        this.issueRequestBuilder = issueRequestBuilder;
-
-        this.entity = entity;
+    public IssueActionFactory() {
     }
-
 
     @Override
     public Action createAction(Class actionClass) {
@@ -45,14 +44,8 @@ public class IssueActionFactory extends AbsctractListenerActionFactory {
             return new DeleteIssueAction((Issue) entity, useResponseObjectManager, pluginSettingsFactory);
         } else if (actionClass.getCanonicalName().equals(UpdateIssueLinkAction.class.getCanonicalName())) {
             return new UpdateIssueLinkAction((Issue) entity, pluginSettingsFactory, issueRequestBuilder);
-        }
-        else {
+        } else {
             return null;
         }
-    }
-
-    @Override
-    public void setEntity(WithId entity) {
-        this.entity = entity;
     }
 }

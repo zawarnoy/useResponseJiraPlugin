@@ -2,6 +2,7 @@ package useresponse.atlassian.plugins.jira.service.request.parameters.builder;
 
 import com.atlassian.jira.entity.WithId;
 import com.atlassian.jira.issue.comments.Comment;
+import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.model.CommentLink;
@@ -9,19 +10,21 @@ import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 import useresponse.atlassian.plugins.jira.service.converter.content.ContentConverter;
 import useresponse.atlassian.plugins.jira.storage.Storage;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.TimeZone;
 
 public class CommentRequestParametersBuilder extends RequestParametersBuilder {
 
+    @Inject
+    @Named("commentLinkManager")
     protected CommentLinkManager commentLinkManager;
-    protected UseResponseObjectManager useResponseObjectManager;
 
-    public CommentRequestParametersBuilder(CommentLinkManager commentLinkManager, UseResponseObjectManager useResponseObjectManager) {
-        this.commentLinkManager = commentLinkManager;
-        this.useResponseObjectManager = useResponseObjectManager;
-    }
+    @Inject
+    @Named("useResponseObjectManager")
+    protected UseResponseObjectManager useResponseObjectManager;
 
     public CommentRequestParametersBuilder addStandardParametersForRequest(Comment comment) {
         requestMap = addContent             (requestMap, comment);

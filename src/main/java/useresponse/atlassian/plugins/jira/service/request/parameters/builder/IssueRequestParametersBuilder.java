@@ -4,48 +4,50 @@ import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.entity.WithId;
 import com.atlassian.jira.issue.AttachmentManager;
 import com.atlassian.jira.issue.Issue;
-import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.jira.issue.attachment.Attachment;
 import com.atlassian.jira.issue.label.Label;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.manager.IssueFileLinkManager;
 import useresponse.atlassian.plugins.jira.manager.PriorityLinkManager;
 import useresponse.atlassian.plugins.jira.manager.StatusesLinkManager;
-import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.model.IssueFileLink;
 import useresponse.atlassian.plugins.jira.model.StatusesLink;
 import useresponse.atlassian.plugins.jira.service.converter.content.ContentConverter;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static com.atlassian.jira.component.ComponentAccessor.getAttachmentManager;
+
 public class IssueRequestParametersBuilder extends RequestParametersBuilder {
-    Logger logger = LoggerFactory.getLogger(IssueRequestParametersBuilder.class);
+    private Logger logger = LoggerFactory.getLogger(IssueRequestParametersBuilder.class);
+
+    @Inject
+    @Named("priorityLinkManager")
     protected PriorityLinkManager priorityLinkManager;
 
     protected AttachmentManager attachmentManager;
+
+    @Inject
+    @Named("issueFileLinkManager")
     protected IssueFileLinkManager issueFileLinkManager;
+
+    @Inject
     protected PluginSettingsFactory pluginSettingsFactory;
+
+    @Inject
+    @Named("statusesLinkManager")
     protected StatusesLinkManager statusesLinkManager;
 
-    public IssueRequestParametersBuilder(RendererManager rendererManager,
-                                         PriorityLinkManager priorityLinkManager,
-                                         UseResponseObjectManager useResponseObjectManager,
-                                         AttachmentManager attachmentManager,
-                                         IssueFileLinkManager issueFileLinkManager,
-                                         PluginSettingsFactory pluginSettingsFactory,
-                                         StatusesLinkManager statusesLinkManager
-    ) {
-        this.priorityLinkManager = priorityLinkManager;
-        this.useResponseObjectManager = useResponseObjectManager;
-        this.attachmentManager = attachmentManager;
-        this.issueFileLinkManager = issueFileLinkManager;
-        this.pluginSettingsFactory = pluginSettingsFactory;
-        this.statusesLinkManager = statusesLinkManager;
+    public IssueRequestParametersBuilder() {
+        this.attachmentManager = getAttachmentManager();
     }
 
     public IssueRequestParametersBuilder addOwnershipToMap() {
@@ -56,7 +58,7 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
     public IssueRequestParametersBuilder addNewOldIssueKeysToMap(Set<String> issueKeys) {
         String oldKey = "";
         String newKey = "";
-        for(String key : issueKeys) {
+        for (String key : issueKeys) {
             oldKey = newKey;
             newKey = key;
         }
@@ -87,7 +89,7 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
             if (statusesLink != null) {
                 requestMap.put("status", statusesLink.getUseResponseStatusSlug());
             }
-        }catch (Exception e) {
+        } catch (Exception e) {
             logger.error(e.getMessage());
         }
 
@@ -165,7 +167,7 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
 
         ArrayList<Map> attachmentsData = new ArrayList<Map>();
 
-        if(!deletedAttachmentsList.isEmpty()) {
+        if (!deletedAttachmentsList.isEmpty()) {
             map.put("deleted_attachments", deletedAttachmentsList);
         }
 
@@ -189,11 +191,11 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
 
     private List<String> getDeletedAttachmentsList(Issue issue) {
         List<IssueFileLink> links = issueFileLinkManager.findByJiraIssueId(issue.getId().intValue());
-        List<Attachment> existedAttachments = ComponentAccessor.getAttachmentManager().getAttachments(issue);
+        List<Attachment> existedAttachments = getAttachmentManager().getAttachments(issue);
         List<String> result = new ArrayList<>();
 
         for (IssueFileLink link : links) {
-            if(!isLinkInList(link, existedAttachments)) {
+            if (!isLinkInList(link, existedAttachments)) {
                 result.add(link.getSentFilename());
                 issueFileLinkManager.delete(link);
             }

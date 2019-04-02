@@ -24,7 +24,6 @@ public class UseResponseLinkButtonProvider extends AbstractJiraContextProvider {
     @Autowired
     private UseResponseObjectManagerImpl useResponseObjectManager;
 
-
     @Inject
     public UseResponseLinkButtonProvider(@ComponentImport PluginSettingsFactory pluginSettingsFactory) {
         this.pluginSettingsFactory = pluginSettingsFactory;

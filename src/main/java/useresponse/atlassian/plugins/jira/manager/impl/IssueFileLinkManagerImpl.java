@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Scanned
-@Named
+@Named("issueFileLinkManager")
 public class IssueFileLinkManagerImpl implements IssueFileLinkManager {
 
     @ComponentImport
@@ -23,8 +23,6 @@ public class IssueFileLinkManagerImpl implements IssueFileLinkManager {
     public IssueFileLinkManagerImpl(ActiveObjects ao) {
         this.ao = checkNotNull(ao);
     }
-
-
 
     @Override
     public List<IssueFileLink> findByJiraIssueId(int issueId) {

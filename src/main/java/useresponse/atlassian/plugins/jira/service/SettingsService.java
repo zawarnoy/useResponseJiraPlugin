@@ -26,8 +26,8 @@ public class SettingsService {
     private final LoginUriProvider loginUriProvider;
     private final PluginSettings pluginSettings;
 
-    public SettingsService(UserManager userManager, LoginUriProvider loginUriProvider, PluginSettingsFactory pluginSettignsFactory) {
-        this.pluginSettingsFactory = pluginSettignsFactory;
+    public SettingsService(UserManager userManager, LoginUriProvider loginUriProvider, PluginSettingsFactory pluginSettingsFactory) {
+        this.pluginSettingsFactory = pluginSettingsFactory;
         this.loginUriProvider = loginUriProvider;
         this.userManager = userManager;
         this.pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);

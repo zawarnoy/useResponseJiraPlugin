@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Scanned
-@Named
+@Named("priorityLinkManager")
 public class PriorityLinkManagerImpl implements PriorityLinkManager {
 
     @ComponentImport

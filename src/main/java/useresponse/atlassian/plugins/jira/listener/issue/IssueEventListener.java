@@ -40,6 +40,7 @@ import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 import useresponse.atlassian.plugins.jira.storage.Storage;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -82,6 +83,24 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
     private final AttachmentManager attachmentManager;
 
     private PluginSettings pluginSettings;
+
+    @Autowired
+    CommentRequestParametersBuilder commentRequestParametersBuilder;
+
+    @Autowired
+    IssueRequestParametersBuilder issueRequestParametersBuilder;
+
+    @Autowired
+    IssueRequestBuilder issueRequestBuilder;
+
+    @Autowired
+    CommentRequestBuilder commentRequestBuilder;
+
+    @Autowired
+    ListenerActionFactory issueActionFactory;
+
+    @Autowired
+    CommentActionFactory commentActionFactory;
 
     @Autowired
     public IssueEventListener(EventPublisher eventPublisher, PluginSettingsFactory pluginSettingsFactory, ActiveObjects ao, AttachmentManager attachmentManager) {
@@ -128,12 +147,6 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
             return;
         }
 
-//        if (!Storage.needToExecuteAction) {
-//            Storage.needToExecuteAction = true;
-//            return;
-//        }
-
-        // various content processing for different sources
         Storage.isFromBinder = false;
 
         try {
@@ -148,46 +161,13 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 
         MutableIssue issue = ComponentAccessor.getIssueManager().getIssueByCurrentKey(issueEvent.getIssue().getKey());
 
-        IssueRequestBuilder issueRequestBuilder = new IssueRequestBuilder(
-                new IssueRequestParametersBuilder(
-                        rendererManager,
-                        priorityLinkManager,
-                        useResponseObjectManager,
-                        attachmentManager,
-                        issueFileLinkManager,
-                        pluginSettingsFactory,
-                        statusesLinkManager),
-                useResponseObjectManager
-        );
-
-        CommentRequestBuilder commentRequestBuilder = new CommentRequestBuilder(
-                new CommentRequestParametersBuilder(
-                        commentLinkManager,
-                        useResponseObjectManager),
-                commentLinkManager
-        );
-
-        ListenerActionFactory issueActionFactory = new IssueActionFactory(
-                issue,
-                useResponseObjectManager,
-                rendererManager,
-                priorityLinkManager,
-                pluginSettingsFactory,
-                issueFileLinkManager,
-                statusesLinkManager,
-                issueRequestBuilder);
-
-        ListenerActionFactory commentActionFactory = new CommentActionFactory(
-                issueEvent.getComment(),
-                useResponseObjectManager,
-                pluginSettingsFactory,
-                commentLinkManager,
-                commentRequestBuilder);
-
+        issueActionFactory.setEntity(issue);
+        commentActionFactory.setEntity(issueEvent.getComment());
 
         Action action = null;
-        // in case when you need to execute 2 actions
-        Action extraAction = null;
+
+        // in case when you need to execute extra actions
+        List<Action> extraActions = new ArrayList<>();
 
         if (issueEvent.getUser() != null) {
             Storage.userWhoPerformedAction = issueEvent.getUser().getEmailAddress();
@@ -214,7 +194,7 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
                 Comment comment = getCommentIfNeedSend(issue);
                 commentActionFactory.setEntity(comment);
                 if (comment != null) {
-                    extraAction = commentActionFactory.createAction(CreateCommentAction.class);
+                    extraActions.add(commentActionFactory.createAction(CreateCommentAction.class));
                 }
             }
             action = issueActionFactory.createAction(UpdateIssueAction.class);
@@ -227,7 +207,7 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
             future = executor.submit(action);
         }
 
-        if (extraAction != null) {
+        for (Action extraAction: extraActions) {
             future = executor.submit(extraAction);
         }
     }

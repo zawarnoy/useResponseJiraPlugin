@@ -88,6 +88,8 @@ public class UseResponseSettingServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         SettingsService settingsService = new SettingsService(userManager, loginUriProvider, pluginSettingsFactory);
+
+
         if (!settingsService.checkIsAdmin(userManager.getRemoteUserKey())) {
             settingsService.redirectToLogin(request, response);
             return;
@@ -127,6 +129,8 @@ public class UseResponseSettingServlet extends HttpServlet {
             settingsService.redirectToLogin(request, response);
             return;
         }
+
+        prepareDB();
 
         PrioritiesService prioritiesService = new PrioritiesService(ComponentAccessor.getComponent(DefaultPriorityManager.class), priorityLinkManager, urPriorityManager);
         StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);

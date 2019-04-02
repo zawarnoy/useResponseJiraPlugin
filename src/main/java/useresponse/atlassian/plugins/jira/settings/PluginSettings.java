@@ -9,4 +9,13 @@ public interface PluginSettings {
 
     String getAutosendingFlag();
     void setAutosendingFlag(String autosendingFlag);
+
+    boolean getSyncStatuses();
+    void setSyncStatuses(boolean syncStatuses);
+
+    boolean getSyncComments();
+    void setSyncComments(boolean syncComments);
+
+    boolean getBasicFields();
+    void setBasicFields(boolean basicFields);
 }

@@ -19,9 +19,10 @@
 </div>
 
 <div class="img-container" style="">
-    <a href="https://www.useresponse.com/" target="_blank"><img style="margin: 0;"
-                                                                src="${baseUrl}/download/resources/useresponse.jira-plugin:jira-plugin-resources/images/urPicture.png"
-                                                                alt="">
+    <a href="https://www.useresponse.com/" target="_blank">
+        <img style="margin: 0;"
+             src="${baseUrl}/download/resources/useresponse.jira-plugin:jira-plugin-resources/images/urPicture.png"
+             alt="">
     </a>
 </div>
 

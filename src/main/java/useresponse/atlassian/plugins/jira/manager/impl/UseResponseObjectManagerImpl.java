@@ -13,7 +13,7 @@ import java.util.List;
 import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
 
 @Scanned
-@Named
+@Named("useResponseObjectManager")
 public class UseResponseObjectManagerImpl implements UseResponseObjectManager {
 
     @ComponentImport
