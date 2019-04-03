@@ -1,31 +1,42 @@
 package useresponse.atlassian.plugins.jira.service.handler.servlet.binder;
 
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.service.handler.Handler;
+
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Scanned
+@Named("issueBinderRequestHandler")
 public class IssueBinderServletRequestHandler implements Handler<String, String> {
 
-    Logger log = LoggerFactory.getLogger(IssueBinderServletRequestHandler.class);
+    private UseResponseObjectManager useResponseObjectManager;
 
-    private final UseResponseObjectManager useResponseObjectManager;
-    private final CommentLinkManager commentLinkManager;
+    @Inject
+    @Named("useResponseObjectManager")
+    public void setUseResponseObjectManager(UseResponseObjectManager useResponseObjectManager) {
+        this.useResponseObjectManager = useResponseObjectManager;
+    }
 
-    public IssueBinderServletRequestHandler(UseResponseObjectManager useResponseObjectManager, CommentLinkManager commentLinkManager) {
-        this.useResponseObjectManager   = useResponseObjectManager;
-        this.commentLinkManager         = commentLinkManager;
+    private CommentLinkManager commentLinkManager;
+    @Inject
+    @Named("commentLinkManager")
+    public void setCommentLinkManager(CommentLinkManager commentLinkManager) {
+        this.commentLinkManager = commentLinkManager;
     }
 
     @Override
     public String handle(String response) {
-
+        Logger logger = LoggerFactory.getLogger(IssueBinderServletRequestHandler.class);
         String responseForUser;
 
         try {
@@ -40,7 +51,9 @@ public class IssueBinderServletRequestHandler implements Handler<String, String>
                 }
             }
 
+
             if (commentLinkManager != null) {
+                logger.error("ttt");
                 List<Map> commentsData = (List) data.get("comments");
                 if (commentsData != null) {
                     handleCommentsData(commentsData);
@@ -48,7 +61,6 @@ public class IssueBinderServletRequestHandler implements Handler<String, String>
             }
         } catch (Exception e) {
             e.printStackTrace();
-            log.error("Exception: " + e.getMessage());
         }
 
         responseForUser = generateResponseForUser();

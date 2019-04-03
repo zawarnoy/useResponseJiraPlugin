@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.exception.IssueNotExistException;
 import useresponse.atlassian.plugins.jira.manager.impl.*;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -23,9 +24,7 @@ import java.util.HashMap;
 import useresponse.atlassian.plugins.jira.request.Request;
 import useresponse.atlassian.plugins.jira.service.SettingsService;
 import useresponse.atlassian.plugins.jira.service.handler.Handler;
-import useresponse.atlassian.plugins.jira.service.handler.servlet.binder.IssueBinderServletRequestHandler;
 import useresponse.atlassian.plugins.jira.service.request.RequestBuilder;
-import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 import useresponse.atlassian.plugins.jira.storage.Storage;
 
@@ -42,6 +41,19 @@ public class IssueBinderServlet extends HttpServlet {
     private CommentLinkManagerImpl commentLinkManager;
     @Autowired
     private UseResponseObjectManagerImpl useResponseObjectManager;
+
+    @Autowired
+    RequestBuilder requestBuilder;
+
+    @Autowired
+    PluginSettingsImpl pluginSettings;
+
+    @Autowired
+    SettingsService settingsService;
+
+    @Inject
+    @Named("issueBinderRequestHandler")
+    private Handler<String, String> handler;
 
     private final Gson gson;
 
@@ -61,19 +73,14 @@ public class IssueBinderServlet extends HttpServlet {
         this.gson = new Gson();
     }
 
-    @Autowired
-    RequestBuilder requestBuilder;
-
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
-        SettingsService settingsService = new SettingsService(userManager, loginUriProvider, pluginSettingsFactory);
 
         if (userManager.getRemoteUser() == null) {
             settingsService.redirectToLogin(req, resp);
         }
 
-        if (!SettingsService.testURConnection(pluginSettingsFactory)) {
+        if (!settingsService.testURConnection()) {
             resp.getWriter().write("Conn");
         }
 
@@ -99,12 +106,10 @@ public class IssueBinderServlet extends HttpServlet {
             }
 
             Request request = requestBuilder.build(issue, syncStatus);
-            PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
 
             request.setUrl(pluginSettings.getUseResponseDomain() + Storage.API_STRING + Storage.JIRA_DATA_HANDLER_ROUTE + "?apiKey=" + pluginSettings.getUseResponseApiKey());
             String response = request.sendRequest();
 
-            Handler<String, String> handler = new IssueBinderServletRequestHandler(useResponseObjectManager, commentLinkManager);
             responseForUser = handler.handle(response);
 
         } catch (Exception e) {

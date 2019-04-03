@@ -71,6 +71,12 @@ public class UseResponseSettingServlet extends HttpServlet {
     @Autowired
     private ApplicationProperties applicationProperties;
 
+    @Autowired
+    private SettingsService settingsService;
+
+    @Autowired
+    private PluginSettingsImpl pluginSettings;
+
     @Inject
     public UseResponseSettingServlet(@ComponentImport UserManager userManager,
                                      @ComponentImport LoginUriProvider loginUriProvider,
@@ -87,8 +93,6 @@ public class UseResponseSettingServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        SettingsService settingsService = new SettingsService(userManager, loginUriProvider, pluginSettingsFactory);
-
 
         if (!settingsService.checkIsAdmin(userManager.getRemoteUserKey())) {
             settingsService.redirectToLogin(request, response);
@@ -97,7 +101,6 @@ public class UseResponseSettingServlet extends HttpServlet {
 
         PrioritiesService prioritiesService = new PrioritiesService(ComponentAccessor.getComponent(DefaultPriorityManager.class), priorityLinkManager, urPriorityManager);
         StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
-        PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
 
         prepareDB();
 
@@ -124,7 +127,6 @@ public class UseResponseSettingServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        SettingsService settingsService = new SettingsService(userManager, loginUriProvider, pluginSettingsFactory);
         if (!settingsService.checkIsAdmin(userManager.getRemoteUserKey())) {
             settingsService.redirectToLogin(request, response);
             return;
@@ -134,7 +136,6 @@ public class UseResponseSettingServlet extends HttpServlet {
 
         PrioritiesService prioritiesService = new PrioritiesService(ComponentAccessor.getComponent(DefaultPriorityManager.class), priorityLinkManager, urPriorityManager);
         StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
-        PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
         HashMap<String, Object> map = new HashMap<>();
         HashMap<String, Object> context = new HashMap<>();
 
@@ -200,7 +201,7 @@ public class UseResponseSettingServlet extends HttpServlet {
         Map<String, String> priorities = setPriorities(request);
         String autosending = request.getParameter("autosending");
         if (autosending != null) {
-            (new PluginSettingsImpl(pluginSettingsFactory)).setAutosendingFlag(autosending);
+            pluginSettings.setAutosendingFlag(autosending);
             result.put("autosending", Boolean.parseBoolean(autosending));
         }
 
@@ -242,14 +243,14 @@ public class UseResponseSettingServlet extends HttpServlet {
         String domain = request.getParameter("domain");
         String apiKey = request.getParameter("apiKey");
 
-        if (!SettingsService.testURConnection(domain, apiKey))
+        if (!settingsService.testURConnection(domain, apiKey))
             throw (new ConnectionException("Wrong domain/apiKey"));
         settingsService.setURParameters(domain, apiKey);
     }
 
     private void sendSettings(Map settings) {
         try {
-            Action action = new SettingsSendAction(settings, new PluginSettingsImpl(pluginSettingsFactory));
+            Action action = new SettingsSendAction(settings, pluginSettings);
             ExecutorService executor = Executors.newCachedThreadPool();
             Future<String> result = executor.submit(action);
         } catch (Exception e) {

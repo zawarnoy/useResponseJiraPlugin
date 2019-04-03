@@ -1,30 +1,29 @@
 package useresponse.atlassian.plugins.jira.action.listener.comment;
 
 import com.atlassian.jira.issue.comments.Comment;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-import useresponse.atlassian.plugins.jira.action.ActionType;
-import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
-import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
+import org.springframework.stereotype.Component;
+import useresponse.atlassian.plugins.jira.action.listener.ListenerActionType;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
 import useresponse.atlassian.plugins.jira.service.handler.servlet.binder.IssueBinderServletRequestHandler;
-import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestBuilder;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Component("createCommentAction")
 public class CreateCommentAction extends AbstractCommentAction {
 
-    public CreateCommentAction(Comment comment, CommentLinkManager commentLinkManager, UseResponseObjectManager useResponseObjectManager, PluginSettingsFactory pluginSettingsFactory, CommentRequestBuilder builder) {
-        this.comment = comment;
-        this.commentLinkManager = commentLinkManager;
-        this.useResponseObjectManager = useResponseObjectManager;
-        this.pluginSettingsFactory = pluginSettingsFactory;
-        this.parametersBuilder = builder;
+    @Inject
+    @Named("issueBinderRequestHandler")
+    private IssueBinderServletRequestHandler issueBinderServletRequestHandler;
+
+    public CreateCommentAction() {
         this.request = new PostRequest();
-        this.actionType = ActionType.CREATE_COMMENT_ID;
+        this.actionType = ListenerActionType.CREATE_COMMENT_ID;
     }
 
     @Override
@@ -34,7 +33,7 @@ public class CreateCommentAction extends AbstractCommentAction {
 
     @Override
     public void handleResponse(String response) {
-        (new IssueBinderServletRequestHandler(useResponseObjectManager, commentLinkManager)).handle(response);
+        issueBinderServletRequestHandler.handle(response);
     }
 
     @Override

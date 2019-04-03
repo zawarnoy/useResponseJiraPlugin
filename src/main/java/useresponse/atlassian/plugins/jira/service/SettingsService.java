@@ -1,18 +1,19 @@
 package useresponse.atlassian.plugins.jira.service;
 
 import com.atlassian.sal.api.auth.LoginUriProvider;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.user.UserKey;
 import com.atlassian.sal.api.user.UserManager;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.request.GetRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
-import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 import useresponse.atlassian.plugins.jira.storage.Storage;
+
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -21,18 +22,19 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 public class SettingsService {
-    private final PluginSettingsFactory pluginSettingsFactory;
-    private final UserManager userManager;
-    private final LoginUriProvider loginUriProvider;
-    private final PluginSettings pluginSettings;
 
-    public SettingsService(UserManager userManager, LoginUriProvider loginUriProvider, PluginSettingsFactory pluginSettingsFactory) {
-        this.pluginSettingsFactory = pluginSettingsFactory;
-        this.loginUriProvider = loginUriProvider;
-        this.userManager = userManager;
-        this.pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
+    @Autowired
+    private PluginSettings pluginSettings;
+
+    @Inject
+    private UserManager userManager;
+
+    @Inject
+    LoginUriProvider loginUriProvider;
+
+    public SettingsService() {
+
     }
-
 
     public HashMap<String, String> getUseResponseStatuses(PluginSettings useResponseSettings) throws Exception {
         if(pluginSettings.getUseResponseDomain() == null || pluginSettings.getUseResponseApiKey() == null) {
@@ -84,12 +86,11 @@ public class SettingsService {
     }
 
     public void setURParameters(String domain, String apiKey) {
-        PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
         pluginSettings.setUseResponseDomain(domain);
         pluginSettings.setUseResponseApiKey(apiKey);
     }
 
-    public static boolean testURConnection(String urDomain, String urApiKey){
+    public boolean testURConnection(String urDomain, String urApiKey){
         Request request = new GetRequest();
         String response = null;
         try {
@@ -109,8 +110,7 @@ public class SettingsService {
         return data.get("error") == null;
     }
 
-    public static boolean testURConnection(PluginSettingsFactory pluginSettingsFactory){
-        PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
+    public boolean testURConnection(){
         return testURConnection(pluginSettings.getUseResponseDomain(), pluginSettings.getUseResponseApiKey());
     }
 }

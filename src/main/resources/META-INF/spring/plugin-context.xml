@@ -39,4 +39,12 @@
           class="useresponse.atlassian.plugins.jira.action.listener.comment.CommentActionFactory">
     </bean>
 
+    <bean id="pluginSetting"
+          class="useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl">
+    </bean>
+
+    <bean id="settingsService"
+          class="useresponse.atlassian.plugins.jira.service.SettingsService">
+    </bean>
+
 </beans>

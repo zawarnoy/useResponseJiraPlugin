@@ -1,32 +1,22 @@
 package useresponse.atlassian.plugins.jira.action.listener.issue;
 
 import com.atlassian.jira.component.ComponentAccessor;
-import com.atlassian.jira.issue.Issue;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import org.json.simple.parser.ParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import useresponse.atlassian.plugins.jira.action.ActionType;
+import org.springframework.stereotype.Component;
+import useresponse.atlassian.plugins.jira.action.listener.ListenerActionType;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
-import useresponse.atlassian.plugins.jira.service.request.parameters.builder.IssueRequestBuilder;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+@Component("updateIssueLinkAction")
 public class UpdateIssueLinkAction extends AbstractIssueAction {
 
-    Logger log = LoggerFactory.getLogger(UpdateIssueLinkAction.class);
-
-    public UpdateIssueLinkAction(Issue issue, PluginSettingsFactory pluginSettingsFactory, IssueRequestBuilder issueRequestBuilder) {
-        this.issue = issue;
-        this.pluginSettingsFactory = pluginSettingsFactory;
-        this.builder = issueRequestBuilder;
-
+    public UpdateIssueLinkAction() {
         this.request = new PostRequest();
-        this.actionType = ActionType.UPDATE_ISSUE_LINK_ID;
+        this.actionType = ListenerActionType.UPDATE_ISSUE_LINK_ID;
     }
 
     @Override
@@ -45,6 +35,6 @@ public class UpdateIssueLinkAction extends AbstractIssueAction {
 
     @Override
     protected void handleResponse(String response) throws ParseException {
-        // silence
+
     }
 }

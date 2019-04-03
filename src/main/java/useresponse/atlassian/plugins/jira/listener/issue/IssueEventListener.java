@@ -7,7 +7,7 @@ import com.atlassian.jira.entity.WithId;
 import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.event.type.EventType;
 import com.atlassian.jira.issue.AttachmentManager;
-import com.atlassian.jira.issue.MutableIssue;
+import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.RendererManager;
 import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
@@ -64,50 +64,22 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
     @Autowired
     private CommentLinkManagerImpl commentLinkManager;
 
-    @Autowired
-    private StatusesLinkManagerImpl statusesLinkManager;
-
-    @Autowired
-    private PriorityLinkManagerImpl priorityLinkManager;
-
-    @Autowired
-    private RendererManager rendererManager;
-
-    @Autowired
-    private IssueFileLinkManagerImpl issueFileLinkManager;
-
-    @ComponentImport
-    private final PluginSettingsFactory pluginSettingsFactory;
-
     @ComponentImport
     private final AttachmentManager attachmentManager;
 
-    private PluginSettings pluginSettings;
+    @Autowired
+    private ListenerActionFactory issueActionFactory;
 
     @Autowired
-    CommentRequestParametersBuilder commentRequestParametersBuilder;
+    private CommentActionFactory commentActionFactory;
 
     @Autowired
-    IssueRequestParametersBuilder issueRequestParametersBuilder;
+    private PluginSettingsImpl pluginSettings;
 
     @Autowired
-    IssueRequestBuilder issueRequestBuilder;
-
-    @Autowired
-    CommentRequestBuilder commentRequestBuilder;
-
-    @Autowired
-    ListenerActionFactory issueActionFactory;
-
-    @Autowired
-    CommentActionFactory commentActionFactory;
-
-    @Autowired
-    public IssueEventListener(EventPublisher eventPublisher, PluginSettingsFactory pluginSettingsFactory, ActiveObjects ao, AttachmentManager attachmentManager) {
+    public IssueEventListener(EventPublisher eventPublisher, ActiveObjects ao, AttachmentManager attachmentManager) {
         this.eventPublisher = eventPublisher;
-        this.pluginSettingsFactory = pluginSettingsFactory;
         this.ao = ao;
-        this.pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
         this.attachmentManager = attachmentManager;
     }
 
@@ -159,60 +131,59 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
     private void executeAction(IssueEvent issueEvent) {
         Long typeId = issueEvent.getEventTypeId();
 
-        MutableIssue issue = ComponentAccessor.getIssueManager().getIssueByCurrentKey(issueEvent.getIssue().getKey());
+        Issue issue = issueEvent.getIssue();
 
         issueActionFactory.setEntity(issue);
         commentActionFactory.setEntity(issueEvent.getComment());
 
-        Action action = null;
-
-        // in case when you need to execute extra actions
-        List<Action> extraActions = new ArrayList<>();
+        // actions
+        List<Action> actions = new ArrayList<>();
 
         if (issueEvent.getUser() != null) {
             Storage.userWhoPerformedAction = issueEvent.getUser().getEmailAddress();
         }
 
+        log.error("TYPE ID: " + typeId);
+
         if (typeId.equals(EventType.ISSUE_CREATED_ID)) {
-            action = issueActionFactory.createAction(CreateIssueAction.class);
+            actions.add(issueActionFactory.createAction(CreateIssueAction.class));
         } else if (typeId.equals(EventType.ISSUE_MOVED_ID)) {
-            action = issueActionFactory.createAction(UpdateIssueLinkAction.class);
+            actions.add(issueActionFactory.createAction(UpdateIssueLinkAction.class));
         } else if (typeId.equals(EventType.ISSUE_COMMENTED_ID)) {
-            action = commentActionFactory.createAction(CreateCommentAction.class);
+            actions.add(commentActionFactory.createAction(CreateCommentAction.class));
         } else if (typeId.equals(EventType.ISSUE_COMMENT_EDITED_ID)) {
-            action = commentActionFactory.createAction(UpdateCommentAction.class);
+            actions.add(commentActionFactory.createAction(UpdateCommentAction.class));
         } else if (typeId.equals(EventType.ISSUE_DELETED_ID)) {
-            action = commentActionFactory.createAction(DeleteIssueAction.class);
+            actions.add(issueActionFactory.createAction(DeleteIssueAction.class));
         } else if (typeId.equals(EventType.ISSUE_COMMENT_DELETED_ID)) {
             Integer deletedCommentId = CommentsService.getDeletedCommentId(issueEvent.getIssue(), commentLinkManager);
             if (deletedCommentId != null) {
                 commentActionFactory.setEntity(() -> (long) deletedCommentId);
-                action = commentActionFactory.createAction(DeleteCommentAction.class);
+                actions.add(commentActionFactory.createAction(DeleteCommentAction.class));
             }
         } else {
             if (typeId.equals(EventType.ISSUE_ASSIGNED_ID)) {
                 Comment comment = getCommentIfNeedSend(issue);
                 commentActionFactory.setEntity(comment);
                 if (comment != null) {
-                    extraActions.add(commentActionFactory.createAction(CreateCommentAction.class));
+                    actions.add(commentActionFactory.createAction(CreateCommentAction.class));
                 }
             }
-            action = issueActionFactory.createAction(UpdateIssueAction.class);
+            actions.add(issueActionFactory.createAction(UpdateIssueAction.class));
         }
 
         ExecutorService executor = Executors.newCachedThreadPool();
 
         Future<String> future = null;
-        if (action != null) {
-            future = executor.submit(action);
-        }
 
-        for (Action extraAction: extraActions) {
-            future = executor.submit(extraAction);
+        for (Action action : actions) {
+            if (action != null) {
+                future = executor.submit(action);
+            }
         }
     }
 
-    private Comment getCommentIfNeedSend(MutableIssue issue) {
+    private Comment getCommentIfNeedSend(Issue issue) {
         Comment comment = null;
         if (commentLinkManager.findByIssueId(issue.getId().intValue()).size() != ComponentAccessor.getCommentManager().getComments(issue).size()) {
             comment = ComponentAccessor.getCommentManager().getLastComment(issue);

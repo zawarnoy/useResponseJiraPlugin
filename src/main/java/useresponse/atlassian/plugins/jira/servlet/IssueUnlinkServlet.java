@@ -2,8 +2,6 @@ package useresponse.atlassian.plugins.jira.servlet;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.Issue;
-import com.atlassian.sal.api.auth.LoginUriProvider;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.user.UserManager;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,21 +26,19 @@ public class IssueUnlinkServlet extends HttpServlet {
     private UseResponseObjectManagerImpl objectManager;
 
     private final UserManager userManager;
-    private final LoginUriProvider loginUriProvider;
-    private final PluginSettingsFactory pluginSettingsFactory;
     private final CommentLinkManager commentLinkManager;
 
+    @Autowired
+    private SettingsService settingsService;
+
     @Inject
-    public IssueUnlinkServlet(UserManager userManager, LoginUriProvider loginUriProvider, PluginSettingsFactory pluginSettingsFactory, CommentLinkManager commentLinkManager) {
+    public IssueUnlinkServlet(UserManager userManager, CommentLinkManager commentLinkManager) {
         this.userManager = userManager;
-        this.loginUriProvider = loginUriProvider;
-        this.pluginSettingsFactory = pluginSettingsFactory;
         this.commentLinkManager = commentLinkManager;
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        SettingsService settingsService = new SettingsService(userManager, loginUriProvider, pluginSettingsFactory);
         if (!settingsService.checkIsAdmin(userManager.getRemoteUserKey())) {
             settingsService.redirectToLogin(req, resp);
             return;

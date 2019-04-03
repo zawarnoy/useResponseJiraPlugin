@@ -2,6 +2,8 @@ package useresponse.atlassian.plugins.jira.settings;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
+import javax.inject.Inject;
+
 public class PluginSettingsImpl implements PluginSettings {
 
     private static final String PLUGIN_PREFIX = "useresponse.atlassian.plugins.jira";
@@ -13,10 +15,11 @@ public class PluginSettingsImpl implements PluginSettings {
     private static final String USERESPONSE_SYNC_COMMENTS = PLUGIN_PREFIX + ".sync_comments";
     private static final String USERESPONSE_SYNC_BASIC_FIELDS = PLUGIN_PREFIX + ".sync_basic_fields";
 
-    private final PluginSettingsFactory pluginSettingsFactory;
+    @Inject
+    private PluginSettingsFactory pluginSettingsFactory;
 
-    public PluginSettingsImpl(PluginSettingsFactory pluginSettingsFactory) {
-        this.pluginSettingsFactory = pluginSettingsFactory;
+    public PluginSettingsImpl() {
+
     }
 
     @Override

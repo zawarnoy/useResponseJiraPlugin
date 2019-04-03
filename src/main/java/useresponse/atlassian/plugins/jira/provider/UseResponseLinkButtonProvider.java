@@ -24,6 +24,9 @@ public class UseResponseLinkButtonProvider extends AbstractJiraContextProvider {
     @Autowired
     private UseResponseObjectManagerImpl useResponseObjectManager;
 
+    @Autowired
+    private PluginSettingsImpl pluginSettings;
+
     @Inject
     public UseResponseLinkButtonProvider(@ComponentImport PluginSettingsFactory pluginSettingsFactory) {
         this.pluginSettingsFactory = pluginSettingsFactory;
@@ -49,7 +52,6 @@ public class UseResponseLinkButtonProvider extends AbstractJiraContextProvider {
     }
 
     private String createUseresponseObjectLink(int issueId) {
-        PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
         UseResponseObject object = useResponseObjectManager.findByJiraId(issueId);
         if(object == null) {
             return null;

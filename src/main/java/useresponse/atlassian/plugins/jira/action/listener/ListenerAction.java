@@ -1,8 +1,8 @@
 package useresponse.atlassian.plugins.jira.action.listener;
 
 import com.atlassian.jira.entity.WithId;
-import useresponse.atlassian.plugins.jira.action.ActionFactory;
+import useresponse.atlassian.plugins.jira.action.Action;
 
-public interface ListenerActionFactory extends ActionFactory {
+public interface ListenerAction extends Action {
     void setEntity(WithId entity);
 }

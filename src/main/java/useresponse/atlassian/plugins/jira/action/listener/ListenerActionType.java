@@ -1,6 +1,6 @@
-package useresponse.atlassian.plugins.jira.action;
+package useresponse.atlassian.plugins.jira.action.listener;
 
-public interface ActionType {
+public interface ListenerActionType {
     int CREATE_ISSUE_ID = 1;
     int UPDATE_ISSUE_ID = 2;
     int DELETE_ISSUE_ID = 3;

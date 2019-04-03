@@ -1,29 +1,31 @@
 package useresponse.atlassian.plugins.jira.action.listener.comment;
 
-import com.atlassian.jira.issue.comments.Comment;
-import org.springframework.beans.factory.annotation.Autowired;
-import useresponse.atlassian.plugins.jira.action.Action;
 import useresponse.atlassian.plugins.jira.action.listener.AbsctractListenerActionFactory;
-import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestBuilder;
+import useresponse.atlassian.plugins.jira.action.listener.ListenerAction;
+import useresponse.atlassian.plugins.jira.context.ApplicationContextProvider;
 
 public class CommentActionFactory extends AbsctractListenerActionFactory {
-
-    @Autowired
-    CommentRequestBuilder commentRequestBuilder;
 
     public CommentActionFactory() {
     }
 
     @Override
-    public Action createAction(Class actionClass) {
+    public ListenerAction createAction(Class actionClass) {
+
+        ListenerAction action;
+
         if (actionClass.getCanonicalName().equals(CreateCommentAction.class.getCanonicalName())) {
-            return new CreateCommentAction((Comment) entity, commentLinkManager, useResponseObjectManager, pluginSettingsFactory, commentRequestBuilder);
+            action = ApplicationContextProvider.getApplicationContext().getBean("createCommentAction", CreateCommentAction.class);
         } else if (actionClass.getCanonicalName().equals(UpdateCommentAction.class.getCanonicalName())) {
-            return new UpdateCommentAction((Comment) entity, commentLinkManager, useResponseObjectManager, pluginSettingsFactory, commentRequestBuilder);
+            action = ApplicationContextProvider.getApplicationContext().getBean("updateCommentAction", UpdateCommentAction.class);
         } else if (actionClass.getCanonicalName().equals(DeleteCommentAction.class.getCanonicalName())) {
-            return new DeleteCommentAction(entity, commentLinkManager, pluginSettingsFactory);
+            action = ApplicationContextProvider.getApplicationContext().getBean("deleteCommentAction", DeleteCommentAction.class);
         } else {
             return null;
         }
+
+        action.setEntity(entity);
+
+        return action;
     }
 }

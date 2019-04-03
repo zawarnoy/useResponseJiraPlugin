@@ -1,13 +1,9 @@
 package useresponse.atlassian.plugins.jira.action.listener.comment;
 
-import com.atlassian.jira.entity.WithId;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.google.gson.Gson;
 import com.google.gson.internal.StringMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import useresponse.atlassian.plugins.jira.action.ActionType;
-import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
+import org.springframework.stereotype.Component;
+import useresponse.atlassian.plugins.jira.action.listener.ListenerActionType;
 import useresponse.atlassian.plugins.jira.model.CommentLink;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
@@ -18,16 +14,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Component("deleteCommentAction")
 public class DeleteCommentAction extends AbstractCommentAction {
 
-    Logger log = LoggerFactory.getLogger(DeleteCommentAction.class);
-
-    public DeleteCommentAction(WithId comment, CommentLinkManager commentLinkManager, PluginSettingsFactory pluginSettingsFactory) {
-        this.comment = comment;
-        this.commentLinkManager = commentLinkManager;
-        this.pluginSettingsFactory = pluginSettingsFactory;
+    public DeleteCommentAction() {
         this.request = new PostRequest();
-        this.actionType = ActionType.DELETE_COMMENT_ID;
+        this.actionType = ListenerActionType.DELETE_COMMENT_ID;
     }
 
     @Override

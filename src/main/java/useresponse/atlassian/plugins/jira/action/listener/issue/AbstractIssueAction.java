@@ -1,6 +1,7 @@
 package useresponse.atlassian.plugins.jira.action.listener.issue;
 
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.entity.WithId;
 import com.atlassian.jira.issue.AttachmentManager;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.RendererManager;
@@ -33,4 +34,8 @@ public abstract class AbstractIssueAction extends AbstractListenerAction {
 
     @Autowired
     protected IssueRequestBuilder builder;
+
+    public void setEntity(WithId entity) {
+        this.issue =  (Issue) entity;
+    }
 }

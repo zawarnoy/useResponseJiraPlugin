@@ -1,21 +1,16 @@
 package useresponse.atlassian.plugins.jira.action.listener.issue;
 
-import com.atlassian.jira.issue.Issue;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-import useresponse.atlassian.plugins.jira.action.ActionType;
-import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
+import org.springframework.stereotype.Component;
+import useresponse.atlassian.plugins.jira.action.listener.ListenerActionType;
 import useresponse.atlassian.plugins.jira.request.DeleteRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
 
+@Component("deleteIssueAction")
 public class DeleteIssueAction extends AbstractIssueAction {
 
-    public DeleteIssueAction(Issue issue, UseResponseObjectManager useResponseObjectManager, PluginSettingsFactory pluginSettingsFactory) {
-        this.issue = issue;
-        this.useResponseObjectManager = useResponseObjectManager;
-        this.pluginSettingsFactory = pluginSettingsFactory;
-
+    public DeleteIssueAction() {
         this.request = new DeleteRequest();
-        this.actionType = ActionType.DELETE_ISSUE_ID;
+        this.actionType = ListenerActionType.DELETE_ISSUE_ID;
     }
 
     @Override
