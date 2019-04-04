@@ -44,44 +44,7 @@
     </div>
 
     <div id="link-settings">
-        #if($!useResponseStatuses)
-
-            <h3>Statuses Mapping</h3>
-
-            #foreach($statusSlug in $statusSlugLinks.entrySet())
-                <div class="field-group">
-                    <label for="${statusSlug.key}Status">${statusSlug.key}</label>
-                    <select class="select" name="${statusSlug.key}Status" id="${statusSlug.key}Status">
-                        <option value="">Non set</option>
-                        #foreach( $status in $useResponseStatuses.entrySet())
-                            <option
-                                #if($statusSlug.value == $status.value)
-                                        selected
-                                #end
-                                        value="${status.value}">${status.key}</option>
-                        #end
-                    </select>
-                </div>
-            #end
-
-            <h3>Priorities Mapping</h3>
-
-            #foreach($prioritySlug in $prioritySlugLinks.entrySet())
-                <div class="field-group">
-                    <label for="${prioritySlug.key}Priority">${prioritySlug.key}</label>
-                    <select class="select" name="${prioritySlug.key}Priority" id="${prioritySlug.key}Priority">
-                        <option value="">Non set</option>
-                        #foreach($priority in $useResponsePriorities.entrySet())
-                            <option
-                                #if($prioritySlug.value == $priority.key)
-                                        selected
-                                #end
-                                        value="${priority.key}">${priority.value}</option>
-                        #end
-                    </select>
-                </div>
-            #end
-        #end
+        #parse("templates/ur_link_settings_template.vm")
     </div>
 
     <div class="field-group" style="margin-top: 20px;">

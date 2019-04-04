@@ -159,13 +159,10 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
     }
 
     private Map<Object, Object> addPriorityToMap(Map<Object, Object> map, Issue issue) {
+        PriorityLink link;
         if (issue.getPriority() != null &&
-                priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName()) != null) {
-            PriorityLink link = priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName());
-            URPriority priority = link.getUseResponsePriority();
-            String w = priority.getUseResponsePrioritySlug();
-
-            map.put("priority", priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName()).getUseResponsePriority().getUseResponsePrioritySlug());
+                (link = priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName())) != null) {
+            map.put("priority", link.getUseResponsePriority().getUseResponsePrioritySlug());
         }
 
         return map;

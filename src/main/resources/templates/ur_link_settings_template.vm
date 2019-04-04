@@ -1,3 +1,6 @@
+##<input name="" type="checkbox"><label for=""></label>
+
+
 #if($!useResponseStatuses)
 
 <h3>Statuses Mapping</h3>
