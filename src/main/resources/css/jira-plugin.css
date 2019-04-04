@@ -98,6 +98,23 @@ form.aui .select {
     background-size: 59px;
 }
 
-#link-settings h3 {
+.select-block {
     margin-top: 30px;
+}
+
+.select-block h3 {
+    margin-top: 0;
+}
+
+.sync-checkbox label {
+    color: #172b4d !important;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: -0.006em;
+    text-transform: none;
+}
+
+.sync-checkbox input {
+    margin-top: 10px;
 }

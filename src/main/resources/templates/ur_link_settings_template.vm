@@ -1,43 +1,67 @@
-##<input name="" type="checkbox"><label for=""></label>
-
+<div class="select-block">
+    <div class="field-group sync-checkbox">
+        <input class="" name="sync_comments" id="sync-comments"  type="checkbox">
+        <label class="" for="sync-comments">Sync comments</label>
+    </div>
+</div>
 
 #if($!useResponseStatuses)
 
-<h3>Statuses Mapping</h3>
+<div class="select-block">
 
-    #foreach($statusSlug in $statusSlugLinks.entrySet())
-    <div class="field-group">
-        <label for="${statusSlug.key}Status">${statusSlug.key}</label>
-        <select class="select" name="${statusSlug.key}Status" id="${statusSlug.key}Status">
-            <option value="">Non set</option>
-            #foreach ($status in $useResponseStatuses.entrySet())
-                <option
-                    #if ($statusSlug.value == $status.value)
-                            selected
-                    #end
-                            value="${status.value}">${status.key}
-                </option>
-            #end
-        </select>
+    <div class="field-group sync-checkbox">
+        <input name="sync_statuses" id="sync-statuses" checked type="checkbox">
+        <label class="" for="sync-statuses">Sync statuses</label>
     </div>
-    #end
 
-<h3>Priorities Mapping</h3>
+    <div class="selects-group">
+        <h3>Statuses Mapping</h3>
 
-    #foreach($prioritySlug in $prioritySlugLinks.entrySet())
-    <div class="field-group">
-        <label for="${prioritySlug.key}Priority">${prioritySlug.key}</label>
-        <select class="select" name="${prioritySlug.key}Priority" id="${prioritySlug.key}Priority">
-            <option value="">Non set</option>
-            #foreach($priority in $useResponsePriorities.entrySet())
-                <option
-                    #if( $prioritySlug.value == $priority.key)
-                            selected
+        #foreach($statusSlug in $statusSlugLinks.entrySet())
+            <div class="field-group">
+                <label for="${statusSlug.key}Status">${statusSlug.key}</label>
+                <select class="select" name="${statusSlug.key}Status" id="${statusSlug.key}Status">
+                    <option value="">Non set</option>
+                    #foreach ($status in $useResponseStatuses.entrySet())
+                        <option
+                            #if ($statusSlug.value == $status.value)
+                                    selected
+                            #end
+                                    value="${status.value}">${status.key}
+                        </option>
                     #end
-                            value="${priority.key}">${priority.value}
-                </option>
-            #end
-        </select>
+                </select>
+            </div>
+        #end
     </div>
-    #end
+</div>
+
+
+<div class="select-block">
+
+    <div class="field-group sync-checkbox">
+        <input name="sync_basic_fields" id="sync-basic-fields" checked type="checkbox">
+        <label class="" for="sync-basic-fields">Sync basic fields</label>
+    </div>
+
+    <div class="selects-group">
+        <h3>Priorities Mapping</h3>
+        #foreach($prioritySlug in $prioritySlugLinks.entrySet())
+            <div class="field-group">
+                <label for="${prioritySlug.key}Priority">${prioritySlug.key}</label>
+                <select class="select" name="${prioritySlug.key}Priority" id="${prioritySlug.key}Priority">
+                    <option value="">Non set</option>
+                    #foreach($priority in $useResponsePriorities.entrySet())
+                        <option
+                            #if( $prioritySlug.value == $priority.key)
+                                    selected
+                            #end
+                                    value="${priority.key}">${priority.value}
+                        </option>
+                    #end
+                </select>
+            </div>
+        #end
+    </div>
+</div>
 #end

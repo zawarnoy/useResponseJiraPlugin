@@ -33,14 +33,12 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
     @Named("priorityLinkManager")
     protected PriorityLinkManager priorityLinkManager;
 
+    @Inject
     protected AttachmentManager attachmentManager;
 
     @Inject
     @Named("issueFileLinkManager")
     protected IssueFileLinkManager issueFileLinkManager;
-
-    @Inject
-    protected PluginSettingsFactory pluginSettingsFactory;
 
     @Inject
     @Named("statusesLinkManager")
@@ -161,7 +159,8 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
     private Map<Object, Object> addPriorityToMap(Map<Object, Object> map, Issue issue) {
         PriorityLink link;
         if (issue.getPriority() != null &&
-                (link = priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName())) != null) {
+                (link = priorityLinkManager.findByJiraPriorityName(issue.getPriority().getName())) != null &&
+                link.getUseResponsePriority() != null) {
             map.put("priority", link.getUseResponsePriority().getUseResponsePrioritySlug());
         }
 

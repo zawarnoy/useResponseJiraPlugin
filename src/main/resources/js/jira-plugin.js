@@ -45,4 +45,19 @@ AJS.$(document).ready(function () {
             }
         });
     });
+
+    AJS.$(".sync-checkbox input[type='checkbox']").on('change', function () {
+        event.preventDefault();
+
+        var $this = $(this),
+            $selectsGroup = $(this).parent().siblings('.selects-group');
+
+        console.log($this);
+        console.log($selectsGroup);
+
+        if ($selectsGroup.length) {
+            $selectsGroup.toggleClass('hidden', $this.checked);
+        }
+
+    })
 });
