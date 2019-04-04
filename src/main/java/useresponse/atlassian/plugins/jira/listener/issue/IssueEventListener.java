@@ -13,8 +13,6 @@ import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.plugin.spring.scanner.annotation.imports.JiraImport;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,22 +48,14 @@ import java.util.concurrent.Future;
 @Component
 public class IssueEventListener implements InitializingBean, DisposableBean {
 
-    private static final Logger log = LoggerFactory.getLogger(IssueEvent.class);
-
     @JiraImport
     private final EventPublisher eventPublisher;
-
-    @ComponentImport
-    private final ActiveObjects ao;
 
     @Autowired
     protected UseResponseObjectManagerImpl useResponseObjectManager;
 
     @Autowired
     private CommentLinkManagerImpl commentLinkManager;
-
-    @ComponentImport
-    private final AttachmentManager attachmentManager;
 
     @Autowired
     private ListenerActionFactory issueActionFactory;
@@ -74,13 +64,11 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
     private CommentActionFactory commentActionFactory;
 
     @Autowired
-    private PluginSettingsImpl pluginSettings;
+    private CommentsService commentsService;
 
     @Autowired
-    public IssueEventListener(EventPublisher eventPublisher, ActiveObjects ao, AttachmentManager attachmentManager) {
+    public IssueEventListener(EventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
-        this.ao = ao;
-        this.attachmentManager = attachmentManager;
     }
 
     /**
@@ -143,8 +131,6 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
             Storage.userWhoPerformedAction = issueEvent.getUser().getEmailAddress();
         }
 
-        log.error("TYPE ID: " + typeId);
-
         if (typeId.equals(EventType.ISSUE_CREATED_ID)) {
             actions.add(issueActionFactory.createAction(CreateIssueAction.class));
         } else if (typeId.equals(EventType.ISSUE_MOVED_ID)) {
@@ -156,7 +142,7 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
         } else if (typeId.equals(EventType.ISSUE_DELETED_ID)) {
             actions.add(issueActionFactory.createAction(DeleteIssueAction.class));
         } else if (typeId.equals(EventType.ISSUE_COMMENT_DELETED_ID)) {
-            Integer deletedCommentId = CommentsService.getDeletedCommentId(issueEvent.getIssue(), commentLinkManager);
+            Integer deletedCommentId = commentsService.getDeletedCommentId(issueEvent.getIssue());
             if (deletedCommentId != null) {
                 commentActionFactory.setEntity(() -> (long) deletedCommentId);
                 actions.add(commentActionFactory.createAction(DeleteCommentAction.class));
@@ -188,6 +174,7 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
         if (commentLinkManager.findByIssueId(issue.getId().intValue()).size() != ComponentAccessor.getCommentManager().getComments(issue).size()) {
             comment = ComponentAccessor.getCommentManager().getLastComment(issue);
         }
+
         return comment;
     }
 }

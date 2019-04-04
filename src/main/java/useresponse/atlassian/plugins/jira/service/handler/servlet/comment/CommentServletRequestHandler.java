@@ -10,26 +10,29 @@ import com.atlassian.jira.issue.comments.MutableComment;
 import com.atlassian.jira.user.ApplicationUser;
 import com.google.gson.Gson;
 import org.json.simple.parser.ParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.model.CommentLink;
 import useresponse.atlassian.plugins.jira.service.IssueService;
 import useresponse.atlassian.plugins.jira.service.handler.Handler;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+@Component("commentServletRequestHandler")
 public class CommentServletRequestHandler implements Handler<String, String> {
-    Logger logger = LoggerFactory.getLogger(CommentServletRequestHandler.class);
 
     private ApplicationUser loggedUser;
+
+    @Inject
+    @Named("commentLinkManager")
     private CommentLinkManager commentLinkManager;
 
-    public CommentServletRequestHandler(ApplicationUser loggedUser, CommentLinkManager commentLinkManager) {
-        this.loggedUser = loggedUser;
-        this.commentLinkManager = commentLinkManager;
+    public CommentServletRequestHandler() {
+        this.loggedUser = ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser();
     }
 
     @Override

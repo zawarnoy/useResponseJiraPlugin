@@ -3,8 +3,6 @@ package useresponse.atlassian.plugins.jira.service.handler.servlet.binder;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.google.gson.Gson;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.service.handler.Handler;
@@ -19,24 +17,16 @@ import java.util.Map;
 @Named("issueBinderRequestHandler")
 public class IssueBinderServletRequestHandler implements Handler<String, String> {
 
+    @Inject
+    @Named("useResponseObjectManager")
     private UseResponseObjectManager useResponseObjectManager;
 
     @Inject
-    @Named("useResponseObjectManager")
-    public void setUseResponseObjectManager(UseResponseObjectManager useResponseObjectManager) {
-        this.useResponseObjectManager = useResponseObjectManager;
-    }
-
-    private CommentLinkManager commentLinkManager;
-    @Inject
     @Named("commentLinkManager")
-    public void setCommentLinkManager(CommentLinkManager commentLinkManager) {
-        this.commentLinkManager = commentLinkManager;
-    }
+    private CommentLinkManager commentLinkManager;
 
     @Override
     public String handle(String response) {
-        Logger logger = LoggerFactory.getLogger(IssueBinderServletRequestHandler.class);
         String responseForUser;
 
         try {
@@ -51,9 +41,7 @@ public class IssueBinderServletRequestHandler implements Handler<String, String>
                 }
             }
 
-
             if (commentLinkManager != null) {
-                logger.error("ttt");
                 List<Map> commentsData = (List) data.get("comments");
                 if (commentsData != null) {
                     handleCommentsData(commentsData);

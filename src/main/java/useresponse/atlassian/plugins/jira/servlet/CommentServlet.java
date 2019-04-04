@@ -5,11 +5,11 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.google.gson.Gson;
-import org.springframework.beans.factory.annotation.Autowired;
-import useresponse.atlassian.plugins.jira.manager.impl.CommentLinkManagerImpl;
-import useresponse.atlassian.plugins.jira.service.handler.Handler;
 import useresponse.atlassian.plugins.jira.service.handler.servlet.comment.CommentServletRequestHandler;
 import useresponse.atlassian.plugins.jira.service.request.ServletService;
+
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -20,8 +20,9 @@ import java.util.Map;
 
 public class CommentServlet extends HttpServlet {
 
-    @Autowired
-    private CommentLinkManagerImpl commentLinkManager;
+    @Inject
+    @Named("commentServletRequestHandler")
+    private CommentServletRequestHandler handler;
 
     private final UserManager userManager;
 
@@ -39,8 +40,6 @@ public class CommentServlet extends HttpServlet {
         }
 
         String jsonData = ServletService.getJsonFromRequest(req);
-
-        Handler<String, String> handler = new CommentServletRequestHandler(loggedUser, commentLinkManager);
 
         String response;
 

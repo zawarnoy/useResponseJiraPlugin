@@ -20,14 +20,14 @@ import java.io.IOException;
  * Servlet to receiving attachments
  */
 public class AttachmentsServlet extends HttpServlet {
-    private static final Logger log = LoggerFactory.getLogger(AttachmentsServlet.class);
 
     @Autowired
-    IssueFileLinkManager fileLinkManager;
+    AttachmentsRequestHandler handler;
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String answer = null;
+        String answer;
+
         try {
 
             ApplicationUser user = ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser();
@@ -37,8 +37,6 @@ public class AttachmentsServlet extends HttpServlet {
             }
 
             String json = ServletService.getJsonFromRequest(req);
-            Handler<String, String> handler = new AttachmentsRequestHandler();
-            ((AttachmentsRequestHandler) handler).setFileLinkManager(fileLinkManager);
             answer = handler.handle(json);
 
         } catch (Exception e) {

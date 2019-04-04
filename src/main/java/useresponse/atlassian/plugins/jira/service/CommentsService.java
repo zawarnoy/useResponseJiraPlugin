@@ -3,24 +3,27 @@ package useresponse.atlassian.plugins.jira.service;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.comments.Comment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.manager.CommentLinkManager;
 import useresponse.atlassian.plugins.jira.model.CommentLink;
 import useresponse.atlassian.plugins.jira.set.linked.LinkedSet;
+
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CommentsService {
 
-    private static Logger log = LoggerFactory.getLogger(CommentsService.class);
+    @Inject
+    @Named("commentLinkManager")
+    private CommentLinkManager commentLinkManager;
 
-    public static Integer getDeletedCommentId(Issue issue, CommentLinkManager commentLinkManager) {
-        List<Integer> arrayResult = getDeletedCommentsId(issue, commentLinkManager);
+    public Integer getDeletedCommentId(Issue issue) {
+        List<Integer> arrayResult = getDeletedCommentsId(issue);
         return arrayResult.size() > 0 ? arrayResult.get(0) : null;
     }
 
-    public static List<Integer> getDeletedCommentsId(Issue issue, CommentLinkManager commentLinkManager) {
+    public List<Integer> getDeletedCommentsId(Issue issue) {
         List<CommentLink> comments = commentLinkManager.findByIssueId(issue.getId().intValue());
         List<Comment> remainingComments = ComponentAccessor.getCommentManager().getComments(issue);
 
@@ -40,7 +43,7 @@ public class CommentsService {
         return result;
     }
 
-    private static boolean isInCommentsList(List<Comment> comments, int wantedCommentId) {
+    private boolean isInCommentsList(List<Comment> comments, int wantedCommentId) {
         for (Comment comment : comments) {
             if (comment.getId().intValue() == wantedCommentId) {
                 return true;

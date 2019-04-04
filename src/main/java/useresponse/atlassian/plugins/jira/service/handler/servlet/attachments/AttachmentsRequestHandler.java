@@ -18,6 +18,9 @@ import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.manager.IssueFileLinkManager;
 import useresponse.atlassian.plugins.jira.service.converter.content.ContentConverter;
 import useresponse.atlassian.plugins.jira.service.handler.Handler;
+
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -34,6 +37,8 @@ public class AttachmentsRequestHandler implements Handler<String, String> {
 
     private IssueFileLinkManager fileLinkManager;
 
+    @Inject
+    @Named("issueFileLinkManager")
     public void setFileLinkManager(IssueFileLinkManager fileLinkManager) {
         this.fileLinkManager = fileLinkManager;
     }

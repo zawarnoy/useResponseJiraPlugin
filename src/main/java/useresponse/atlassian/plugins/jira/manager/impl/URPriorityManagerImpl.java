@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Scanned
-@Named
+@Named("priorityManager")
 public class URPriorityManagerImpl implements URPriorityManager {
 
     @ComponentImport

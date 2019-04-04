@@ -1,17 +1,12 @@
 package useresponse.atlassian.plugins.jira.servlet;
 
-import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.sal.api.UrlMode;
-import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.templaterenderer.TemplateRenderer;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.google.gson.Gson;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.action.Action;
 import useresponse.atlassian.plugins.jira.action.servlet.SettingsSendAction;
@@ -23,7 +18,6 @@ import useresponse.atlassian.plugins.jira.model.*;
 import useresponse.atlassian.plugins.jira.service.PrioritiesService;
 import useresponse.atlassian.plugins.jira.service.SettingsService;
 import useresponse.atlassian.plugins.jira.service.StatusesService;
-import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 import javax.inject.Inject;
 import javax.servlet.*;
@@ -38,17 +32,12 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import com.atlassian.jira.config.DefaultStatusManager;
-import com.atlassian.jira.config.DefaultPriorityManager;
 import com.atlassian.activeobjects.external.ActiveObjects;
 import useresponse.atlassian.plugins.jira.storage.Storage;
 
 
 @Scanned
 public class UseResponseSettingServlet extends HttpServlet {
-
-    private static final Logger log = LoggerFactory.getLogger(UseResponseSettingServlet.class);
-
 
     private static final String SETTINGS_TEMPLATE = "/templates/ur_connection_settings_template.vm";
     private static final String LINK_TEMPLATE = "/templates/ur_link_settings_template.vm";
@@ -57,9 +46,7 @@ public class UseResponseSettingServlet extends HttpServlet {
     private static final String SETTINGS_ARE_CHANCHED_STRING = "Settings are changed!";
 
     private final UserManager userManager;
-    private final LoginUriProvider loginUriProvider;
     private final TemplateRenderer templateRenderer;
-    private final PluginSettingsFactory pluginSettingsFactory;
     private final ActiveObjects ao;
 
     @Autowired
@@ -77,17 +64,19 @@ public class UseResponseSettingServlet extends HttpServlet {
     @Autowired
     private PluginSettingsImpl pluginSettings;
 
+    @Autowired
+    private PrioritiesService prioritiesService;
+
+    @Autowired
+    private StatusesService statusesService;
+
     @Inject
     public UseResponseSettingServlet(@ComponentImport UserManager userManager,
-                                     @ComponentImport LoginUriProvider loginUriProvider,
                                      @ComponentImport TemplateRenderer templateRenderer,
-                                     @ComponentImport PluginSettingsFactory pluginSettignsFactory,
                                      @ComponentImport ActiveObjects ao
     ) {
         this.userManager = userManager;
-        this.loginUriProvider = loginUriProvider;
         this.templateRenderer = templateRenderer;
-        this.pluginSettingsFactory = pluginSettignsFactory;
         this.ao = ao;
     }
 
@@ -98,9 +87,6 @@ public class UseResponseSettingServlet extends HttpServlet {
             settingsService.redirectToLogin(request, response);
             return;
         }
-
-        PrioritiesService prioritiesService = new PrioritiesService(ComponentAccessor.getComponent(DefaultPriorityManager.class), priorityLinkManager, urPriorityManager);
-        StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
 
         prepareDB();
 
@@ -134,8 +120,6 @@ public class UseResponseSettingServlet extends HttpServlet {
 
         prepareDB();
 
-        PrioritiesService prioritiesService = new PrioritiesService(ComponentAccessor.getComponent(DefaultPriorityManager.class), priorityLinkManager, urPriorityManager);
-        StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
         HashMap<String, Object> map = new HashMap<>();
         HashMap<String, Object> context = new HashMap<>();
 
@@ -212,7 +196,6 @@ public class UseResponseSettingServlet extends HttpServlet {
     }
 
     private Map<String, String> setStatuses(HttpServletRequest request) {
-        StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
 
         Map<String, String> result = new HashMap<>();
 
@@ -225,7 +208,6 @@ public class UseResponseSettingServlet extends HttpServlet {
     }
 
     private Map<String, String> setPriorities(HttpServletRequest request) {
-        PrioritiesService prioritiesService = new PrioritiesService(ComponentAccessor.getComponent(DefaultPriorityManager.class), priorityLinkManager, urPriorityManager);
 
         Map<String, String> result = new HashMap<>();
 

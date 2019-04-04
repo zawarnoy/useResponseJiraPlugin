@@ -36,15 +36,8 @@ import useresponse.atlassian.plugins.jira.service.StatusesService;
 
 
 public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
-    private static final Logger log = LoggerFactory.getLogger(IssueBinderServlet.class);
 
-    private final Gson gson = new Gson();
-
-
-    private final ActiveObjects ao;
     private final UserManager userManager;
-    private final IssueManager issueManager;
-
     @Autowired
     private UseResponseObjectManagerImpl useResponseObjectManager;
 
@@ -52,10 +45,7 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
     private CommentLinkManagerImpl commentLinkManager;
 
     @Autowired
-    private StatusesLinkManagerImpl linkManager;
-
-    @Autowired
-    private PriorityLinkManagerImpl priorityLinkManger;
+    private StatusesService statusesService;
 
     @Autowired
     private URPriorityManagerImpl urPriorityManager;
@@ -63,13 +53,12 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
     @Autowired
     private IssueFileLinkManagerImpl fileLinkManager;
 
+    @Autowired
+    PrioritiesService prioritiesService;
+
     @Inject
-    public UseResponseJiraStatusesLinkServlet(@ComponentImport ActiveObjects ao,
-                                              @ComponentImport UserManager userManager,
-                                              @ComponentImport IssueManager issueManager) {
-        this.ao = ao;
+    public UseResponseJiraStatusesLinkServlet(@ComponentImport UserManager userManager) {
         this.userManager = userManager;
-        this.issueManager = issueManager;
     }
 
     @Override
@@ -91,7 +80,7 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
             writer.write("<h1>Items</h1>");
             for (UseResponseObject object : useResponseObjectManager.all()) {
                 writer.print(
-                                "ur id: " + object.getUseResponseId() +
+                        "ur id: " + object.getUseResponseId() +
                                 " jira id:" + object.getJiraId() +
                                 " object type: " + object.getObjectType() +
                                 " sync: " + String.valueOf(object.getNeedOfSync()) + "<br>");
@@ -110,9 +99,6 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
             writer.write(status.getName() + "<br>");
         }
 
-
-        StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
-
         Map<String, String> statusSlug = statusesService.getStatusSlugLinks();
 
         writer.write("<h1>Statuses Links</h1>");
@@ -122,7 +108,6 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
         }
 
         DefaultPriorityManager priorityManager = ComponentAccessor.getComponent(DefaultPriorityManager.class);
-        PrioritiesService prioritiesService = new PrioritiesService(priorityManager, priorityLinkManger, urPriorityManager);
 
 
         writer.write("<h1>Priority links </h1>");
@@ -153,20 +138,7 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
         for (IssueFileLink urPriority : fileLinkManager.all())
             writer.write(urPriority.getJiraIssueId() + "|" + urPriority.getSentFilename() + "<br>");
 
-
         writer.write("<br>");
-
-//        writer.write("<h1>Path</h1>: ");
-
-//
-//        writer.write(ComponentAccessor.getApplicationProperties().getString(APKeys.JIRA_PATH_ATTACHMENTS) + "<br><br>");
-//        writer.write(ComponentAccessor.getComponentOfType(JiraHome.class).getHomePath() + "<br><br>");
-//        writer.write(ComponentAccessor.getAttachmentPathManager().getAttachmentPath() + "<br><br>");
-//
-//        MutableIssue issue = ComponentAccessor.getIssueManager().getIssueByCurrentKey("TEST-12");
-
-//        writer.write(issue.getProjectObject().getKey() + "<br>");
-//        writer.write(issue.getId().toString());
 
         writer.close();
     }

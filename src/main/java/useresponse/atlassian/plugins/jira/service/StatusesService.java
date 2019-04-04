@@ -1,10 +1,14 @@
 package useresponse.atlassian.plugins.jira.service;
 
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.DefaultStatusManager;
 import com.atlassian.jira.issue.status.Status;
+import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.manager.impl.StatusesLinkManagerImpl;
 import useresponse.atlassian.plugins.jira.model.StatusesLink;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.*;
 
 
@@ -12,12 +16,12 @@ public class StatusesService {
 
     private final DefaultStatusManager statusManager;
 
+    @Inject
+    @Named("statusesLinkManager")
     private StatusesLinkManagerImpl linkManager;
 
-
-    public StatusesService(DefaultStatusManager statusManager, StatusesLinkManagerImpl linkManager) {
-        this.statusManager = statusManager;
-        this.linkManager = linkManager;
+    public StatusesService() {
+        this.statusManager = ComponentAccessor.getComponent(DefaultStatusManager.class);
     }
 
     public List<String> getStatusesNames() {

@@ -9,8 +9,6 @@ import com.atlassian.jira.issue.attachment.Attachment;
 import com.atlassian.jira.issue.comments.Comment;
 import com.atlassian.jira.issue.fields.renderer.JiraRendererPlugin;
 import com.atlassian.jira.issue.fields.renderer.wiki.AtlassianWikiRenderer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.service.IconsService;
 import useresponse.atlassian.plugins.jira.storage.Storage;
 import java.util.Collection;
@@ -20,8 +18,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ContentConverter {
-
-    static Logger logger = LoggerFactory.getLogger(ContentConverter.class);
 
     public static String convert(Issue issue) {
         JiraRendererPlugin renderer = ComponentAccessor.getRendererManager().getRendererForType(AtlassianWikiRenderer.RENDERER_TYPE);

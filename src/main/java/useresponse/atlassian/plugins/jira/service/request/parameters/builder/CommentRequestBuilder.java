@@ -22,7 +22,10 @@ public class CommentRequestBuilder {
 
     @Inject
     @Named("commentLinkManager")
-    public CommentLinkManager commentManager;
+    private CommentLinkManager commentManager;
+
+    @Autowired
+    private CommentsService commentsService;
 
     public Map<Object, Object> build(Comment comment) {
         return build(comment, true);
@@ -68,7 +71,7 @@ public class CommentRequestBuilder {
 
     public List<Map<Object, Object>> getDeletedComments(Issue issue) {
 
-        List<Integer> deletedCommentsIds = CommentsService.getDeletedCommentsId(issue, commentManager);
+        List<Integer> deletedCommentsIds = commentsService.getDeletedCommentsId(issue);
 
         List<Map<Object, Object>> result = new ArrayList<>();
 

@@ -47,4 +47,20 @@
           class="useresponse.atlassian.plugins.jira.service.SettingsService">
     </bean>
 
+    <bean id="attachmentsRequestHandler"
+          class="useresponse.atlassian.plugins.jira.service.handler.servlet.attachments.AttachmentsRequestHandler">
+    </bean>
+
+    <bean id="commentsService"
+          class="useresponse.atlassian.plugins.jira.service.CommentsService">
+    </bean>
+
+    <bean id="prioritiesService"
+          class="useresponse.atlassian.plugins.jira.service.PrioritiesService">
+    </bean>
+
+    <bean id="statusesService"
+          class="useresponse.atlassian.plugins.jira.service.StatusesService">
+    </bean>
+
 </beans>
