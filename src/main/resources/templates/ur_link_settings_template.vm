@@ -1,6 +1,11 @@
 <div class="select-block">
     <div class="field-group sync-checkbox">
-        <input class="" name="sync_comments" id="sync-comments"  type="checkbox">
+        #if ($syncComments)
+            #set ($checked = "checked")
+        #else
+            #set ($checked = "")
+        #end
+        <input class="" name="syncComments" id="sync-comments" $checked type="checkbox">
         <label class="" for="sync-comments">Sync comments</label>
     </div>
 </div>
@@ -8,15 +13,20 @@
 #if($!useResponseStatuses)
 
 <div class="select-block">
-
+    #if ($syncStatuses)
+        #set ($checked = "checked")
+        #set ($class = "selects-group")
+    #else
+        #set ($checked = "")
+        #set ($class = "selects-group hidden")
+    #end
     <div class="field-group sync-checkbox">
-        <input name="sync_statuses" id="sync-statuses" checked type="checkbox">
+        <input name="syncStatuses" id="sync-statuses" $checked type="checkbox">
         <label class="" for="sync-statuses">Sync statuses</label>
     </div>
 
-    <div class="selects-group">
+    <div class="$class">
         <h3>Statuses Mapping</h3>
-
         #foreach($statusSlug in $statusSlugLinks.entrySet())
             <div class="field-group">
                 <label for="${statusSlug.key}Status">${statusSlug.key}</label>
@@ -36,15 +46,20 @@
     </div>
 </div>
 
-
 <div class="select-block">
-
+    #if ($syncBasicFields)
+        #set ($checked = "checked")
+        #set ($class = "selects-group")
+    #else
+        #set ($checked = "")
+        #set ($class = "selects-group hidden")
+    #end
     <div class="field-group sync-checkbox">
-        <input name="sync_basic_fields" id="sync-basic-fields" checked type="checkbox">
+        <input name="syncBasicFields" id="sync-basic-fields" $checked type="checkbox">
         <label class="" for="sync-basic-fields">Sync basic fields</label>
     </div>
 
-    <div class="selects-group">
+    <div class="$class">
         <h3>Priorities Mapping</h3>
         #foreach($prioritySlug in $prioritySlugLinks.entrySet())
             <div class="field-group">

@@ -46,7 +46,7 @@ AJS.$(document).ready(function () {
         });
     });
 
-    AJS.$(".sync-checkbox input[type='checkbox']").on('change', function () {
+    AJS.$(".aui-page-panel-content").on('change', ".sync-checkbox input[type='checkbox']", function () {
         event.preventDefault();
 
         var $this = $(this),

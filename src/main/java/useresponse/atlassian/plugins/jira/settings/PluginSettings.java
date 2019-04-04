@@ -10,12 +10,12 @@ public interface PluginSettings {
     String getAutosendingFlag();
     void setAutosendingFlag(String autosendingFlag);
 
-    boolean getSyncStatuses();
+    Boolean getSyncStatuses();
     void setSyncStatuses(boolean syncStatuses);
 
-    boolean getSyncComments();
+    Boolean getSyncComments();
     void setSyncComments(boolean syncComments);
 
-    boolean getBasicFields();
-    void setBasicFields(boolean basicFields);
+    Boolean getSyncBasicFields();
+    void setSyncBasicFields(boolean basicFields);
 }

@@ -1,6 +1,8 @@
 package useresponse.atlassian.plugins.jira.service;
 
 import com.atlassian.activeobjects.external.ActiveObjects;
+import com.atlassian.sal.api.ApplicationProperties;
+import com.atlassian.sal.api.UrlMode;
 import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.sal.api.user.UserKey;
 import com.atlassian.sal.api.user.UserManager;
@@ -8,6 +10,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.action.Action;
 import useresponse.atlassian.plugins.jira.action.servlet.SettingsSendAction;
@@ -56,28 +60,38 @@ public class SettingsService {
     @Autowired
     private PrioritiesService prioritiesService;
 
+    @Autowired
+    private ApplicationProperties applicationProperties;
+
     @Inject
     ActiveObjects ao;
 
     @Autowired
     StatusesService statusesService;
 
+    Logger logger = LoggerFactory.getLogger(SettingsService.class);
+
     public SettingsService() {
 
     }
 
-    public HashMap<String, String> getUseResponseStatuses(PluginSettings useResponseSettings) throws Exception {
+    public HashMap<String, String> getUseResponseStatuses() {
         if (pluginSettings.getUseResponseDomain() == null || pluginSettings.getUseResponseApiKey() == null) {
             return null;
         }
-        String requestUrl = createUseResponseStatusesLinkFromSettings(useResponseSettings);
+        String requestUrl = createUseResponseStatusesLinkFromSettings();
         Request statusesRequest = new GetRequest();
-        return getStatusesFromJson(statusesRequest.sendRequest(requestUrl));
+        try {
+            return getStatusesFromJson(statusesRequest.sendRequest(requestUrl));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    private String createUseResponseStatusesLinkFromSettings(PluginSettings settings) {
-        String domain = settings.getUseResponseDomain();
-        String apiKey = settings.getUseResponseApiKey();
+    private String createUseResponseStatusesLinkFromSettings() {
+        String domain = pluginSettings.getUseResponseDomain();
+        String apiKey = pluginSettings.getUseResponseApiKey();
         return domain + Storage.API_STRING + "statuses.json?object_type=ticket&apiKey=" + apiKey;
     }
 
@@ -115,12 +129,12 @@ public class SettingsService {
         return URI.create(builder.toString());
     }
 
-    public void setURParameters(String domain, String apiKey) {
+    private void setURParameters(String domain, String apiKey) {
         pluginSettings.setUseResponseDomain(domain);
         pluginSettings.setUseResponseApiKey(apiKey);
     }
 
-    public boolean testURConnection(String urDomain, String urApiKey) {
+    private boolean testURConnection(String urDomain, String urApiKey) {
         Request request = new GetRequest();
         String response = null;
         try {
@@ -170,14 +184,34 @@ public class SettingsService {
         setConnectionParameters(request);
         Map<String, String> statuses = setStatuses(request);
         Map<String, String> priorities = setPriorities(request);
+        Map<String, Object> syncSettings = setSyncSettings(request);
 
         result.put("statuses", statuses);
         result.put("priorities", priorities);
+        result.put("syncSettings", syncSettings);
 
         return result;
     }
 
-    public Map<String, String> setStatuses(HttpServletRequest request) {
+    private Map<String, Object> setSyncSettings(HttpServletRequest request) {
+
+        Map<String, Object> result = new HashMap<>();
+
+        logger.error("test: " + request.getParameter("syncStatuses"));
+
+        pluginSettings.setSyncStatuses(Boolean.parseBoolean(request.getParameter("syncStatuses")));
+        result.put("syncStatuses", request.getParameter("syncStatuses"));
+
+        pluginSettings.setSyncComments(Boolean.parseBoolean(request.getParameter("syncComments")));
+        result.put("syncComments", request.getParameter("syncComments"));
+
+        pluginSettings.setSyncBasicFields(Boolean.parseBoolean(request.getParameter("syncBasicFields")));
+        result.put("syncBasicFields", request.getParameter("syncBasicFields"));
+
+        return result;
+    }
+
+    private Map<String, String> setStatuses(HttpServletRequest request) {
 
         Map<String, String> result = new HashMap<>();
 
@@ -189,7 +223,7 @@ public class SettingsService {
         return result;
     }
 
-    public Map<String, String> setPriorities(HttpServletRequest request) {
+    private Map<String, String> setPriorities(HttpServletRequest request) {
 
         Map<String, String> result = new HashMap<>();
 
@@ -215,7 +249,7 @@ public class SettingsService {
         return result;
     }
 
-    public void setConnectionParameters(HttpServletRequest request) throws ConnectionException {
+    private void setConnectionParameters(HttpServletRequest request) throws ConnectionException {
         String domain = request.getParameter("domain");
         String apiKey = request.getParameter("apiKey");
 
@@ -232,5 +266,23 @@ public class SettingsService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public Map<String, Object> formTemplateParameters() {
+
+        Map<String, Object> context = new HashMap<>();
+
+        context.put("domain", pluginSettings.getUseResponseDomain() == null ? "" : pluginSettings.getUseResponseDomain());
+        context.put("apiKey", pluginSettings.getUseResponseApiKey() == null ? "" : pluginSettings.getUseResponseApiKey());
+        context.put("syncComments", pluginSettings.getSyncComments() == null ? false : pluginSettings.getSyncComments());
+        context.put("syncStatuses", pluginSettings.getSyncStatuses() == null ? false : pluginSettings.getSyncStatuses());
+        context.put("syncBasicFields", pluginSettings.getSyncBasicFields() == null ? false : pluginSettings.getSyncBasicFields());
+        context.put("statusSlugLinks", statusesService.getStatusSlugLinks());
+        context.put("prioritySlugLinks", prioritiesService.getPrioritySlugLinks());
+        context.put("useResponsePriorities", prioritiesService.getUseResponsePriorities());
+        context.put("baseUrl", applicationProperties.getBaseUrl(UrlMode.ABSOLUTE));
+        context.put("useResponseStatuses", this.getUseResponseStatuses());
+
+        return context;
     }
 }

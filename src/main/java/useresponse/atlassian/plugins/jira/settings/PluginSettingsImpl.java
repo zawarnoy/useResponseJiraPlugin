@@ -1,6 +1,8 @@
 package useresponse.atlassian.plugins.jira.settings;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 
@@ -17,6 +19,8 @@ public class PluginSettingsImpl implements PluginSettings {
 
     @Inject
     private PluginSettingsFactory pluginSettingsFactory;
+
+    Logger logger = LoggerFactory.getLogger(PluginSettingsImpl.class);
 
     public PluginSettingsImpl() {
 
@@ -53,34 +57,38 @@ public class PluginSettingsImpl implements PluginSettings {
     }
 
     @Override
-    public boolean getSyncStatuses() {
-        return (boolean) pluginSettingsFactory.createGlobalSettings().get(USERESPONSE_SYNC_STATUSES);
+    public Boolean getSyncStatuses() {
+        return parseOnOff((String) pluginSettingsFactory.createGlobalSettings().get(USERESPONSE_SYNC_STATUSES));
     }
 
     @Override
     public void setSyncStatuses(boolean syncStatuses) {
-        pluginSettingsFactory.createGlobalSettings().put(USERESPONSE_SYNC_STATUSES, syncStatuses);
+        pluginSettingsFactory.createGlobalSettings().put(USERESPONSE_SYNC_STATUSES, String.valueOf(syncStatuses));
     }
 
     @Override
-    public boolean getSyncComments() {
-        return (boolean) pluginSettingsFactory.createGlobalSettings().get(USERESPONSE_SYNC_COMMENTS);
+    public Boolean getSyncComments() {
+        logger.error((String) pluginSettingsFactory.createGlobalSettings().get(USERESPONSE_SYNC_COMMENTS));
+        return parseOnOff((String) pluginSettingsFactory.createGlobalSettings().get(USERESPONSE_SYNC_COMMENTS));
     }
 
     @Override
     public void setSyncComments(boolean syncComments) {
-        pluginSettingsFactory.createGlobalSettings().put(USERESPONSE_SYNC_COMMENTS, syncComments);
+        pluginSettingsFactory.createGlobalSettings().put(USERESPONSE_SYNC_COMMENTS, String.valueOf(syncComments));
     }
 
     @Override
-    public boolean getBasicFields() {
-        return (boolean) pluginSettingsFactory.createGlobalSettings().get(USERESPONSE_SYNC_BASIC_FIELDS);
+    public Boolean getSyncBasicFields() {
+        return parseOnOff((String) pluginSettingsFactory.createGlobalSettings().get(USERESPONSE_SYNC_BASIC_FIELDS));
     }
 
     @Override
-    public void setBasicFields(boolean basicFields) {
-        pluginSettingsFactory.createGlobalSettings().put(USERESPONSE_SYNC_BASIC_FIELDS, basicFields);
+    public void setSyncBasicFields(boolean basicFields) {
+        pluginSettingsFactory.createGlobalSettings().put(USERESPONSE_SYNC_BASIC_FIELDS, String.valueOf(basicFields));
     }
 
+    private boolean parseOnOff(String val) {
+        return val.equals("on");
+    }
 
 }
