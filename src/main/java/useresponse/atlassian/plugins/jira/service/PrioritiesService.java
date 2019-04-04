@@ -56,10 +56,17 @@ public class PrioritiesService {
             Map.Entry<String, String> entry = new AbstractMap.SimpleEntry<>(priorityName, "");
             PriorityLink priorityLink = priorityLinkManger.findByJiraPriorityName(priorityName);
             if (priorityLink != null) {
-                entry.setValue(priorityLink.getUseResponsePriority().getUseResponsePrioritySlug());
+
+                String value =
+                        priorityLink.getUseResponsePriority() == null ?
+                        null :
+                        priorityLink.getUseResponsePriority().getUseResponsePrioritySlug();
+
+                entry.setValue(value);
             }
             prioritySlugLinks.put(entry.getKey(), entry.getValue());
         }
+
         return prioritySlugLinks;
     }
 

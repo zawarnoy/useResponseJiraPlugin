@@ -46,12 +46,13 @@
     <div id="link-settings">
         #if($!useResponseStatuses)
 
-            <h3 style="margin-top: 30px">Statuses Mapping</h3>
+            <h3>Statuses Mapping</h3>
 
             #foreach($statusSlug in $statusSlugLinks.entrySet())
                 <div class="field-group">
                     <label for="${statusSlug.key}Status">${statusSlug.key}</label>
                     <select class="select" name="${statusSlug.key}Status" id="${statusSlug.key}Status">
+                        <option value="">Non set</option>
                         #foreach( $status in $useResponseStatuses.entrySet())
                             <option
                                 #if($statusSlug.value == $status.value)
@@ -69,6 +70,7 @@
                 <div class="field-group">
                     <label for="${prioritySlug.key}Priority">${prioritySlug.key}</label>
                     <select class="select" name="${prioritySlug.key}Priority" id="${prioritySlug.key}Priority">
+                        <option value="">Non set</option>
                         #foreach($priority in $useResponsePriorities.entrySet())
                             <option
                                 #if($prioritySlug.value == $priority.key)

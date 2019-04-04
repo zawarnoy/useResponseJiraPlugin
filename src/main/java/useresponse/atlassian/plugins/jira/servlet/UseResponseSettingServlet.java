@@ -8,17 +8,11 @@ import com.atlassian.templaterenderer.TemplateRenderer;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
-import useresponse.atlassian.plugins.jira.action.Action;
-import useresponse.atlassian.plugins.jira.action.servlet.SettingsSendAction;
-import useresponse.atlassian.plugins.jira.exception.ConnectionException;
-import useresponse.atlassian.plugins.jira.manager.impl.PriorityLinkManagerImpl;
-import useresponse.atlassian.plugins.jira.manager.impl.StatusesLinkManagerImpl;
-import useresponse.atlassian.plugins.jira.manager.impl.URPriorityManagerImpl;
-import useresponse.atlassian.plugins.jira.model.*;
 import useresponse.atlassian.plugins.jira.service.PrioritiesService;
 import useresponse.atlassian.plugins.jira.service.SettingsService;
 import useresponse.atlassian.plugins.jira.service.StatusesService;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
+
 import javax.inject.Inject;
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
@@ -29,11 +23,8 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+
 import com.atlassian.activeobjects.external.ActiveObjects;
-import useresponse.atlassian.plugins.jira.storage.Storage;
 
 
 @Scanned
@@ -47,14 +38,7 @@ public class UseResponseSettingServlet extends HttpServlet {
 
     private final UserManager userManager;
     private final TemplateRenderer templateRenderer;
-    private final ActiveObjects ao;
 
-    @Autowired
-    private PriorityLinkManagerImpl priorityLinkManager;
-    @Autowired
-    private URPriorityManagerImpl urPriorityManager;
-    @Autowired
-    private StatusesLinkManagerImpl linkManager;
     @Autowired
     private ApplicationProperties applicationProperties;
 
@@ -77,7 +61,6 @@ public class UseResponseSettingServlet extends HttpServlet {
     ) {
         this.userManager = userManager;
         this.templateRenderer = templateRenderer;
-        this.ao = ao;
     }
 
     @Override
@@ -88,7 +71,7 @@ public class UseResponseSettingServlet extends HttpServlet {
             return;
         }
 
-        prepareDB();
+        settingsService.prepareDB();
 
         Map<String, Object> context = new HashMap<String, Object>();
         HashMap<String, String> statuses = null;
@@ -118,15 +101,15 @@ public class UseResponseSettingServlet extends HttpServlet {
             return;
         }
 
-        prepareDB();
+        settingsService.prepareDB();
 
         HashMap<String, Object> map = new HashMap<>();
         HashMap<String, Object> context = new HashMap<>();
 
         try {
-            Map<Object, Object> result = setParameters(request, settingsService);
+            Map<Object, Object> result = settingsService.setParameters(request);
 
-            this.sendSettings(result);
+            settingsService.sendSettings(result);
 
             context.put("statusSlugLinks", statusesService.getStatusSlugLinks());
             context.put("prioritySlugLinks", prioritiesService.getPrioritySlugLinks());
@@ -136,7 +119,6 @@ public class UseResponseSettingServlet extends HttpServlet {
 
             Writer writer = new StringWriter();
             templateRenderer.render(LINK_TEMPLATE, context, writer);
-
 
             map.put("linkTemplate", writer.toString());
             map.put("status", "success");
@@ -151,92 +133,6 @@ public class UseResponseSettingServlet extends HttpServlet {
 
         String responseBody = (new Gson()).toJson(map);
 
-        response.getWriter().
-
-                write(responseBody);
-
-    }
-
-    private void prepareDB() {
-        migrate();
-        addURPriorities();
-    }
-
-    private void migrate() {
-        ao.migrate(StatusesLink.class);
-        ao.migrate(CommentLink.class);
-        ao.migrate(UseResponseObject.class);
-        ao.migrate(URPriority.class);
-        ao.migrate(PriorityLink.class);
-        ao.migrate(IssueFileLink.class);
-    }
-
-    private void addURPriorities() {
-        for (Map.Entry<String, String> entry : Storage.UR_PRIORITIES.entrySet()) {
-            urPriorityManager.findOrAdd(entry.getKey(), entry.getValue());
-        }
-    }
-
-    private Map<Object, Object> setParameters(HttpServletRequest request, SettingsService settingsService) throws ConnectionException {
-        Map<Object, Object> result = new HashMap<>();
-
-        setConnectionParameters(request, settingsService);
-        Map<String, String> statuses = setStatuses(request);
-        Map<String, String> priorities = setPriorities(request);
-        String autosending = request.getParameter("autosending");
-        if (autosending != null) {
-            pluginSettings.setAutosendingFlag(autosending);
-            result.put("autosending", Boolean.parseBoolean(autosending));
-        }
-
-        result.put("statuses", statuses);
-        result.put("priorities", priorities);
-
-        return result;
-    }
-
-    private Map<String, String> setStatuses(HttpServletRequest request) {
-
-        Map<String, String> result = new HashMap<>();
-
-        for (String statusName : statusesService.getStatusesNames()) {
-            String statusValue = request.getParameter(statusName + "Status");
-            linkManager.editOrAdd(statusName, statusValue);
-            result.put(statusName, statusValue);
-        }
-        return result;
-    }
-
-    private Map<String, String> setPriorities(HttpServletRequest request) {
-
-        Map<String, String> result = new HashMap<>();
-
-        for (String priorityName : prioritiesService.getPrioritiesNames()) {
-            URPriority priority = urPriorityManager.findBySlug(request.getParameter(priorityName + "Priority"));
-            if (priority != null){
-                priorityLinkManager.editUseResponsePriority(priorityName, priority);
-                result.put(priorityName, priority.getUseResponsePrioritySlug());
-            }
-        }
-        return result;
-    }
-
-    private void setConnectionParameters(HttpServletRequest request, SettingsService settingsService) throws ConnectionException {
-        String domain = request.getParameter("domain");
-        String apiKey = request.getParameter("apiKey");
-
-        if (!settingsService.testURConnection(domain, apiKey))
-            throw (new ConnectionException("Wrong domain/apiKey"));
-        settingsService.setURParameters(domain, apiKey);
-    }
-
-    private void sendSettings(Map settings) {
-        try {
-            Action action = new SettingsSendAction(settings, pluginSettings);
-            ExecutorService executor = Executors.newCachedThreadPool();
-            Future<String> result = executor.submit(action);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        response.getWriter().write(responseBody);
     }
 }

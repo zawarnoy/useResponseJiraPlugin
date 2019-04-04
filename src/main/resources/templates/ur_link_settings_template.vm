@@ -1,38 +1,19 @@
 #if($!useResponseStatuses)
 
-##<h3 for="">Autosync with UseResponse</h3>
-##<div class="field-group">
-##    <div class="switch-field">
-##
-##        <input type="radio" id="autosendingYes" name="autosending" value="true"
-##            #if(${autosending})
-##               checked
-##            #end
-##        />
-##        <label class="radio_check" style="color : white;" for="autosendingYes">Yes</label>
-##
-##
-##        <input type="radio" id="autosendingNo" name="autosending" value="false"
-##            #if(!${autosending})
-##               checked
-##            #end
-##        />
-##        <label class="radio_check" style="color : white;" for="autosendingNo">No</label>
-##    </div>
-##</div>
-
 <h3>Statuses Mapping</h3>
 
     #foreach($statusSlug in $statusSlugLinks.entrySet())
     <div class="field-group">
         <label for="${statusSlug.key}Status">${statusSlug.key}</label>
         <select class="select" name="${statusSlug.key}Status" id="${statusSlug.key}Status">
-            #foreach( $status in $useResponseStatuses.entrySet())
+            <option value="">Non set</option>
+            #foreach ($status in $useResponseStatuses.entrySet())
                 <option
-                    #if($statusSlug.value == $status.value)
+                    #if ($statusSlug.value == $status.value)
                             selected
                     #end
-                            value="${status.value}">${status.key}</option>
+                            value="${status.value}">${status.key}
+                </option>
             #end
         </select>
     </div>
@@ -44,12 +25,14 @@
     <div class="field-group">
         <label for="${prioritySlug.key}Priority">${prioritySlug.key}</label>
         <select class="select" name="${prioritySlug.key}Priority" id="${prioritySlug.key}Priority">
+            <option value="">Non set</option>
             #foreach($priority in $useResponsePriorities.entrySet())
                 <option
-                    #if($prioritySlug.value == $priority.key)
+                    #if( $prioritySlug.value == $priority.key)
                             selected
                     #end
-                            value="${priority.key}">${priority.value}</option>
+                            value="${priority.key}">${priority.value}
+                </option>
             #end
         </select>
     </div>
