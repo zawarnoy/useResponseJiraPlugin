@@ -1,3 +1,5 @@
+#if($!useResponseStatuses)
+
 <div class="select-block">
     <div class="field-group sync-checkbox">
         #if ($syncComments)
@@ -9,8 +11,6 @@
         <label class="" for="sync-comments">Sync Comments</label>
     </div>
 </div>
-
-#if($!useResponseStatuses)
 
 <div class="select-block">
     #if ($syncStatuses)

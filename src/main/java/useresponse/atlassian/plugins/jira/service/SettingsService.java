@@ -195,13 +195,13 @@ public class SettingsService {
     }
 
     private boolean parseOnOff(String val) {
-        return val != null && val.equals("on");
+        return val != null && (val.equals("on") || val.equals("1"));
     }
 
     private Map<String, Object> setSyncSettings(HttpServletRequest request) {
 
         Map<String, Object> result = new HashMap<>();
-        
+
         pluginSettings.setSyncStatuses(parseOnOff(request.getParameter("syncStatuses")));
         result.put("syncStatuses", request.getParameter("syncStatuses"));
 

@@ -50,8 +50,6 @@ public class UseResponseSettingServlet extends HttpServlet {
             return;
         }
 
-        settingsService.prepareDB();
-
         response.setContentType("text/html");
         templateRenderer.render(SETTINGS_TEMPLATE, settingsService.formTemplateParameters(), response.getWriter());
     }
@@ -63,8 +61,6 @@ public class UseResponseSettingServlet extends HttpServlet {
             settingsService.redirectToLogin(request, response);
             return;
         }
-
-        settingsService.prepareDB();
 
         HashMap<String, Object> map = new HashMap<>();
 
