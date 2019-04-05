@@ -32,7 +32,9 @@ import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
 import useresponse.atlassian.plugins.jira.service.PrioritiesService;
+import useresponse.atlassian.plugins.jira.service.SettingsService;
 import useresponse.atlassian.plugins.jira.service.StatusesService;
+import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 
 
 public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
@@ -55,6 +57,9 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
 
     @Autowired
     PrioritiesService prioritiesService;
+
+    @Autowired
+    PluginSettingsImpl pluginSettings;
 
     @Inject
     public UseResponseJiraStatusesLinkServlet(@ComponentImport UserManager userManager) {
@@ -139,6 +144,14 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
             writer.write(urPriority.getJiraIssueId() + "|" + urPriority.getSentFilename() + "<br>");
 
         writer.write("<br>");
+
+        writer.write("SYNC");
+
+        writer.write("Sync basic fields: " + pluginSettings.getSyncBasicFields());
+
+        writer.write("Sync comments: " + pluginSettings.getSyncComments());
+
+        writer.write("Sync statuses: " + pluginSettings.getSyncStatuses());
 
         writer.close();
     }

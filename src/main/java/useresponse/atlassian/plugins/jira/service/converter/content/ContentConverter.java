@@ -52,6 +52,7 @@ public class ContentConverter {
     private static String getDomain(String url) {
         Pattern pattern = Pattern.compile("^(?:https?://)?(?:[^@/ ]+@)?(?:www\\.)?([^:/? ]+)(:\\d+)?");
         Matcher matcher = pattern.matcher(url);
+
         return matcher.find() ? matcher.group() : null;
     }
 
@@ -59,6 +60,7 @@ public class ContentConverter {
         content = convertIcons(content);
         issue.setDescription(content);
         content = convertImages(issue);
+
         return content;
     }
 
@@ -81,6 +83,7 @@ public class ContentConverter {
             buffer = matcher.appendTail(buffer);
             result = buffer.toString();
         }
+
         return result;
     }
 
@@ -100,6 +103,7 @@ public class ContentConverter {
             buffer = matcher.appendTail(buffer);
             result = buffer.toString();
         }
+
         return result;
     }
 
@@ -135,6 +139,7 @@ public class ContentConverter {
             buffer = matcher.appendTail(buffer);
             content = buffer.toString();
         }
+
         return content;
     }
 
@@ -148,6 +153,7 @@ public class ContentConverter {
                 content = matcher.replaceAll("!" + filename + "!");
             }
         }
+
         return content;
     }
 
@@ -155,8 +161,9 @@ public class ContentConverter {
         if (name.startsWith(".")) {
             if (name.lastIndexOf('.') == name.indexOf('.')) return name;
         }
-        if (!name.contains("."))
-            return name;
+
+        if (!name.contains(".")) return name;
+
         return name.substring(0, name.lastIndexOf('.'));
     }
 

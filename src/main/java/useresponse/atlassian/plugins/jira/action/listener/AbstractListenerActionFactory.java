@@ -2,7 +2,7 @@ package useresponse.atlassian.plugins.jira.action.listener;
 
 import com.atlassian.jira.entity.WithId;
 
-public abstract class AbsctractListenerActionFactory implements ListenerActionFactory {
+public abstract class AbstractListenerActionFactory implements ListenerActionFactory {
 
     protected WithId entity;
 

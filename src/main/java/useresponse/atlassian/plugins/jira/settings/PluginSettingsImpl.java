@@ -58,7 +58,7 @@ public class PluginSettingsImpl implements PluginSettings {
 
     @Override
     public Boolean getSyncStatuses() {
-        return parseOnOff((String) pluginSettingsFactory.createGlobalSettings().get(USERESPONSE_SYNC_STATUSES));
+        return Boolean.valueOf((String) pluginSettingsFactory.createGlobalSettings().get(USERESPONSE_SYNC_STATUSES));
     }
 
     @Override
@@ -68,8 +68,7 @@ public class PluginSettingsImpl implements PluginSettings {
 
     @Override
     public Boolean getSyncComments() {
-        logger.error((String) pluginSettingsFactory.createGlobalSettings().get(USERESPONSE_SYNC_COMMENTS));
-        return parseOnOff((String) pluginSettingsFactory.createGlobalSettings().get(USERESPONSE_SYNC_COMMENTS));
+        return Boolean.valueOf((String) pluginSettingsFactory.createGlobalSettings().get(USERESPONSE_SYNC_COMMENTS));
     }
 
     @Override
@@ -79,16 +78,11 @@ public class PluginSettingsImpl implements PluginSettings {
 
     @Override
     public Boolean getSyncBasicFields() {
-        return parseOnOff((String) pluginSettingsFactory.createGlobalSettings().get(USERESPONSE_SYNC_BASIC_FIELDS));
+        return Boolean.valueOf((String) pluginSettingsFactory.createGlobalSettings().get(USERESPONSE_SYNC_BASIC_FIELDS));
     }
 
     @Override
     public void setSyncBasicFields(boolean basicFields) {
         pluginSettingsFactory.createGlobalSettings().put(USERESPONSE_SYNC_BASIC_FIELDS, String.valueOf(basicFields));
     }
-
-    private boolean parseOnOff(String val) {
-        return val.equals("on");
-    }
-
 }

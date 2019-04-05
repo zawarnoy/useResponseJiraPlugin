@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -193,19 +194,21 @@ public class SettingsService {
         return result;
     }
 
+    private boolean parseOnOff(String val) {
+        return val != null && val.equals("on");
+    }
+
     private Map<String, Object> setSyncSettings(HttpServletRequest request) {
 
         Map<String, Object> result = new HashMap<>();
-
-        logger.error("test: " + request.getParameter("syncStatuses"));
-
-        pluginSettings.setSyncStatuses(Boolean.parseBoolean(request.getParameter("syncStatuses")));
+        
+        pluginSettings.setSyncStatuses(parseOnOff(request.getParameter("syncStatuses")));
         result.put("syncStatuses", request.getParameter("syncStatuses"));
 
-        pluginSettings.setSyncComments(Boolean.parseBoolean(request.getParameter("syncComments")));
+        pluginSettings.setSyncComments(parseOnOff(request.getParameter("syncComments")));
         result.put("syncComments", request.getParameter("syncComments"));
 
-        pluginSettings.setSyncBasicFields(Boolean.parseBoolean(request.getParameter("syncBasicFields")));
+        pluginSettings.setSyncBasicFields(parseOnOff(request.getParameter("syncBasicFields")));
         result.put("syncBasicFields", request.getParameter("syncBasicFields"));
 
         return result;

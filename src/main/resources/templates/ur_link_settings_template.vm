@@ -6,7 +6,7 @@
             #set ($checked = "")
         #end
         <input class="" name="syncComments" id="sync-comments" $checked type="checkbox">
-        <label class="" for="sync-comments">Sync comments</label>
+        <label class="" for="sync-comments">Sync Comments</label>
     </div>
 </div>
 
@@ -22,7 +22,7 @@
     #end
     <div class="field-group sync-checkbox">
         <input name="syncStatuses" id="sync-statuses" $checked type="checkbox">
-        <label class="" for="sync-statuses">Sync statuses</label>
+        <label class="" for="sync-statuses">Sync Statuses</label>
     </div>
 
     <div class="$class">
@@ -56,7 +56,7 @@
     #end
     <div class="field-group sync-checkbox">
         <input name="syncBasicFields" id="sync-basic-fields" $checked type="checkbox">
-        <label class="" for="sync-basic-fields">Sync basic fields</label>
+        <label class="" for="sync-basic-fields">Sync Basic Fields</label>
     </div>
 
     <div class="$class">

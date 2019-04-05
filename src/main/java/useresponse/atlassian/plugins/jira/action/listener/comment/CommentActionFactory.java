@@ -1,10 +1,10 @@
 package useresponse.atlassian.plugins.jira.action.listener.comment;
 
-import useresponse.atlassian.plugins.jira.action.listener.AbsctractListenerActionFactory;
+import useresponse.atlassian.plugins.jira.action.listener.AbstractListenerActionFactory;
 import useresponse.atlassian.plugins.jira.action.listener.ListenerAction;
 import useresponse.atlassian.plugins.jira.context.ApplicationContextProvider;
 
-public class CommentActionFactory extends AbsctractListenerActionFactory {
+public class CommentActionFactory extends AbstractListenerActionFactory {
 
     public CommentActionFactory() {
     }

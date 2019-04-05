@@ -40,6 +40,7 @@ public class CommentsService {
         for (CommentLink link : commentLinksSet) {
             result.add(link.getUseResponseCommentId());
         }
+
         return result;
     }
 
@@ -49,6 +50,7 @@ public class CommentsService {
                 return true;
             }
         }
+
         return false;
     }
 }

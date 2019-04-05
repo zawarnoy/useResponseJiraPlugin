@@ -19,10 +19,8 @@ AJS.$(document).ready(function () {
         AJS.$('form input, form select').each(
             function () {
                 var field = AJS.$(this);
-                if (field.attr("type") === 'radio') {
-                    if (field.is(':checked')) {
-                        data[field.attr('name')] = field.attr('value');
-                    }
+                if (field.attr("type") === 'radio' || field.attr("type") === 'checkbox') {
+                    data[field.attr('name')] = field.is(':checked') ? field.attr('value') : null;
                 } else {
                     data[field.attr('name')] = field.attr('value');
                 }
@@ -51,9 +49,6 @@ AJS.$(document).ready(function () {
 
         var $this = $(this),
             $selectsGroup = $(this).parent().siblings('.selects-group');
-
-        console.log($this);
-        console.log($selectsGroup);
 
         if ($selectsGroup.length) {
             $selectsGroup.toggleClass('hidden', $this.checked);
