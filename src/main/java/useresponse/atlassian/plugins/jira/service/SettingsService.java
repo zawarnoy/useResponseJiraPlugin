@@ -80,8 +80,10 @@ public class SettingsService {
         if (pluginSettings.getUseResponseDomain() == null || pluginSettings.getUseResponseApiKey() == null) {
             return null;
         }
+
         String requestUrl = createUseResponseStatusesLinkFromSettings();
         Request statusesRequest = new GetRequest();
+
         try {
             return getStatusesFromJson(statusesRequest.sendRequest(requestUrl));
         } catch (Exception e) {

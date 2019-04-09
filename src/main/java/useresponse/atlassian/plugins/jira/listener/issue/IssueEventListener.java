@@ -148,14 +148,17 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
                 actions.add(commentActionFactory.createAction(DeleteCommentAction.class));
             }
         } else {
+
+            actions.add(issueActionFactory.createAction(UpdateIssueAction.class));
+
             if (typeId.equals(EventType.ISSUE_ASSIGNED_ID)) {
                 Comment comment = getCommentIfNeedSend(issue);
                 commentActionFactory.setEntity(comment);
+
                 if (comment != null) {
                     actions.add(commentActionFactory.createAction(CreateCommentAction.class));
                 }
             }
-            actions.add(issueActionFactory.createAction(UpdateIssueAction.class));
         }
 
         ExecutorService executor = Executors.newCachedThreadPool();

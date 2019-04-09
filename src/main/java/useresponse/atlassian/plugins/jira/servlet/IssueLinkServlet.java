@@ -12,6 +12,8 @@ import useresponse.atlassian.plugins.jira.exception.NotLoggedException;
 import useresponse.atlassian.plugins.jira.manager.impl.UseResponseObjectManagerImpl;
 import useresponse.atlassian.plugins.jira.service.IssueService;
 import useresponse.atlassian.plugins.jira.service.request.ServletService;
+import useresponse.atlassian.plugins.jira.storage.Storage;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -30,7 +32,6 @@ public class IssueLinkServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-
         String json = ServletService.getJsonFromRequest(req);
 
         Map<String, Object> data = (new Gson()).fromJson(json, Map.class);
@@ -45,49 +46,69 @@ public class IssueLinkServlet extends HttpServlet {
 
         Map<String, String> responseMap = new HashMap<>();
 
-        try {
-            ApplicationUser user = ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser();
+        ApplicationUser user = ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser();
 
+        try {
             if (user == null) {
                 throw new NotLoggedException("");
             }
 
-            if (useresponseId == null) {
-                throw new MissingParameterException("useresponse_id");
-            }
             if (jiraKey == null) {
                 throw new MissingParameterException("jira_key");
             }
-            if (objectType == null) {
-                throw new MissingParameterException("object_type");
-            }
-            if (sync == null) {
-                throw new MissingParameterException("sync");
-            }
-            if (statusName == null) {
-                throw new MissingParameterException("status_name");
-            }
-
-            MutableIssue issue = ComponentAccessor.getIssueManager().getIssueByCurrentKey(jiraKey);
-            int parsedId = Integer.valueOf(useresponseId);
-
-            if (sync) {
-                issue = IssueService.setAssigneeByEmail(issue, responsibleEmail);
-                issue = IssueService.setReporterByEmail(issue, creatorEmail);
-                issue = IssueService.setStatusByStatusName(issue, statusName);
-            }
-
-            int issueId = issue.getId().intValue();
-            useResponseObjectManager.findOrAdd(parsedId, issueId, objectType, sync);
-
-            //
-//            ComponentAccessor.getIssueManager().updateIssue(ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser(), issue, EventDispatchOption.DO_NOT_DISPATCH, false);
-            issue.store();
-            responseMap.put("status", "success");
-        } catch (MissingParameterException | NotLoggedException e) {
+        } catch (NotLoggedException | MissingParameterException e) {
             responseMap.put("status", "error");
             responseMap.put("message", e.getMessage());
         }
+
+        try {
+            if (useresponseId == null) {
+                throw new MissingParameterException("useresponse_id");
+            }
+        } catch (MissingParameterException e) {
+            Storage.log.error(e.getMessage());
+        }
+
+        try {
+            if (objectType == null) {
+                throw new MissingParameterException("object_type");
+            }
+        } catch (MissingParameterException e) {
+            Storage.log.error(e.getMessage());
+        }
+
+        try {
+            if (sync == null) {
+                throw new MissingParameterException("sync");
+            }
+        } catch (MissingParameterException e) {
+            Storage.log.error(e.getMessage());
+        }
+
+        try {
+            if (statusName == null) {
+                throw new MissingParameterException("status_name");
+            }
+        } catch (MissingParameterException e) {
+            Storage.log.error(e.getMessage());
+        }
+
+        MutableIssue issue = ComponentAccessor.getIssueManager().getIssueByCurrentKey(jiraKey);
+        int parsedId = Integer.valueOf(useresponseId);
+
+        if (sync) {
+            issue = IssueService.setAssigneeByEmail(issue, responsibleEmail);
+            issue = IssueService.setReporterByEmail(issue, creatorEmail);
+            issue = IssueService.setStatusByStatusName(issue, statusName);
+        }
+
+        int issueId = issue.getId().intValue();
+        useResponseObjectManager.findOrAdd(parsedId, issueId, objectType, sync);
+
+//            ComponentAccessor.getIssueManager().updateIssue(ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser(), issue, EventDispatchOption.DO_NOT_DISPATCH, false);
+        issue.store();
+        responseMap.put("status", "success");
+
 
         String response = (new Gson()).toJson(responseMap);
         resp.getWriter().write(response);

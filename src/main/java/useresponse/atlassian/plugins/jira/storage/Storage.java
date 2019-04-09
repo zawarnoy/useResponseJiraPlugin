@@ -1,9 +1,14 @@
 package useresponse.atlassian.plugins.jira.storage;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class Storage {
+
+    public static final Logger log = LoggerFactory.getLogger(Storage.class);
 
     public static final String API_STRING = "api/4.0/";
     public static final String JIRA_DATA_HANDLER_ROUTE = "jira-tickets/entry/add.json";

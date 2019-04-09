@@ -1,7 +1,6 @@
 package useresponse.atlassian.plugins.jira.servlet;
 
 import com.atlassian.jira.component.ComponentAccessor;
-import com.atlassian.jira.config.DefaultStatusManager;
 import com.atlassian.jira.event.type.EventDispatchOption;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
@@ -9,7 +8,6 @@ import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import useresponse.atlassian.plugins.jira.manager.IssueFileLinkManager;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 import useresponse.atlassian.plugins.jira.service.IssueService;
@@ -29,17 +27,12 @@ public class IssueServlet extends HttpServlet {
     @Autowired
     private UseResponseObjectManager objectManager;
 
-    @Autowired
-    private IssueFileLinkManager fileLinkManager;
-
     public IssueServlet() {
 
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
-        DefaultStatusManager statusManager = ComponentAccessor.getComponent(DefaultStatusManager.class);
 
         String issueKey = null;
         String statusName = null;
@@ -56,32 +49,32 @@ public class IssueServlet extends HttpServlet {
             try {
                 issueKey = (String) data.get("issueKey");
             } catch (NullPointerException exception) {
-                log.error("Exception IssueServlet(issue key). Message: " + exception.getMessage());
-                exception.printStackTrace();
+                log.error("Empty Issue Key");
+//                exception.printStackTrace();
             }
             try {
                 statusName = (String) data.get("statusName");
             } catch (NullPointerException exception) {
-                log.error("Exception IssueServlet(status name). Status name Message: " + exception.getMessage());
-                exception.printStackTrace();
+                log.error("Empty Status Name");
+//                exception.printStackTrace();
             }
             try {
                 authorEmail = (String) data.get("authorEmail");
             } catch (NullPointerException exception) {
-                log.error("Exception IssueServlet(author email). Message: " + exception.getMessage());
-                exception.printStackTrace();
+                log.error("Empty author Email");
+//                exception.printStackTrace();
             }
             try {
                 content = (String) data.get("content");
             } catch (NullPointerException exception) {
-                log.error("Exception IssueServlet(content). Message: " + exception.getMessage());
-                exception.printStackTrace();
+                log.error("Empty content");
+//                exception.printStackTrace();
             }
             try {
                 assigneeEmail = (String) data.get("responsibleEmail");
             } catch (NullPointerException exception) {
-                log.error("Exception IssueServlet(responsible). Message: " + exception.getMessage());
-                exception.printStackTrace();
+                log.error("Empty responsible Email");
+//                exception.printStackTrace();
             }
         }
 

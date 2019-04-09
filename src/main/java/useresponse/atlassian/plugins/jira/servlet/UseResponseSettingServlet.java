@@ -75,14 +75,13 @@ public class UseResponseSettingServlet extends HttpServlet {
             map.put("linkTemplate", writer.toString());
             map.put("status", "success");
             map.put("message", request.getParameterMap().size() > 5 ? SETTINGS_ARE_CHANCHED_STRING : SUCCESSFULL_CONNECTION_STRING);
+
+            String responseBody = (new Gson()).toJson(map);
+            response.getWriter().write(responseBody);
         } catch (Exception e) {
             e.printStackTrace();
             map.put("status", "error");
             map.put("message", e.getMessage());
         }
-
-        String responseBody = (new Gson()).toJson(map);
-
-        response.getWriter().write(responseBody);
     }
 }
