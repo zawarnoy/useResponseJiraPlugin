@@ -109,7 +109,6 @@ public class IssueLinkServlet extends HttpServlet {
         issue.store();
         responseMap.put("status", "success");
 
-
         String response = (new Gson()).toJson(responseMap);
         resp.getWriter().write(response);
     }
