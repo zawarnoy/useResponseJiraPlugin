@@ -1,12 +1,20 @@
 package useresponse.atlassian.plugins.jira.storage;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 
-public class ConstStorage {
+public class Storage {
+
+    public static final Logger log = LoggerFactory.getLogger(Storage.class);
 
     public static final String API_STRING = "api/4.0/";
     public static final String JIRA_DATA_HANDLER_ROUTE = "jira-tickets/entry/add.json";
+    public static final String JIRA_SETTINGS_ROUTE = "jira-settings.json";
+
+    public static String userWhoPerformedAction = "";
 
     public static final Map<String, String> UR_PRIORITIES = new HashMap<String, String>() {
         {
@@ -17,4 +25,6 @@ public class ConstStorage {
         }
     };
 
+    public static boolean needToExecuteAction = true;
+    public static boolean isFromBinder = false;
 }

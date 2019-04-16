@@ -7,4 +7,60 @@
         http://www.atlassian.com/schema/atlassian-scanner
         http://www.atlassian.com/schema/atlassian-scanner/atlassian-scanner.xsd">
     <atlassian-scanner:scan-indexes/>
+
+    <bean id="applicationContextProvider"
+          class="useresponse.atlassian.plugins.jira.context.ApplicationContextProvider"/>
+
+    <bean id="commentRequestParametersBuilder"
+          class="useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestParametersBuilder">
+    </bean>
+
+    <bean id="issueRequestParametersBuilder"
+          class="useresponse.atlassian.plugins.jira.service.request.parameters.builder.IssueRequestParametersBuilder">
+    </bean>
+
+    <bean id="issueRequestBuilder"
+          class="useresponse.atlassian.plugins.jira.service.request.parameters.builder.IssueRequestBuilder">
+    </bean>
+
+    <bean id="commentRequestBuilder"
+          class="useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestBuilder">
+    </bean>
+
+    <bean id="requestBuilder"
+          class="useresponse.atlassian.plugins.jira.service.request.RequestBuilder">
+    </bean>
+
+    <bean id="issueActionFactory"
+          class="useresponse.atlassian.plugins.jira.action.listener.issue.IssueActionFactory">
+    </bean>
+
+    <bean id="commentActionFactory"
+          class="useresponse.atlassian.plugins.jira.action.listener.comment.CommentActionFactory">
+    </bean>
+
+    <bean id="pluginSetting"
+          class="useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl">
+    </bean>
+
+    <bean id="settingsService"
+          class="useresponse.atlassian.plugins.jira.service.SettingsService">
+    </bean>
+
+    <bean id="attachmentsRequestHandler"
+          class="useresponse.atlassian.plugins.jira.service.handler.servlet.attachments.AttachmentsRequestHandler">
+    </bean>
+
+    <bean id="commentsService"
+          class="useresponse.atlassian.plugins.jira.service.CommentsService">
+    </bean>
+
+    <bean id="prioritiesService"
+          class="useresponse.atlassian.plugins.jira.service.PrioritiesService">
+    </bean>
+
+    <bean id="statusesService"
+          class="useresponse.atlassian.plugins.jira.service.StatusesService">
+    </bean>
+
 </beans>

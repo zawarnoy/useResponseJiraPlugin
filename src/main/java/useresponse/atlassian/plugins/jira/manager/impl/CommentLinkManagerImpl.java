@@ -7,14 +7,13 @@ import useresponse.atlassian.plugins.jira.model.CommentLink;
 import net.java.ao.Query;
 import com.atlassian.activeobjects.external.ActiveObjects;
 import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Arrays;
 import java.util.List;
 
 @Scanned
-@Named
+@Named("commentLinkManager")
 public class CommentLinkManagerImpl implements CommentLinkManager {
 
     @ComponentImport
@@ -26,32 +25,34 @@ public class CommentLinkManagerImpl implements CommentLinkManager {
     }
 
     @Override
-    public CommentLink add(int useResponseCommentId, int jiraCommentId) {
+    public CommentLink add(int useResponseCommentId, int jiraCommentId, int issueId) {
         final CommentLink link = ao.create(CommentLink.class);
         link.setJiraCommentId(jiraCommentId);
         link.setUseResponseCommentId(useResponseCommentId);
+        link.setIssueId(issueId);
         link.save();
         return link;
     }
 
     @Override
     public CommentLink findByUseResponseId(int useResponseCommentId) {
-        return null;
-    }
-
-    @Override
-    public CommentLink findByJiraId(int jiraCommentId) {
-        CommentLink[] objects = ao.find(CommentLink.class, Query.select().where("jira_comment_Id = ?", String.valueOf(jiraCommentId)));
+        CommentLink[] objects = ao.find(CommentLink.class, Query.select().where("use_response_comment_id = ?", String.valueOf(useResponseCommentId)));
         return objects.length > 0 ? objects[0] : null;
     }
 
     @Override
-    public CommentLink findOrAdd(int useResponseCommentId, int jiraCommentId) {
+    public CommentLink findByJiraId(int jiraCommentId) {
+        CommentLink[] objects = ao.find(CommentLink.class, Query.select().where("jira_comment_id = ?", String.valueOf(jiraCommentId)));
+        return objects.length > 0 ? objects[0] : null;
+    }
+
+    @Override
+    public CommentLink findOrAdd(int useResponseCommentId, int jiraCommentId, int issueId) {
         CommentLink object = findByJiraId(jiraCommentId);
         if (object != null) {
             return object;
         } else {
-            return add(useResponseCommentId, jiraCommentId);
+            return add(useResponseCommentId, jiraCommentId, issueId);
         }
     }
 
@@ -62,6 +63,19 @@ public class CommentLinkManagerImpl implements CommentLinkManager {
 
     @Override
     public List<CommentLink> all() {
-            return Arrays.asList(ao.find(CommentLink.class));
+        return Arrays.asList(ao.find(CommentLink.class));
+    }
+
+    @Override
+    public List<CommentLink> findByIssueId(int issueId) {
+        return Arrays.asList(ao.find(CommentLink.class, Query.select().where("issue_id = ?", String.valueOf(issueId))));
+    }
+
+    @Override
+    public void deleteByUseResponseId(int useResponseId) {
+        CommentLink item = findByUseResponseId(useResponseId);
+        if(item != null) {
+            delete(item);
+        }
     }
 }

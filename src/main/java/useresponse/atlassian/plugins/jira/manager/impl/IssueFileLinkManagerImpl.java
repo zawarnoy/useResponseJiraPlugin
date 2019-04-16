@@ -7,14 +7,13 @@ import useresponse.atlassian.plugins.jira.model.IssueFileLink;
 import com.atlassian.activeobjects.external.ActiveObjects;
 import net.java.ao.Query;
 import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Arrays;
 import java.util.List;
 
 @Scanned
-@Named
+@Named("issueFileLinkManager")
 public class IssueFileLinkManagerImpl implements IssueFileLinkManager {
 
     @ComponentImport
@@ -24,8 +23,6 @@ public class IssueFileLinkManagerImpl implements IssueFileLinkManager {
     public IssueFileLinkManagerImpl(ActiveObjects ao) {
         this.ao = checkNotNull(ao);
     }
-
-
 
     @Override
     public List<IssueFileLink> findByJiraIssueId(int issueId) {
@@ -51,5 +48,18 @@ public class IssueFileLinkManagerImpl implements IssueFileLinkManager {
     public IssueFileLink find(int issueId, String filename) {
         IssueFileLink[] links = ao.find(IssueFileLink.class, Query.select().where("jira_issue_id = ? AND sent_filename = ?", String.valueOf(issueId), filename));
         return links.length > 0 ? links[0] : null;
+    }
+
+    @Override
+    public void delete(IssueFileLink link) {
+        ao.delete(link);
+    }
+
+    @Override
+    public void delete(int issueId, String filename) {
+        IssueFileLink link = find(issueId, filename);
+        if(link != null) {
+            delete(link);
+        }
     }
 }

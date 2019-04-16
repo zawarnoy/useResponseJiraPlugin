@@ -4,6 +4,14 @@ import java.util.*;
 
 public class LinkedSet<E> extends AbstractSet<E> {
 
+    public LinkedSet() {
+
+    }
+
+    public LinkedSet(List<E> data) {
+        this.addAll(data);
+    }
+
     private static class LinkedElement<E> {
         E value;
 
@@ -19,7 +27,9 @@ public class LinkedSet<E> extends AbstractSet<E> {
     private LinkedElement<E> head = placeholder;
 
     @Override
-    public boolean isEmpty() { return head == placeholder; }
+    public boolean isEmpty() {
+        return head == placeholder;
+    }
 
     @Override
     public Iterator<E> iterator() {
@@ -74,10 +84,14 @@ public class LinkedSet<E> extends AbstractSet<E> {
     }
 
     @Override
-    public int size() { return map.size(); }
+    public int size() {
+        return map.size();
+    }
 
     @Override
-    public boolean contains(Object o) { return map.containsKey(o); }
+    public boolean contains(Object o) {
+        return map.containsKey(o);
+    }
 
     @Override
     public boolean add(E e) {

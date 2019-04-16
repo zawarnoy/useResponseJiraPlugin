@@ -6,17 +6,14 @@ import useresponse.atlassian.plugins.jira.manager.URPriorityManager;
 import useresponse.atlassian.plugins.jira.model.URPriority;
 import com.atlassian.activeobjects.external.ActiveObjects;
 import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
-
 import net.java.ao.Query;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 @Scanned
-@Named
+@Named("priorityManager")
 public class URPriorityManagerImpl implements URPriorityManager {
 
     @ComponentImport

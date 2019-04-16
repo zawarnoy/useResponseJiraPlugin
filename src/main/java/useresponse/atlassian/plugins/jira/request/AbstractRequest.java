@@ -1,15 +1,12 @@
 package useresponse.atlassian.plugins.jira.request;
 
-
 import com.google.gson.Gson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.exception.InvalidResponseException;
 import useresponse.atlassian.plugins.jira.exception.UndefinedUrlException;
-
 import javax.net.ssl.*;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -17,10 +14,13 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
 public abstract class AbstractRequest implements Request {
+
+    private static final Logger log = LoggerFactory.getLogger(AbstractRequest.class);
 
     private static final int REQUEST_TIMEOUT = 15000;
     private static boolean sslConfigured = false;
@@ -28,6 +28,8 @@ public abstract class AbstractRequest implements Request {
     protected Map<Object, Object> parameters = new HashMap<Object, Object>();
     protected String requestType;
     protected String url;
+    protected String username = null;
+    protected String password = null;
 
     @Override
     public Map<Object, Object> getParameters() {
@@ -46,7 +48,7 @@ public abstract class AbstractRequest implements Request {
 
     @Override
     public String sendRequest() throws UndefinedUrlException, NoSuchAlgorithmException, KeyManagementException, InvalidResponseException, IOException {
-        if(url == null) {
+        if (url == null) {
             throw new UndefinedUrlException("URL for sending is undefined!");
         }
         return sendRequest(url);
@@ -70,6 +72,8 @@ public abstract class AbstractRequest implements Request {
         conn.setRequestProperty("Content-Length", Integer.toString(postData.length));
         conn.setUseCaches(false);
 
+        conn = processLoginData(conn);
+
         if (conn instanceof HttpURLConnection) {
             ((HttpURLConnection) conn).setRequestMethod(requestType);
         }
@@ -82,7 +86,7 @@ public abstract class AbstractRequest implements Request {
         conn.setDoOutput(true);
         conn.setDoInput(true);
 
-        if(!requestType.equals("GET")) {
+        if (!requestType.equals("GET")) {
             try (DataOutputStream wr = new DataOutputStream(conn.getOutputStream())) {
                 wr.write(postData);
             }
@@ -156,6 +160,24 @@ public abstract class AbstractRequest implements Request {
         });
 
         sslConfigured = true;
+    }
+
+    @Override
+    public void addLoginData(String username, String password) {
+        this.password = password;
+        this.username = username;
+    }
+
+    private URLConnection processLoginData(URLConnection connection) {
+        if (!(username == null && password == null)) {
+            try {
+                String encodedCredentials = Base64.getEncoder().encodeToString((username + ":" + password).getBytes("UTF-8"));
+                connection.setRequestProperty("Authorization", "Basic " + encodedCredentials);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
+        return connection;
     }
 
     private String getJsonFromParameters() {

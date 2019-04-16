@@ -6,16 +6,14 @@ import net.java.ao.Query;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 import com.atlassian.activeobjects.external.ActiveObjects;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Arrays;
 import java.util.List;
-
 import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
 
 @Scanned
-@Named
+@Named("useResponseObjectManager")
 public class UseResponseObjectManagerImpl implements UseResponseObjectManager {
 
     @ComponentImport
@@ -27,20 +25,22 @@ public class UseResponseObjectManagerImpl implements UseResponseObjectManager {
     }
 
     @Override
-    public UseResponseObject add(int useResponseId, int jiraId) {
+    public UseResponseObject add(int useResponseId, int jiraId, String type, boolean sync) {
         final UseResponseObject useResponseObject = ao.create(UseResponseObject.class);
         useResponseObject.setUseResponseId(useResponseId);
         useResponseObject.setJiraId(jiraId);
         useResponseObject.setNeedOfSync(true);
+        useResponseObject.setObjectType(type);
+        useResponseObject.setNeedOfSync(sync);
         useResponseObject.save();
         return useResponseObject;
     }
 
     @Override
-    public UseResponseObject findOrAdd(int useResponseId, int jiraId) {
+    public UseResponseObject findOrAdd(int useResponseId, int jiraId, String type, boolean sync) {
         UseResponseObject object = findByJiraId(jiraId);
         if (object == null) {
-            return add(useResponseId, jiraId);
+            return add(useResponseId, jiraId, type, sync);
         } else {
             return object;
         }
@@ -48,7 +48,8 @@ public class UseResponseObjectManagerImpl implements UseResponseObjectManager {
 
     @Override
     public UseResponseObject findByUseResponseId(int useResponseId) {
-        return null;
+        UseResponseObject[] objects = ao.find(UseResponseObject.class, Query.select().where("use_response_id = ?", String.valueOf(useResponseId)));
+        return objects.length > 0 ? objects[0] : null;
     }
 
     @Override

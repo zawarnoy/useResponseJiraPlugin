@@ -4,20 +4,17 @@ import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import useresponse.atlassian.plugins.jira.manager.PriorityLinkManager;
 import useresponse.atlassian.plugins.jira.model.PriorityLink;
-
 import com.atlassian.activeobjects.external.ActiveObjects;
 import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
-
 import net.java.ao.Query;
 import useresponse.atlassian.plugins.jira.model.URPriority;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Arrays;
 import java.util.List;
 
 @Scanned
-@Named
+@Named("priorityLinkManager")
 public class PriorityLinkManagerImpl implements PriorityLinkManager {
 
     @ComponentImport

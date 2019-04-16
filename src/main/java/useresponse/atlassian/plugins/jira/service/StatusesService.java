@@ -1,24 +1,32 @@
 package useresponse.atlassian.plugins.jira.service;
 
+import com.atlassian.jira.bc.ServiceOutcome;
+import com.atlassian.jira.bc.config.ConstantsService;
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.DefaultStatusManager;
 import com.atlassian.jira.issue.status.Status;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.atlassian.jira.security.JiraAuthenticationContext;
 import useresponse.atlassian.plugins.jira.manager.impl.StatusesLinkManagerImpl;
 import useresponse.atlassian.plugins.jira.model.StatusesLink;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.*;
-
 
 public class StatusesService {
 
     private final DefaultStatusManager statusManager;
+    private final JiraAuthenticationContext authContext;
+    private final ConstantsService constantsService;
 
+    @Inject
+    @Named("statusesLinkManager")
     private StatusesLinkManagerImpl linkManager;
 
-
-    public StatusesService(DefaultStatusManager statusManager, StatusesLinkManagerImpl linkManager) {
-        this.statusManager = statusManager;
-        this.linkManager = linkManager;
+    public StatusesService() {
+        this.statusManager = ComponentAccessor.getComponent(DefaultStatusManager.class);
+        this.authContext = ComponentAccessor.getJiraAuthenticationContext();
+        this.constantsService = ComponentAccessor.getComponent(ConstantsService.class);
     }
 
     public List<String> getStatusesNames() {
@@ -27,7 +35,7 @@ public class StatusesService {
 
         for (Status status : statuses) {
             if (status != null)
-                statusList.add(status.getSimpleStatus().getName());
+                statusList.add(status.getName());
         }
 
         return statusList;
@@ -47,5 +55,15 @@ public class StatusesService {
         }
 
         return statusSlugLinks;
+    }
+
+    public Collection<Status> getApiStatuses() {
+        ServiceOutcome<Collection<Status>> outcome = constantsService.getAllStatuses(authContext.getLoggedInUser());
+
+        if (!outcome.isValid()) {
+            return new ArrayList<>();
+        }
+
+        return outcome.getReturnedValue();
     }
 }

@@ -63,17 +63,17 @@
     <link linkId="use-response-plugin-settings-link">/plugins/servlet/ursettings</link>
     <condition class="useresponse.atlassian.plugins.jira.condition.UserIsAdminCondition"/>
   </web-item>
-  <web-item name="UseResponse link button" i18n-name-key="useResponselinkbutton.name" key="useResponselinkbutton" section="transitions-all" weight="1000">
-    <description key="useResponselinkbutton.description">The UseResponse link button Plugin</description>
-    <label key="Move to UseResponse"/>
-    <link linkId="useResponselinkbutton">/plugins/servlet/urbinder?issue_id=$issue.id&amp;atl_token=${atl_token}</link>
+  <web-item name="useResponselinkbutton.label" i18n-name-key="useResponselinkbutton.name" key="useResponselinkbutton" section="transitions-all" weight="1000">
+    <description key="useResponselinkbutton.description">The UseResponse link button</description>
+    <label key="useResponselinkbutton.label"/>
+    <link linkId="useResponselinkbutton">/plugins/servlet/urbinder?issue_id=$issue.id&amp;sync=1&amp;atl_token=${atl_token}</link>
     <condition class="useresponse.atlassian.plugins.jira.condition.MoveButtonCondition"/>
     <component-import key="resources"/>
   </web-item>
   <web-item name="UseResponseLink" i18n-name-key="use-response-link.name" key="use-response-link" section="transitions-all" weight="1000">
     <description key="use-response-link.description">UseResponse Item link</description>
     <label>$label</label>
-    <link linkId="use-response-link-link" linkTarget="_blank">$link</link>
+    <link linkId="use-response-link">$link</link>
     <param name="issueId">$issue.id</param>
     <context-provider class="useresponse.atlassian.plugins.jira.provider.UseResponseLinkButtonProvider"/>
     <condition class="useresponse.atlassian.plugins.jira.condition.UseresponseLinkButtonCondition"/>
@@ -87,18 +87,32 @@
     <context>jira.navigator.simple</context>
     <context>jira.navigator.advanced</context>
   </web-resource>
-  <rest name="Comments Rest Resource" i18n-name-key="comments-rest-resource.name" key="comments-rest-resource" path="/comment" version="1.0">
-    <description key="comments-rest-resource.description">The Comments Rest Resource Plugin</description>
-  </rest>
-  <rest name="Issue Rest Resource" i18n-name-key="issue-rest-resource.name" key="issue-rest-resource" path="/issue" version="1.0">
-    <description key="issue-rest-resource.description">The Issue Rest Resource Plugin</description>
-  </rest>
   <servlet name="Issue Servlet" i18n-name-key="issue-servlet.name" key="issue-servlet" class="useresponse.atlassian.plugins.jira.servlet.IssueServlet">
     <description key="issue-servlet.description">The Issue Servlet Plugin</description>
-    <url-pattern>/issue</url-pattern>
+    <url-pattern>/issueservlet</url-pattern>
   </servlet>
   <servlet name="Comment Servlet" i18n-name-key="comment-servlet.name" key="comment-servlet" class="useresponse.atlassian.plugins.jira.servlet.CommentServlet">
     <description key="comment-servlet.description">The Comment Servlet Plugin</description>
-    <url-pattern>/comment</url-pattern>
+    <url-pattern>/comments</url-pattern>
+  </servlet>
+  <servlet name="Issue Link Servlet" i18n-name-key="issue-link-servlet.name" key="issue-link-servlet" class="useresponse.atlassian.plugins.jira.servlet.IssueLinkServlet">
+    <description key="issue-link-servlet.description">The Issue Link Servlet Plugin</description>
+    <url-pattern>/issuelink</url-pattern>
+  </servlet>
+  <servlet name="Attachments Servlet" i18n-name-key="attachments-servlet.name" key="attachments-servlet" class="useresponse.atlassian.plugins.jira.servlet.AttachmentsServlet">
+    <description key="attachments-servlet.description">The Attachments Servlet Plugin</description>
+    <url-pattern>/attachmentsservlet</url-pattern>
+  </servlet>
+  <servlet name="Issue Unlink Servlet" i18n-name-key="issue-unlink-servlet.name" key="issue-unlink-servlet" class="useresponse.atlassian.plugins.jira.servlet.IssueUnlinkServlet">
+    <description key="issue-unlink-servlet.description">The Issue Unlink Servlet Plugin</description>
+    <url-pattern>/unlinkservlet</url-pattern>
+  </servlet>
+  <servlet name="Statuses Servlet" i18n-name-key="statuses-servlet.name" key="statuses-servlet" class="useresponse.atlassian.plugins.jira.servlet.StatusesServlet">
+    <description key="statuses-servlet.description">The Statuses Servlet</description>
+    <url-pattern>/statusesservlet</url-pattern>
+  </servlet>
+  <servlet name="Test Connection Servlet" i18n-name-key="test-connection-servlet.name" key="test-connection-servlet" class="useresponse.atlassian.plugins.jira.servlet.TestConnectionServlet">
+    <description key="test-connection-servlet.description">The Test Connection Servlet Plugin</description>
+    <url-pattern>/testconnectionservlet</url-pattern>
   </servlet>
 </atlassian-plugin>

@@ -3,10 +3,11 @@ package useresponse.atlassian.plugins.jira.manager.impl;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import net.java.ao.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import useresponse.atlassian.plugins.jira.manager.StatusesLinkManager;
 import useresponse.atlassian.plugins.jira.model.StatusesLink;
 import com.atlassian.activeobjects.external.ActiveObjects;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Arrays;
@@ -14,7 +15,7 @@ import java.util.List;
 import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
 
 @Scanned
-@Named
+@Named("statusesLinkManager")
 public class StatusesLinkManagerImpl implements StatusesLinkManager {
 
     @ComponentImport
@@ -27,7 +28,7 @@ public class StatusesLinkManagerImpl implements StatusesLinkManager {
 
     @Override
     public StatusesLink findByJiraStatusName(String jiraStatusName) {
-        StatusesLink[] objects = ao.find(StatusesLink.class, Query.select().where("jira_status_name = ?", jiraStatusName ));
+        StatusesLink[] objects = ao.find(StatusesLink.class, Query.select().where("jira_status_name = ?", jiraStatusName));
         return objects.length > 0 ? objects[0] : null;
     }
 

@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -33,19 +32,14 @@ import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
 import useresponse.atlassian.plugins.jira.service.PrioritiesService;
+import useresponse.atlassian.plugins.jira.service.SettingsService;
 import useresponse.atlassian.plugins.jira.service.StatusesService;
+import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 
 
 public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
-    private static final Logger log = LoggerFactory.getLogger(IssueBinderServlet.class);
 
-    private final Gson gson = new Gson();
-
-
-    private final ActiveObjects ao;
     private final UserManager userManager;
-    private final IssueManager issueManager;
-
     @Autowired
     private UseResponseObjectManagerImpl useResponseObjectManager;
 
@@ -53,10 +47,7 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
     private CommentLinkManagerImpl commentLinkManager;
 
     @Autowired
-    private StatusesLinkManagerImpl linkManager;
-
-    @Autowired
-    private PriorityLinkManagerImpl priorityLinkManger;
+    private StatusesService statusesService;
 
     @Autowired
     private URPriorityManagerImpl urPriorityManager;
@@ -64,13 +55,15 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
     @Autowired
     private IssueFileLinkManagerImpl fileLinkManager;
 
+    @Autowired
+    PrioritiesService prioritiesService;
+
+    @Autowired
+    PluginSettingsImpl pluginSettings;
+
     @Inject
-    public UseResponseJiraStatusesLinkServlet(@ComponentImport ActiveObjects ao,
-                                              @ComponentImport UserManager userManager,
-                                              @ComponentImport IssueManager issueManager) {
-        this.ao = ao;
+    public UseResponseJiraStatusesLinkServlet(@ComponentImport UserManager userManager) {
         this.userManager = userManager;
-        this.issueManager = issueManager;
     }
 
     @Override
@@ -81,7 +74,7 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
         try {
             writer.write("<h1>Comments</h1>");
             for (CommentLink object : commentLinkManager.all()) {
-                writer.print("ur id: " + object.getUseResponseCommentId() + " jira id:" + object.getJiraCommentId() + "<br>");
+                writer.print("ur id: " + object.getUseResponseCommentId() + " jira id:" + object.getJiraCommentId() + " issue id:" + object.getIssueId() + "<br>");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -91,7 +84,11 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
         try {
             writer.write("<h1>Items</h1>");
             for (UseResponseObject object : useResponseObjectManager.all()) {
-                writer.print("ur id: " + object.getUseResponseId() + " jira id:" + object.getJiraId() + "<br>");
+                writer.print(
+                        "ur id: " + object.getUseResponseId() +
+                                " jira id:" + object.getJiraId() +
+                                " object type: " + object.getObjectType() +
+                                " sync: " + String.valueOf(object.getNeedOfSync()) + "<br>");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -104,11 +101,8 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
         Iterator<Status> iterator = statuses.iterator();
         while (iterator.hasNext()) {
             Status status = iterator.next();
-            writer.write(status.getSimpleStatus().getName() + "<br>");
+            writer.write(status.getName() + "<br>");
         }
-
-
-        StatusesService statusesService = new StatusesService(ComponentAccessor.getComponent(DefaultStatusManager.class), linkManager);
 
         Map<String, String> statusSlug = statusesService.getStatusSlugLinks();
 
@@ -119,7 +113,6 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
         }
 
         DefaultPriorityManager priorityManager = ComponentAccessor.getComponent(DefaultPriorityManager.class);
-        PrioritiesService prioritiesService = new PrioritiesService(priorityManager, priorityLinkManger, urPriorityManager);
 
 
         writer.write("<h1>Priority links </h1>");
@@ -150,11 +143,15 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
         for (IssueFileLink urPriority : fileLinkManager.all())
             writer.write(urPriority.getJiraIssueId() + "|" + urPriority.getSentFilename() + "<br>");
 
-
         writer.write("<br>");
 
-        Enumeration headerNames = req.getHeaderNames();
+        writer.write("SYNC");
 
+        writer.write("Sync basic fields: " + pluginSettings.getSyncBasicFields() + "<br>");
+
+        writer.write("Sync comments: " + pluginSettings.getSyncComments() + "<br>");
+
+        writer.write("Sync statuses: " + pluginSettings.getSyncStatuses() + "<br>");
 
         writer.close();
     }

@@ -12,7 +12,6 @@ import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 import useresponse.atlassian.plugins.jira.settings.PluginSettings;
 import com.atlassian.plugin.PluginParseException;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
-
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +24,8 @@ public class UseResponseLinkButtonProvider extends AbstractJiraContextProvider {
     @Autowired
     private UseResponseObjectManagerImpl useResponseObjectManager;
 
+    @Autowired
+    private PluginSettingsImpl pluginSettings;
 
     @Inject
     public UseResponseLinkButtonProvider(@ComponentImport PluginSettingsFactory pluginSettingsFactory) {
@@ -51,7 +52,6 @@ public class UseResponseLinkButtonProvider extends AbstractJiraContextProvider {
     }
 
     private String createUseresponseObjectLink(int issueId) {
-        PluginSettings pluginSettings = new PluginSettingsImpl(pluginSettingsFactory);
         UseResponseObject object = useResponseObjectManager.findByJiraId(issueId);
         if(object == null) {
             return null;
@@ -66,5 +66,4 @@ public class UseResponseLinkButtonProvider extends AbstractJiraContextProvider {
         }
         return "UseResponse - " + object.getUseResponseId();
     }
-
 }
