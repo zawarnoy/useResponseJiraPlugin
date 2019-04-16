@@ -1,6 +1,8 @@
 package useresponse.atlassian.plugins.jira.service;
 
 import com.atlassian.activeobjects.external.ActiveObjects;
+import com.atlassian.jira.issue.priority.Priority;
+import com.atlassian.jira.issue.status.Status;
 import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.sal.api.UrlMode;
 import com.atlassian.sal.api.auth.LoginUriProvider;
@@ -181,6 +183,50 @@ public class SettingsService {
         }
     }
 
+    public void setFromUR(Map<Object, Object> params)
+    {
+        Object flag;
+
+        if ((flag = params.get("jira_sync_basic_fields")) != null) {
+            pluginSettings.setSyncBasicFields(flag.equals("1"));
+        }
+
+        if ((flag = params.get("jira_sync_statuses")) != null) {
+            pluginSettings.setSyncStatuses(flag.equals("1"));
+        }
+
+        if ((flag = params.get("jira_sync_comments")) != null) {
+            pluginSettings.setSyncComments(flag.equals("1"));
+        }
+
+        for (Status status : statusesService.getApiStatuses()) {
+            Object value = params.get(status.getNameTranslation() + "Status");
+
+            if (value == null) {
+                continue;
+            }
+
+            linkManager.editOrAdd(status.getName(), (String) value);
+        }
+
+        for (String jiraPriority : prioritiesService.getPrioritiesNames()) {
+            Object value = params.get(jiraPriority + "Priority");
+
+            if (value == null) {
+                continue;
+            }
+
+            URPriority priority = urPriorityManager.findBySlug((String) value);
+
+            if (priority == null) {
+                continue;
+            }
+
+            priorityLinkManager.editUseResponsePriority(jiraPriority, priority);
+        }
+
+    }
+
     public Map<Object, Object> setParameters(HttpServletRequest request) throws ConnectionException {
         Map<Object, Object> result = new HashMap<>();
 
@@ -222,6 +268,11 @@ public class SettingsService {
 
         for (String statusName : statusesService.getStatusesNames()) {
             String statusValue = request.getParameter(statusName + "Status");
+
+            if (statusValue == null) {
+                continue;
+            }
+
             linkManager.editOrAdd(statusName, statusValue);
             result.put(statusName, statusValue);
         }
@@ -235,9 +286,11 @@ public class SettingsService {
         try {
             for (String priorityName : prioritiesService.getPrioritiesNames()) {
 
-                String value = request.getParameter(priorityName + "Priority");
+                String value = request.getParameter(priorityName);
 
-                if (value.equals("")) {
+//                logger.error(priorityName + " " + value);
+
+                if (value == null || value.equals("")) {
                     result.put(priorityName, null);
                     continue;
                 }
@@ -257,6 +310,10 @@ public class SettingsService {
     private void setConnectionParameters(HttpServletRequest request) throws ConnectionException {
         String domain = request.getParameter("domain");
         String apiKey = request.getParameter("apiKey");
+
+        if (domain == null || apiKey == null) {
+            return;
+        }
 
         if (!this.testURConnection(domain, apiKey))
             throw (new ConnectionException("Wrong domain/apiKey"));

@@ -43,9 +43,9 @@
                value="${apiKey}">
     </div>
 
-    <div id="link-settings">
-        #parse("templates/ur_link_settings_template.vm")
-    </div>
+##    <div id="link-settings">
+##        #parse("templates/ur_link_settings_template.vm")
+##    </div>
 
     <div class="field-group" style="margin-top: 20px;">
         <input id="submit-button" type="submit" value="Save" class="aui-button aui-button-primary">

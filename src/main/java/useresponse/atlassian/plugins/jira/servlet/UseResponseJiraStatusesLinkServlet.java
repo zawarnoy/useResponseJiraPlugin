@@ -147,11 +147,11 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
 
         writer.write("SYNC");
 
-        writer.write("Sync basic fields: " + pluginSettings.getSyncBasicFields());
+        writer.write("Sync basic fields: " + pluginSettings.getSyncBasicFields() + "<br>");
 
-        writer.write("Sync comments: " + pluginSettings.getSyncComments());
+        writer.write("Sync comments: " + pluginSettings.getSyncComments() + "<br>");
 
-        writer.write("Sync statuses: " + pluginSettings.getSyncStatuses());
+        writer.write("Sync statuses: " + pluginSettings.getSyncStatuses() + "<br>");
 
         writer.close();
     }

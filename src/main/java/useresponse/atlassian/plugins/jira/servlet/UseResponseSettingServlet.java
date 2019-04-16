@@ -7,6 +7,8 @@ import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.service.SettingsService;
+import useresponse.atlassian.plugins.jira.service.request.ServletService;
+import useresponse.atlassian.plugins.jira.storage.Storage;
 
 import javax.inject.Inject;
 import javax.servlet.*;
@@ -62,15 +64,20 @@ public class UseResponseSettingServlet extends HttpServlet {
             return;
         }
 
+        if (request.getParameterMap().size() == 0) {
+            settingsService.setFromUR((new Gson()).fromJson(ServletService.getJsonFromRequest(request), Map.class));
+            return;
+        }
+
         HashMap<String, Object> map = new HashMap<>();
 
         try {
             Map<Object, Object> result = settingsService.setParameters(request);
 
-            settingsService.sendSettings(result);
+//            settingsService.sendSettings(result);
 
             Writer writer = new StringWriter();
-            templateRenderer.render(LINK_TEMPLATE, settingsService.formTemplateParameters(), writer);
+//            templateRenderer.render(LINK_TEMPLATE, settingsService.formTemplateParameters(), writer);
 
             map.put("linkTemplate", writer.toString());
             map.put("status", "success");

@@ -9,9 +9,7 @@ public class LinkedSet<E> extends AbstractSet<E> {
     }
 
     public LinkedSet(List<E> data) {
-        for (E elem : data) {
-            add(elem);
-        }
+        this.addAll(data);
     }
 
     private static class LinkedElement<E> {
