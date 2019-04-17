@@ -104,17 +104,19 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
     }
 
     public IssueRequestParametersBuilder addStandardParametersToMap(Issue issue) throws IOException {
-        requestMap = addHtmlTreat(requestMap);
-        requestMap = addContentToRequest(requestMap, issue);
-        requestMap = addTitleToRequest(requestMap, issue);
-        requestMap = addCreatorToMap(requestMap, issue);
-        requestMap = addPriorityToMap(requestMap, issue);
-        requestMap = addLabelsToMap(requestMap, issue);
-        requestMap = addAttachmentsToMap(requestMap, issue);
-        requestMap = addResponsibleToMap(requestMap, issue);
-        requestMap = addJiraIssueIdToMap(requestMap, issue);
-        requestMap = addDueOnToMap(requestMap, issue);
-        requestMap = addProjectKeyToMap(requestMap, issue);
+        if (!pluginSettings.getSyncBasicFields()) {
+            requestMap = addHtmlTreat(requestMap);
+            requestMap = addContentToRequest(requestMap, issue);
+            requestMap = addTitleToRequest(requestMap, issue);
+            requestMap = addCreatorToMap(requestMap, issue);
+            requestMap = addPriorityToMap(requestMap, issue);
+            requestMap = addLabelsToMap(requestMap, issue);
+            requestMap = addAttachmentsToMap(requestMap, issue);
+            requestMap = addResponsibleToMap(requestMap, issue);
+            requestMap = addJiraIssueIdToMap(requestMap, issue);
+            requestMap = addDueOnToMap(requestMap, issue);
+            requestMap = addProjectKeyToMap(requestMap, issue);
+        }
 
         return this;
     }
