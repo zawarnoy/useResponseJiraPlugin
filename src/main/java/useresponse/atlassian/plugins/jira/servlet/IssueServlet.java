@@ -52,56 +52,56 @@ public class IssueServlet extends HttpServlet {
                 log.error("Empty Issue Key");
 //                exception.printStackTrace();
             }
+
+            if (issueKey == null) {
+                return;
+            }
+
+            IssueManager issueManager = ComponentAccessor.getIssueManager();
+            MutableIssue issue = issueManager.getIssueByCurrentKey(issueKey);
+
+            UseResponseObject useResponseObject = objectManager.findByJiraId(issue.getId().intValue());
+
+            String objectType = (String) data.get("object_type");
+
+            if(objectType != null) {
+                useResponseObject.setObjectType(objectType);
+                useResponseObject.save();
+            }
+
+            Storage.needToExecuteAction = false;
+
             try {
                 statusName = (String) data.get("statusName");
+                issue = IssueService.setStatusByStatusName(issue, statusName);
             } catch (NullPointerException exception) {
                 log.error("Empty Status Name");
 //                exception.printStackTrace();
             }
             try {
                 authorEmail = (String) data.get("authorEmail");
+                issue = IssueService.setReporterByEmail(issue, authorEmail);
             } catch (NullPointerException exception) {
                 log.error("Empty author Email");
 //                exception.printStackTrace();
             }
             try {
                 content = (String) data.get("content");
+                issue = IssueService.setDescription(issue, content);
             } catch (NullPointerException exception) {
                 log.error("Empty content");
 //                exception.printStackTrace();
             }
             try {
                 assigneeEmail = (String) data.get("responsibleEmail");
+                issue = IssueService.setAssigneeByEmail(issue, assigneeEmail);
             } catch (NullPointerException exception) {
                 log.error("Empty responsible Email");
 //                exception.printStackTrace();
             }
+
+            ComponentAccessor.getIssueManager().updateIssue(ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser(), issue, EventDispatchOption.DO_NOT_DISPATCH, false);
+            issue.store();
         }
-
-        if (issueKey == null) {
-            return;
-        }
-
-        Storage.needToExecuteAction = false;
-
-        IssueManager issueManager = ComponentAccessor.getIssueManager();
-        MutableIssue issue = issueManager.getIssueByCurrentKey(issueKey);
-
-        UseResponseObject useResponseObject = objectManager.findByJiraId(issue.getId().intValue());
-
-        String objectType = (String) data.get("object_type");
-
-        if(objectType != null) {
-            useResponseObject.setObjectType(objectType);
-            useResponseObject.save();
-        }
-
-        issue = IssueService.setDescription(issue, content);
-        issue = IssueService.setStatusByStatusName(issue, statusName);
-        issue = IssueService.setReporterByEmail(issue, authorEmail);
-        issue = IssueService.setAssigneeByEmail(issue, assigneeEmail);
-
-        ComponentAccessor.getIssueManager().updateIssue(ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser(), issue, EventDispatchOption.DO_NOT_DISPATCH, false);
-        issue.store();
     }
 }
