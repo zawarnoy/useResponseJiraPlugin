@@ -9,6 +9,7 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.manager.IssueFileLinkManager;
 import useresponse.atlassian.plugins.jira.manager.PriorityLinkManager;
 import useresponse.atlassian.plugins.jira.manager.StatusesLinkManager;
@@ -17,6 +18,7 @@ import useresponse.atlassian.plugins.jira.model.PriorityLink;
 import useresponse.atlassian.plugins.jira.model.StatusesLink;
 import useresponse.atlassian.plugins.jira.model.URPriority;
 import useresponse.atlassian.plugins.jira.service.converter.content.ContentConverter;
+import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -39,6 +41,9 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
     @Inject
     @Named("issueFileLinkManager")
     protected IssueFileLinkManager issueFileLinkManager;
+
+    @Autowired
+    protected PluginSettingsImpl pluginSettings;
 
     @Inject
     @Named("statusesLinkManager")
@@ -82,6 +87,10 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
     }
 
     public IssueRequestParametersBuilder addStatusToMap(Issue issue) {
+
+        if (!pluginSettings.getSyncComments()) {
+            return this;
+        }
         try {
             StatusesLink statusesLink = statusesLinkManager.findByJiraStatusName((issue.getStatus().getName()));
             if (statusesLink != null) {
