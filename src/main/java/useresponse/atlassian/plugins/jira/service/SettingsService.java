@@ -202,9 +202,9 @@ public class SettingsService {
         for (Status status : statusesService.getApiStatuses()) {
             Object value = params.get(status.getNameTranslation() + "Status");
 
-            if (value == null) {
-                continue;
-            }
+//            if (value == null) {
+//                continue;
+//            }
 
             linkManager.editOrAdd(status.getName(), (String) value);
         }
@@ -213,6 +213,7 @@ public class SettingsService {
             Object value = params.get(jiraPriority + "Priority");
 
             if (value == null) {
+                priorityLinkManager.editUseResponsePriority(jiraPriority, null);
                 continue;
             }
 

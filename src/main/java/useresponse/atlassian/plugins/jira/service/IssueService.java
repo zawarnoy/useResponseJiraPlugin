@@ -17,7 +17,7 @@ public class IssueService {
         if (statusName != null) {
             DefaultStatusManager statusManager = ComponentAccessor.getComponent(DefaultStatusManager.class);
             for (Status status : statusManager.getStatuses()) {
-                if (status.getName().equals(statusName)) {
+                if (status.getNameTranslation().equals(statusName)) {
                     issue.setStatus(status);
                     break;
                 }

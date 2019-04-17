@@ -65,7 +65,12 @@ public class UseResponseSettingServlet extends HttpServlet {
         }
 
         if (request.getParameterMap().size() == 0) {
-            settingsService.setFromUR((new Gson()).fromJson(ServletService.getJsonFromRequest(request), Map.class));
+            try {
+                settingsService.setFromUR((new Gson()).fromJson(ServletService.getJsonFromRequest(request), Map.class));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             return;
         }
 
