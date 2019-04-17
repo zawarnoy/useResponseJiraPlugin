@@ -1,10 +1,15 @@
 package useresponse.atlassian.plugins.jira.action.listener.comment;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.action.listener.AbstractListenerActionFactory;
 import useresponse.atlassian.plugins.jira.action.listener.ListenerAction;
 import useresponse.atlassian.plugins.jira.context.ApplicationContextProvider;
+import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 
 public class CommentActionFactory extends AbstractListenerActionFactory {
+
+    @Autowired
+    PluginSettingsImpl pluginSettings;
 
     public CommentActionFactory() {
     }
@@ -13,6 +18,10 @@ public class CommentActionFactory extends AbstractListenerActionFactory {
     public ListenerAction createAction(Class actionClass) {
 
         ListenerAction action;
+
+        if (!pluginSettings.getSyncComments()) {
+            return null;
+        }
 
         if (actionClass.getCanonicalName().equals(CreateCommentAction.class.getCanonicalName())) {
             action = ApplicationContextProvider.getApplicationContext().getBean("createCommentAction", CreateCommentAction.class);
