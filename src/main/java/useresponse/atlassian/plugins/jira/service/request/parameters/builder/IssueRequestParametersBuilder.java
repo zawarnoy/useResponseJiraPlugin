@@ -241,9 +241,8 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
     }
 
     private Map<Object, Object> addResponsibleToMap(Map<Object, Object> map, Issue issue) {
-        if (issue.getAssignee() != null) {
-            map.put("responsible_email", issue.getAssignee().getEmailAddress());
-        }
+        String responsibleEmail = issue.getAssignee() == null ? "" : issue.getAssignee().getEmailAddress();
+        map.put("responsible_email", responsibleEmail);
 
         return map;
     }
