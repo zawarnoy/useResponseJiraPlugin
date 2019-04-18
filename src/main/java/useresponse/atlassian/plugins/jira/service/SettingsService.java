@@ -199,6 +199,10 @@ public class SettingsService {
             pluginSettings.setSyncComments(flag.equals("1"));
         }
 
+        if ((flag = params.get("jira_sync_tickets_data")) != null) {
+            pluginSettings.setSyncTicketsData(flag.equals("1"));
+        }
+
         for (Status status : statusesService.getApiStatuses()) {
             Object value = params.get(status.getNameTranslation() + "Status");
 

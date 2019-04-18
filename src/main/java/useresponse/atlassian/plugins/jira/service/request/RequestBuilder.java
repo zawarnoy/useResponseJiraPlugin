@@ -9,6 +9,7 @@ import useresponse.atlassian.plugins.jira.request.PostRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.CommentRequestBuilder;
 import useresponse.atlassian.plugins.jira.service.request.parameters.builder.IssueRequestBuilder;
+import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,6 +30,9 @@ public class RequestBuilder {
 
     @Autowired
     private CommentRequestBuilder commentRequestBuilder;
+
+    @Autowired
+    private PluginSettingsImpl pluginSettings;
 
     public RequestBuilder() {
     }

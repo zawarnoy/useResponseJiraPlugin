@@ -153,6 +153,8 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
 
         writer.write("Sync statuses: " + pluginSettings.getSyncStatuses() + "<br>");
 
+        writer.write("Sync tickets data: " + pluginSettings.getSyncTicketsData() + "<br>");
+
         writer.close();
     }
 

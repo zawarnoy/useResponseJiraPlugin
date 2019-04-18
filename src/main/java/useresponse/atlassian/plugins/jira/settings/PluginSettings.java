@@ -18,4 +18,7 @@ public interface PluginSettings {
 
     Boolean getSyncBasicFields();
     void setSyncBasicFields(boolean basicFields);
+
+    Boolean getSyncTicketsData();
+    void setSyncTicketsData(boolean syncTicketsData);
 }

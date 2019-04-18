@@ -3,6 +3,7 @@ package useresponse.atlassian.plugins.jira.service.request.parameters.builder;
 import com.atlassian.jira.issue.Issue;
 import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
+import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -15,6 +16,9 @@ public class IssueRequestBuilder {
 
     @Autowired
     private IssueRequestParametersBuilder builder;
+
+    @Autowired
+    private PluginSettingsImpl pluginSettings;
 
     @Inject
     @Named("useResponseObjectManager")
@@ -50,10 +54,14 @@ public class IssueRequestBuilder {
 
     private Map<Object, Object> buildNewIssueRequestMap(Issue issue, boolean notify) throws IOException {
         builder.setRequestMap(new HashMap<Object, Object>());
+
+        if (pluginSettings.getSyncStatuses()) {
+            builder = builder.addStatusToMap(issue);
+        }
+
         builder.addStandardParametersToMap(issue).
                 addOwnershipToMap().
                 addObjectTypeToMap().
-                addStatusToMap(issue).
                 addCreatedAt(issue).
                 addAuthorToRequest(issue).
                 addAddAction().
@@ -63,11 +71,19 @@ public class IssueRequestBuilder {
 
     private Map<Object, Object> buildUpdateIssueRequestMap(Issue issue, boolean notify) throws IOException {
         builder.setRequestMap(new HashMap<>());
-        builder.addStandardParametersToMap(issue).
-                addUseResponseObjectId(issue).
-                addStatusToMap(issue).
+
+        if (pluginSettings.getSyncBasicFields()) {
+            builder = builder.addStandardParametersToMap(issue);
+        }
+
+        if (pluginSettings.getSyncStatuses()) {
+            builder = builder.addStatusToMap(issue);
+        }
+
+        builder.addUseResponseObjectId(issue).
                 addEditAction().
                 addNotifyFlag(notify);
+
         return builder.getRequestMap();
     }
 }

@@ -87,10 +87,6 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
     }
 
     public IssueRequestParametersBuilder addStatusToMap(Issue issue) {
-
-        if (!pluginSettings.getSyncComments()) {
-            return this;
-        }
         try {
             StatusesLink statusesLink = statusesLinkManager.findByJiraStatusName((issue.getStatus().getName()));
             if (statusesLink != null) {
@@ -104,7 +100,6 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
     }
 
     public IssueRequestParametersBuilder addStandardParametersToMap(Issue issue) throws IOException {
-        if (!pluginSettings.getSyncBasicFields()) {
             requestMap = addHtmlTreat(requestMap);
             requestMap = addContentToRequest(requestMap, issue);
             requestMap = addTitleToRequest(requestMap, issue);
@@ -116,7 +111,6 @@ public class IssueRequestParametersBuilder extends RequestParametersBuilder {
             requestMap = addJiraIssueIdToMap(requestMap, issue);
             requestMap = addDueOnToMap(requestMap, issue);
             requestMap = addProjectKeyToMap(requestMap, issue);
-        }
 
         return this;
     }

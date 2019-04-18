@@ -98,14 +98,14 @@ public class IssueBinderServlet extends HttpServlet {
             issue = issueManager.getIssueByCurrentKey(issueKey);
         }
 
-        int syncStatus = Integer.parseInt(req.getParameter("sync"));
+        boolean syncStatus = pluginSettings.getSyncTicketsData();
 
         try {
             if (issue == null) {
                 throw new IssueNotExistException("Can't find issue");
             }
 
-            Request request = requestBuilder.build(issue, syncStatus);
+            Request request = requestBuilder.build(issue, syncStatus ? 1 : 0);
 
             request.setUrl(pluginSettings.getUseResponseDomain() + Storage.API_STRING + Storage.JIRA_DATA_HANDLER_ROUTE + "?apiKey=" + pluginSettings.getUseResponseApiKey());
             String response = request.sendRequest();
