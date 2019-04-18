@@ -175,6 +175,7 @@ public class SettingsService {
         ao.migrate(URPriority.class);
         ao.migrate(PriorityLink.class);
         ao.migrate(IssueFileLink.class);
+        pluginSettings.setNeedExecute(true);
     }
 
     private void addURPriorities() {

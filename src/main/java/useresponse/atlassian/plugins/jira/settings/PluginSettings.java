@@ -21,4 +21,7 @@ public interface PluginSettings {
 
     Boolean getSyncTicketsData();
     void setSyncTicketsData(boolean syncTicketsData);
+
+    Boolean getNeedExecute();
+    void setNeedExecute(boolean needExecute);
 }

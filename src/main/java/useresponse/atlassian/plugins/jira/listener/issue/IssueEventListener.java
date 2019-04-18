@@ -67,6 +67,9 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
     private CommentsService commentsService;
 
     @Autowired
+    private PluginSettingsImpl pluginSettings;
+
+    @Autowired
     public IssueEventListener(EventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }
@@ -100,11 +103,10 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
             return;
         }
 
-        boolean needOfSync = object.getNeedOfSync();
+        boolean needOfSync = object.getNeedOfSync() && pluginSettings.getNeedExecute();
         boolean isTicket = "ticket".equals(object.getObjectType());
 
-        if (!needOfSync || !isTicket || !Storage.needToExecuteAction) {
-            Storage.needToExecuteAction = true;
+        if (!needOfSync || !isTicket) {
             return;
         }
 

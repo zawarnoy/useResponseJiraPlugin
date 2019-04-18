@@ -17,6 +17,7 @@ public class PluginSettingsImpl implements PluginSettings {
     private static final String USERESPONSE_SYNC_COMMENTS = PLUGIN_PREFIX + ".sync_comments";
     private static final String USERESPONSE_SYNC_BASIC_FIELDS = PLUGIN_PREFIX + ".sync_basic_fields";
     private static final String USERESPONSE_SYNC_TICKETS_DATA = PLUGIN_PREFIX + ".sync_tickets_data";
+    private static final String NEED_EXECUTE = PLUGIN_PREFIX + ".need_execute";
 
     @Inject
     private PluginSettingsFactory pluginSettingsFactory;
@@ -95,5 +96,16 @@ public class PluginSettingsImpl implements PluginSettings {
     @Override
     public void setSyncTicketsData(boolean syncTicketsData) {
         pluginSettingsFactory.createGlobalSettings().put(USERESPONSE_SYNC_TICKETS_DATA, String.valueOf(syncTicketsData));
+    }
+
+    @Override
+    public Boolean getNeedExecute() {
+        return Boolean.valueOf((String) pluginSettingsFactory.createGlobalSettings().get(NEED_EXECUTE));
+    }
+
+    @Override
+    public void setNeedExecute(boolean needExecute) {
+        pluginSettingsFactory.createGlobalSettings().put(NEED_EXECUTE, String.valueOf(needExecute));
+
     }
 }

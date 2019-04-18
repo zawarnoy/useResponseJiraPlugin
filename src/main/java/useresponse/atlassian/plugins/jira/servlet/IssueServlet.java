@@ -12,7 +12,7 @@ import useresponse.atlassian.plugins.jira.manager.UseResponseObjectManager;
 import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 import useresponse.atlassian.plugins.jira.service.IssueService;
 import useresponse.atlassian.plugins.jira.service.request.ServletService;
-import useresponse.atlassian.plugins.jira.storage.Storage;
+import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -26,6 +26,9 @@ public class IssueServlet extends HttpServlet {
 
     @Autowired
     private UseResponseObjectManager objectManager;
+
+    @Autowired
+    private PluginSettingsImpl pluginSettings;
 
     public IssueServlet() {
 
@@ -69,8 +72,6 @@ public class IssueServlet extends HttpServlet {
                 useResponseObject.save();
             }
 
-            Storage.needToExecuteAction = false;
-
             try {
                 statusName = (String) data.get("statusName");
                 issue = IssueService.setStatusByStatusName(issue, statusName);
@@ -100,8 +101,16 @@ public class IssueServlet extends HttpServlet {
 //                exception.printStackTrace();
             }
 
-            ComponentAccessor.getIssueManager().updateIssue(ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser(), issue, EventDispatchOption.DO_NOT_DISPATCH, false);
-            issue.store();
+            pluginSettings.setNeedExecute(false);
+
+            try {
+                ComponentAccessor.getIssueManager().updateIssue(ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser(), issue, EventDispatchOption.DO_NOT_DISPATCH, false);
+                issue.store();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                pluginSettings.setNeedExecute(true);
+            }
         }
     }
 }
