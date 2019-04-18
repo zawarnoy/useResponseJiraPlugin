@@ -59,13 +59,15 @@ public class IssueRequestBuilder {
             builder = builder.addStatusToMap(issue);
         }
 
-        builder.addStandardParametersToMap(issue).
+        builder.addIssueIdToMap(issue).
+                addStandardParametersToMap(issue).
                 addOwnershipToMap().
                 addObjectTypeToMap().
                 addCreatedAt(issue).
                 addAuthorToRequest(issue).
                 addAddAction().
                 addNotifyFlag(notify);
+
         return builder.getRequestMap();
     }
 
@@ -81,6 +83,7 @@ public class IssueRequestBuilder {
         }
 
         builder.addUseResponseObjectId(issue).
+                addIssueIdToMap(issue).
                 addEditAction().
                 addNotifyFlag(notify);
 
