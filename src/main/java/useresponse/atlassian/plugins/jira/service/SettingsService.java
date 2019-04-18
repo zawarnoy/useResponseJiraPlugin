@@ -325,6 +325,10 @@ public class SettingsService {
         this.setURParameters(domain, apiKey);
     }
 
+    public boolean isConfiguredConnection() {
+        return !(pluginSettings.getUseResponseApiKey().isEmpty() || pluginSettings.getUseResponseDomain().isEmpty());
+    }
+
     public void sendSettings(Map settings) {
         try {
             Action action = new SettingsSendAction(settings, pluginSettings);
