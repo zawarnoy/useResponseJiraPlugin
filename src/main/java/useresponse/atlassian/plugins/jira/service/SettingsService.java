@@ -1,13 +1,13 @@
 package useresponse.atlassian.plugins.jira.service;
 
 import com.atlassian.activeobjects.external.ActiveObjects;
-import com.atlassian.jira.issue.priority.Priority;
 import com.atlassian.jira.issue.status.Status;
 import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.sal.api.UrlMode;
 import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.sal.api.user.UserKey;
 import com.atlassian.sal.api.user.UserManager;
+import com.google.gson.internal.StringMap;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -32,9 +32,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -186,32 +186,38 @@ public class SettingsService {
 
     public void setFromUR(Map<Object, Object> params)
     {
-        Object flag;
+        Object param;
 
-        if ((flag = params.get("jira_sync_basic_fields")) != null) {
-            pluginSettings.setSyncBasicFields(flag.equals("1"));
+        if ((param = params.get("jira_sync_basic_fields")) != null) {
+            pluginSettings.setSyncBasicFields(param.equals("1"));
         }
 
-        if ((flag = params.get("jira_sync_statuses")) != null) {
-            pluginSettings.setSyncStatuses(flag.equals("1"));
+        if ((param = params.get("jira_sync_statuses")) != null) {
+            pluginSettings.setSyncStatuses(param.equals("1"));
         }
 
-        if ((flag = params.get("jira_sync_comments")) != null) {
-            pluginSettings.setSyncComments(flag.equals("1"));
+        if ((param = params.get("jira_sync_comments")) != null) {
+            pluginSettings.setSyncComments(param.equals("1"));
         }
 
-        if ((flag = params.get("jira_sync_tickets_data")) != null) {
-            pluginSettings.setSyncTicketsData(flag.equals("1"));
+        if ((param = params.get("jira_sync_tickets_data")) != null) {
+            pluginSettings.setSyncTicketsData(param.equals("1"));
         }
 
         for (Status status : statusesService.getApiStatuses()) {
             Object value = params.get(status.getNameTranslation() + "Status");
 
-//            if (value == null) {
-//                continue;
-//            }
-
             linkManager.editOrAdd(status.getName(), (String) value);
+        }
+
+        if ((param = params.get("jira_projects")) != null) {
+            ArrayList<Long> projects = new ArrayList<>();
+            for (Object project : ((StringMap) param).entrySet()) {
+                String key = (String) ((StringMap.Entry) project).getKey();
+                projects.add((Long.valueOf(key)));
+            }
+
+            pluginSettings.setAvailableProjectsIds(projects);
         }
 
         for (String jiraPriority : prioritiesService.getPrioritiesNames()) {

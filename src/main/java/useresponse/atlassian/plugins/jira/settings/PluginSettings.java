@@ -1,5 +1,7 @@
 package useresponse.atlassian.plugins.jira.settings;
 
+import java.util.ArrayList;
+
 public interface PluginSettings {
     String getUseResponseDomain();
     void setUseResponseDomain(String domain);
@@ -24,4 +26,8 @@ public interface PluginSettings {
 
     Boolean getNeedExecute();
     void setNeedExecute(boolean needExecute);
+
+    ArrayList getAvailableProjectsIds();
+    void setAvailableProjectsIds(ArrayList<Long> projectsIds);
+
 }

@@ -3,16 +3,11 @@ package useresponse.atlassian.plugins.jira.servlet;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.DefaultPriorityManager;
 import com.atlassian.jira.config.DefaultStatusManager;
-import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.status.Status;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.user.UserManager;
-import com.google.gson.Gson;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import useresponse.atlassian.plugins.jira.manager.impl.*;
-import com.atlassian.activeobjects.external.ActiveObjects;
 
 import javax.inject.Inject;
 import javax.servlet.*;
@@ -32,7 +27,6 @@ import useresponse.atlassian.plugins.jira.model.UseResponseObject;
 import useresponse.atlassian.plugins.jira.request.PostRequest;
 import useresponse.atlassian.plugins.jira.request.Request;
 import useresponse.atlassian.plugins.jira.service.PrioritiesService;
-import useresponse.atlassian.plugins.jira.service.SettingsService;
 import useresponse.atlassian.plugins.jira.service.StatusesService;
 import useresponse.atlassian.plugins.jira.settings.PluginSettingsImpl;
 
@@ -154,6 +148,10 @@ public class UseResponseJiraStatusesLinkServlet extends HttpServlet {
         writer.write("Sync statuses: " + pluginSettings.getSyncStatuses() + "<br>");
 
         writer.write("Sync tickets data: " + pluginSettings.getSyncTicketsData() + "<br>");
+
+        for (Double value : pluginSettings.getAvailableProjectsIds()) {
+            writer.write("Project Id: " + value + "<br>");
+        }
 
         writer.close();
     }

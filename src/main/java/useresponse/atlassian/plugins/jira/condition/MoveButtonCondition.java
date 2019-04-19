@@ -28,7 +28,21 @@ public class MoveButtonCondition extends AbstractWebCondition {
         Issue currentIssue = (Issue) jiraHelper.getContextParams().get("issue");
         return settingsService.testURConnection() &&
                 linkNotExists(currentIssue) &&
+                isProjectSelected(currentIssue) &&
                 !Boolean.parseBoolean(pluginSettings.getAutosendingFlag());
+    }
+
+    private boolean isProjectSelected(Issue issue) {
+        try {
+            for (Double value : pluginSettings.getAvailableProjectsIds()) {
+                if (issue.getProjectObject().getId() == value.longValue()) return true;
+            }
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        return false;
     }
 
     private boolean linkNotExists(Issue issue) {

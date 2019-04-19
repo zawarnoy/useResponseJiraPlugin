@@ -1,10 +1,12 @@
 package useresponse.atlassian.plugins.jira.settings;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 
 public class PluginSettingsImpl implements PluginSettings {
 
@@ -18,6 +20,7 @@ public class PluginSettingsImpl implements PluginSettings {
     private static final String USERESPONSE_SYNC_BASIC_FIELDS = PLUGIN_PREFIX + ".sync_basic_fields";
     private static final String USERESPONSE_SYNC_TICKETS_DATA = PLUGIN_PREFIX + ".sync_tickets_data";
     private static final String NEED_EXECUTE = PLUGIN_PREFIX + ".need_execute";
+    private static final String AVAILABLE_PROJECTS = PLUGIN_PREFIX + ".available_projects";
 
     @Inject
     private PluginSettingsFactory pluginSettingsFactory;
@@ -107,5 +110,16 @@ public class PluginSettingsImpl implements PluginSettings {
     public void setNeedExecute(boolean needExecute) {
         pluginSettingsFactory.createGlobalSettings().put(NEED_EXECUTE, String.valueOf(needExecute));
 
+    }
+
+    @Override
+    public ArrayList<Double> getAvailableProjectsIds() {
+        String value = String.valueOf(pluginSettingsFactory.createGlobalSettings().get(AVAILABLE_PROJECTS));
+        return (new Gson()).fromJson(value, ArrayList.class);
+    }
+
+    @Override
+    public void setAvailableProjectsIds(ArrayList<Long> projectsIds) {
+        pluginSettingsFactory.createGlobalSettings().put(AVAILABLE_PROJECTS, (new Gson().toJson(projectsIds)));
     }
 }
