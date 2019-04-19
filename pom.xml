@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>useresponse</groupId>
     <artifactId>jira-plugin</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.2-SNAPSHOT</version>
     <organization>
         <name>UseResponse</name>
         <url>https://www.useresponse.com/</url>
