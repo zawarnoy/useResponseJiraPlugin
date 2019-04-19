@@ -103,10 +103,9 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
             return;
         }
 
-        boolean needOfSync = pluginSettings.getSyncTicketsData() && pluginSettings.getNeedExecute();
         boolean isTicket = "ticket".equals(object.getObjectType());
 
-        if (!needOfSync || !isTicket) {
+        if (!isTicket || !pluginSettings.getSyncTicketsData() || !pluginSettings.getNeedExecute() || !object.getNeedOfSync()) {
             return;
         }
 
